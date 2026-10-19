@@ -1,0 +1,70 @@
+{
+  "schema": "carve/project-plan@1",
+  "goal": "Owned task-package example: rebuild four declared modules into a target desktop app. No original application or verified implementation is supplied.",
+  "target": {
+    "schema": "carve/target@1",
+    "platform": "macos",
+    "delivery": "desktop-app"
+  },
+  "features": [
+    {
+      "id": "model",
+      "title": "Shared data model",
+      "contract": {
+        "input": "Named application events",
+        "output": "A finite JSON state snapshot",
+        "state": "One model per app session",
+        "errors": "Typed error values; no platform exception assumptions"
+      }
+    },
+    {
+      "id": "parser",
+      "title": "Input parser",
+      "dependsOn": [
+        "model"
+      ],
+      "contract": {
+        "input": "Text entered by the user",
+        "output": "A typed model event or a typed parse error",
+        "state": "Stateless; one input at a time",
+        "errors": "Malformed text returns a parse-error value; no filesystem or network access"
+      }
+    },
+    {
+      "id": "storage",
+      "title": "Settings persistence",
+      "dependsOn": [
+        "model"
+      ],
+      "unknowns": [
+        "Target storage API and original persistence semantics are not investigated."
+      ],
+      "contract": {
+        "input": "An explicit load or save request with a finite JSON state",
+        "output": "A saved revision or loaded state",
+        "state": "Explicit storage adapter per application session",
+        "errors": "Typed unavailable/corrupt/write-denied errors; original persistence is unknown"
+      }
+    },
+    {
+      "id": "ui",
+      "title": "Target interface",
+      "dependsOn": [
+        "parser",
+        "storage"
+      ],
+      "unknowns": [
+        "Original UI behavior and target implementation remain unverified."
+      ],
+      "contract": {
+        "input": "User actions and typed parser/storage results",
+        "output": "A displayed state or actionable error",
+        "state": "One desktop window and model per session",
+        "errors": "Display typed failures without claiming unknown original UI behavior"
+      }
+    }
+  ],
+  "unknowns": [
+    "Synthetic agent-authored plan, not extracted code, a verified dependency graph, dispatched work or complete product coverage."
+  ]
+}

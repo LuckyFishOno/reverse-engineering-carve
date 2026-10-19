@@ -1,0 +1,19 @@
+# Dependencies and build output
+node_modules/
+dist/
+*.tgz
+
+# Local analysis workspaces, downloaded engines, third-party binaries and verification outputs
+artifacts/
+
+# Local reusable-function library (generated capability folders and their SQLite catalogue)
+functions/
+
+# Swift/other build caches
+.build/
+
+# Shared agent memory lives outside this package; the symlink points there
+AGENTS.md
+
+# OS files
+.DS_Store

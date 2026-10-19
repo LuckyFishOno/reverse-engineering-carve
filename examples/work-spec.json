@@ -1,0 +1,66 @@
+{
+  "schema": "carve/work-spec@1",
+  "planId": "1828ff281f728210cc09968169f403e0489849d1df3522799fb255bf526e9ae1",
+  "assignments": [
+    {
+      "feature": "model",
+      "taskId": "1750d9b920c3a5a304ec47457f17ef0fa3262eebe528e092c622ea7c2dc1ec3a",
+      "files": [
+        "Sources/model/Module.swift",
+        "Tests/model/ModuleTests.swift"
+      ],
+      "acceptance": [
+        {
+          "name": "Declared interface cases",
+          "criterion": "Exercise the declared input/output/state/error boundary with explicit expected results; record actual commands and outcomes. No original reference is supplied by this example."
+        }
+      ],
+      "sourceContext": []
+    },
+    {
+      "feature": "parser",
+      "taskId": "2cd30551167e7235702a10bf532116c97ce1486ce24230e518c8633c7f552d18",
+      "files": [
+        "Sources/parser/Module.swift",
+        "Tests/parser/ModuleTests.swift"
+      ],
+      "acceptance": [
+        {
+          "name": "Declared interface cases",
+          "criterion": "Exercise the declared input/output/state/error boundary with explicit expected results; record actual commands and outcomes. No original reference is supplied by this example."
+        }
+      ],
+      "sourceContext": []
+    },
+    {
+      "feature": "storage",
+      "taskId": "437c9eab9acf82766f5c709dbf2fad9b246f415306fcdab02d1da47fac3cabde",
+      "files": [
+        "Sources/storage/Module.swift",
+        "Tests/storage/ModuleTests.swift"
+      ],
+      "acceptance": [
+        {
+          "name": "Declared interface cases",
+          "criterion": "Exercise the declared input/output/state/error boundary with explicit expected results; record actual commands and outcomes. No original reference is supplied by this example."
+        }
+      ],
+      "sourceContext": []
+    },
+    {
+      "feature": "ui",
+      "taskId": "0316ca677894b5017bfba8fcff8d80dd7c3461ba16332bb2761f6384fdc02d86",
+      "files": [
+        "Sources/ui/Module.swift",
+        "Tests/ui/ModuleTests.swift"
+      ],
+      "acceptance": [
+        {
+          "name": "Declared interface cases",
+          "criterion": "Exercise the declared input/output/state/error boundary with explicit expected results; record actual commands and outcomes. No original reference is supplied by this example."
+        }
+      ],
+      "sourceContext": []
+    }
+  ]
+}

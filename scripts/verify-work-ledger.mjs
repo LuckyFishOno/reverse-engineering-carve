@@ -1,0 +1,55 @@
+// Coordinator integration, with synthetic task declarations and a separate real PE static specimen.
+// No LLM workers or target applications are started by this script.
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {mkdtemp,mkdir,cp,readFile,writeFile} from 'node:fs/promises';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {createHash} from 'node:crypto';
+import {Client} from '@modelcontextprotocol/sdk/client/index.js';
+import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js';
+const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),cli=path.join(root,'dist/cli.js'),exec=promisify(execFile),out=await mkdtemp(path.join(root,'artifacts/work-ledger-e2e-'));
+const save=(name,data)=>writeFile(path.join(out,name),JSON.stringify(data,null,2)+'\n'),sha=bytes=>createHash('sha256').update(bytes).digest('hex'),claim=job=>{const {id,owner,attempt,claimId}=job;return{id,owner,attempt,claimId};};
+const peers=[],clients=[];let diagnostics='';
+async function connect(){const client=new Client({name:'carve-ledger-integration',version:'1'}),transport=new StdioClientTransport({command:process.execPath,args:[cli,'serve','--root',out],stderr:'pipe'});transport.stderr?.on('data',b=>{diagnostics=(diagnostics+b.toString()).slice(-8000);});await client.connect(transport);peers.push(transport.pid);clients.push(client);return client;}
+async function tool(client,name,args){const result=await client.callTool({name,arguments:args});if(result.isError)throw new Error(result.content[0].text);const value=JSON.parse(result.content[0].text);if(value.receipt)assert.equal(value.receipt.responseBytes,Buffer.byteLength(result.content[0].text));return value;}
+const call=(client,request,budgetBytes=8192)=>tool(client,'carve_work_ledger',{ledger:'ledger',request,budgetBytes});
+try{
+ for(const name of ['work-plan.json','work-spec.json'])await cp(path.join(root,'examples',name),path.join(out,name));
+ // Preserve and reuse a historical 0.37 folder under the unchanged @1 contract.
+ const historical=path.join(root,'artifacts/work-package-e2e-FBIH3E/parser'),legacyFiles={};for(const file of ['work.json','TASK.md','manifest.json'])legacyFiles[file]=await readFile(path.join(historical,file));await cp(historical,path.join(out,'parser'),{recursive:true});
+ const before=await readFile(path.join(historical,'work.json')),id=sha(before);assert.equal(sha(await readFile(path.join(out,'parser/work.json'))),id);
+ const created=JSON.parse((await exec(process.execPath,[cli,'work-ledger','create',path.join(out,'ledger')])).stdout);assert.equal(created.revision,0);
+ let first=await connect(),second=await connect();assert.equal((await first.listTools()).tools.length,48);
+ const current={plan:'work-plan.json',spec:'work-spec.json'};await call(first,{action:'register',package:'parser',...current});
+ const request={action:'claim',id,owner:'fixture-worker-a',...current},raced=await Promise.all([first.callTool({name:'carve_work_ledger',arguments:{ledger:'ledger',request}}),second.callTool({name:'carve_work_ledger',arguments:{ledger:'ledger',request:{...request,owner:'fixture-worker-b'}}})]);assert.equal(raced.filter(r=>!r.isError).length,1);const won=JSON.parse(raced.find(r=>!r.isError).content[0].text),old=claim(won.job);await save('attempt1-claim.json',won);
+ await first.close();first=await connect();assert.equal((await call(first,{action:'read',id})).items[0].claimId,old.claimId);
+ await call(first,{action:'close',claim:old,outcome:'failed',reason:'Owned fixture failure; no actual LLM worker started.'});
+ const denied=await second.callTool({name:'carve_work_ledger',arguments:{ledger:'ledger',request}});assert.equal(denied.isError,true);
+ const secondAttempt=await call(second,{...request,retry:true});assert.equal(secondAttempt.job.attempt,2);await save('proposal.json',{kind:'proposal',summary:'A design handoff only; implementation and original behavior remain unknown.'});
+ const proposed=await call(second,{action:'submit',claim:claim(secondAttempt.job),...current,submission:'proposal.json'});assert.equal(proposed.job.status,'proposed');assert.equal(proposed.artifactFiles,0);
+ await call(first,{action:'requeue',id,attempt:2,submissionId:proposed.submissionId,reviewer:'fixture-reviewer',reason:'Prepare files against the same declared interfaces; review is not acceptance.',...current});
+ const third=await call(second,request);assert.equal(third.job.attempt,3);await save('attempt3-claim.json',third);
+ const plan=JSON.parse(await readFile(path.join(out,'work-plan.json'),'utf8'));plan.features[0].contract.errors+=' Different error shape.';await save('changed-plan.json',plan);
+ const stale=await first.callTool({name:'carve_work_ledger',arguments:{ledger:'ledger',request:{action:'submit',claim:claim(third.job),...current,plan:'changed-plan.json',submission:'proposal.json'}}});assert.equal(stale.isError,true);assert.match(stale.content[0].text,/Stale planId/);
+ const older=await first.callTool({name:'carve_work_ledger',arguments:{ledger:'ledger',request:{action:'close',claim:old,outcome:'released',reason:'Old attempt'}}});assert.equal(older.isError,true);
+ const spec=JSON.parse(await readFile(path.join(out,'work-spec.json'),'utf8')),assigned=spec.assignments.find(a=>a.feature==='parser').files,output=path.join(out,'output');
+ for(const file of assigned){await mkdir(path.dirname(path.join(output,file)),{recursive:true});await writeFile(path.join(output,file),'// Owned synthetic coordinator fixture: '+file+'\n// No original application logic or target build is supplied.\n');}
+ await save('implementation.json',{kind:'implementation',summary:'Declared files supplied to exercise handoff hashing. They are not a reconstructed parser.',checks:[{name:'Original operation and target build',status:'not-run',detail:'The coordinator must not turn supplied files into a behavior pass.'}],unknowns:['Original behavior, ABI and whole application integration remain unverified.']});
+ const text=(await exec(process.execPath,[cli,'work-ledger','submit',path.join(out,'ledger'),'--claim',path.join(out,'attempt3-claim.json'),'--plan',path.join(out,'work-plan.json'),'--spec',path.join(out,'work-spec.json'),'--submission',path.join(out,'implementation.json'),'--output-root',output])).stdout,sent=JSON.parse(text);assert.equal(sent.receipt.responseBytes,Buffer.byteLength(text)-1);assert.equal(sent.job.status,'submitted');assert.equal(sent.integration,'not-accepted-or-merged');await save('submitted.json',sent);
+ const history=await call(first,{action:'read',view:'attempts',id});assert.deepEqual(history.items.map(a=>a.status),['failed','proposed','submitted']);assert.equal(history.items[1].reviewer,'fixture-reviewer');await save('attempts.json',history);
+ let offset=0,record='',pages=0;do{const page=await call(first,{action:'read',view:'result',id,attempt:3,offset,characters:12000},2048);assert.ok(page.receipt.responseBytes<=2048);assert.equal(page.submissionId,sent.submissionId);assert.equal(page.revision,history.revision);record+=page.text;offset=page.nextOffset;pages++;}while(offset!==null);
+ const result=JSON.parse(record);assert.equal(sha(record),sent.submissionId);for(const f of result.artifacts.files)assert.equal(sha(await readFile(path.join(output,f.file))),f.sha256);await save('result.json',result);
+ // The real native specimen is analyzed separately, not represented by the synthetic task graph.
+ const native=path.join(root,'artifacts/engines/ghidra/ghidra_12.1.4_PUBLIC/docs/GhidraClass/ExerciseFiles/WinhelloCPP/WinHelloCPP.exe'),nativeBytes=await readFile(native);await cp(native,path.join(out,'winhello.exe'));
+ await exec(process.execPath,[cli,'survey',path.join(out,'winhello.exe'),'--workspace',path.join(out,'native-work')]);
+ const dependencies=await tool(first,'carve_platform',{workspace:'native-work',file:'winhello.exe',request:{kind:'dependencies',view:'categories',budgetBytes:8192}});assert.equal(dependencies.summary['ui-graphics'].imports,22);await save('platform-dependencies.json',dependencies);
+ const targets=[];for(const platform of ['macos','browser']){const target={schema:'carve/target@1',platform,delivery:platform==='macos'?'desktop-app':'web-app'},assessment=await tool(first,'carve_platform',{workspace:'native-work',file:'winhello.exe',request:{kind:'target-adapters',target,view:'cards',budgetBytes:16384}});assert.equal(assessment.assessment,'static-guidance-not-verified');assert.equal(assessment.items.find(c=>c.category==='ui-graphics').availability,platform==='macos'?'native-framework':'web-platform-api');targets.push({target,observationId:assessment.observationId});await save('target-'+platform+'.json',assessment);}
+ assert.notEqual(targets[0].observationId,targets[1].observationId);assert.equal(sha(await readFile(native)),sha(nativeBytes));assert.equal(sha(await readFile(path.join(out,'winhello.exe'))),sha(nativeBytes));for(const [file,bytes] of Object.entries(legacyFiles))assert.deepEqual(await readFile(path.join(historical,file)),bytes);
+ const report={schema:'carve/work-ledger-check@1',version:JSON.parse(await readFile(path.join(root,'package.json'),'utf8')).version,status:'passed',checkedAt:new Date().toISOString(),out,
+  coordinator:{packageId:id,ledger:path.join(out,'ledger'),legacy037PackageUnchanged:true,concurrentClaimWinners:1,attempts:['failed','proposed','submitted'],explicitRetryRequired:true,exactResultReviewRequeue:true,staleClaimAndPlanRejected:true,claimSurvivedFreshPeer:true,implementationFiles:assigned.length,artifactHashesChecked:true,resultPages:pages,resultBudgetBytes:2048,submissionId:sent.submissionId,finalStatus:'submitted',integration:'not-accepted-or-merged',checksAuthority:'agent-reported-not-run-by-ledger'},
+  nativeStatic:{file:native,sha256:sha(nativeBytes),copiedInputRetainedUnchanged:true,imports:dependencies.totals.imports,uiImports:22,sourceObservation:dependencies.observationId,targets,scope:'Separate actual PE import classification/target guidance; not a recovered feature graph or implementation, no Windows or target app execution.'},
+  architecture:{carveTools:48,carvePeers:peers,reaStarted:false,agentsDispatched:false,targetExecuted:false},limitations:['Task plan and implementation files are owned synthetic fixtures.','Worker labels/claim IDs and check declarations are not authenticated identities or executed checks.','Per-file artifact hashes are not an atomic frozen snapshot; recheck on acceptance.','No dependency acceptance, automatic dispatch, code merge or complete app port.']};
+ await save('report.json',report);await writeFile(path.join(root,'artifacts/work-ledger-verification-summary.json'),JSON.stringify({status:'passed',version:report.version,report:path.join(out,'report.json')},null,2)+'\n');console.log(JSON.stringify({status:'passed',report:path.join(out,'report.json')}));
+}catch(error){await save('failure.json',{message:error.stack,diagnostics});throw error;}finally{for(const c of clients)await c.close().catch(()=>{});await save('diagnostics.json',{diagnostics});}
