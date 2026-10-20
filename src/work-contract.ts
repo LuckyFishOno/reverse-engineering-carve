@@ -1,10 +1,11 @@
 import {z} from 'zod';
+import {behaviorSchema,behaviorAcceptance} from './behavior.js';
 import {digest} from './artifact.js';
 import {parseProjectPlan,analyzeProjectPlan} from './project-plan.js';
 import {targetSpecSchema} from './target.js';
 
 const hash=z.string().regex(/^[a-f0-9]{64}$/),featureId=z.string().regex(/^[a-z0-9][a-z0-9._-]{0,63}$/),text=(n:number)=>z.string().trim().min(1).max(n);
-export const completeInterfaceSchema=z.object({input:text(2000),output:text(2000),state:text(2000),errors:text(2000)}).strict();
+export const completeInterfaceSchema=z.object({input:text(2000),output:text(2000),state:text(2000),errors:text(2000),behavior:behaviorSchema.optional()}).strict();
 function portableFile(file:string){
  if(file.length>1024||file.startsWith('/')||/[\\<>:"|?*\x00-\x1f\x7f]/.test(file))return false;
  return file.split('/').every(part=>part!==''&&part!=='.'&&part!=='..'&&!/[ .]$/.test(part)&&! /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part));
@@ -24,12 +25,16 @@ export const workRecordSchema=z.object({schema:z.literal('carve/work-package@1')
  feature:z.object({id:featureId,title:text(200),description:text(2000).optional(),unknowns:z.array(text(500)).max(32),evidenceIds:z.array(hash).max(32)}).strict(),
  interface:z.object({sha256:hash,contract:completeInterfaceSchema}).strict(),
  dependencies:z.array(z.object({feature:featureId,taskId:hash,contractSha256:hash,contract:completeInterfaceSchema}).strict()).max(64),
- assignment:z.object({files:z.array(z.string().min(1).max(1024).refine(portableFile)).min(1).max(64),acceptance:z.array(z.object({name:text(100),criterion:text(2000)}).strict()).min(1).max(32),sourceContext:z.array(sourceContext).max(16)}).strict(),
+ assignment:z.object({files:z.array(z.string().min(1).max(1024).refine(portableFile)).min(1).max(64),acceptance:z.array(z.object({name:text(100),criterion:text(2000),behaviorScenario:z.string().optional()}).strict()).min(1).max(64),sourceContext:z.array(sourceContext).max(16)}).strict(),
  ownership:z.object({scope:z.literal('supplied-assignments-only'),assignedFeatures:z.number().int().min(1).max(500),unassignedFeatures:z.number().int().min(0).max(499)}).strict(),
  authority:z.literal(authority),verification:z.literal('not-run'),targetAssessment:z.literal('not-performed'),dependencyImplementation:z.literal('not-established'),startsAgents:z.literal(false)
 }).strict().superRefine((record,ctx)=>{
  if(record.interface.sha256!==identity(record.interface.contract)||record.dependencies.some(d=>d.contractSha256!==identity(d.contract)))ctx.addIssue({code:z.ZodIssueCode.custom,message:'Interface content differs from its declared pin.'});
  if(new Set(record.dependencies.map(d=>d.feature)).size!==record.dependencies.length||record.dependencies.some(d=>d.feature===record.feature.id))ctx.addIssue({code:z.ZodIssueCode.custom,message:'Dependency interfaces must name distinct other features.'});
+ if(record.interface.contract.behavior){
+  const expected=behaviorAcceptance(record.interface.contract.behavior),actual=record.assignment.acceptance.filter(a=>a.behaviorScenario!==undefined);
+  if(canonicalWork(expected)!==canonicalWork(actual))ctx.addIssue({code:z.ZodIssueCode.custom,message:'Generated behavior acceptance differs from the pinned contract.'});
+ }else if(record.assignment.acceptance.some(a=>a.behaviorScenario!==undefined))ctx.addIssue({code:z.ZodIssueCode.custom,message:'Behavior acceptance requires a pinned behavior contract.'});
  if(new Set(record.assignment.files.map(key)).size!==record.assignment.files.length)ctx.addIssue({code:z.ZodIssueCode.custom,message:'Duplicate editable file.'});
 });
 export function canonicalWork(value:unknown):string{
@@ -61,10 +66,13 @@ export function bindWorkContract(planInput:unknown,specInput:unknown,selected:st
  if(task.status!=='ready')throw new Error('A cyclic or cycle-blocked feature needs its dependency boundary resolved before a work package can be created.');
  const requireInterface=(id:string)=>{const f=features.get(id)!,parsed=completeInterfaceSchema.safeParse(f.contract);if(!parsed.success)throw new Error('Complete input/output/state/errors interface is required for '+id+'.');return parsed.data;};
  const ownInterface=requireInterface(selected),dependencies=feature.dependsOn.map(id=>({feature:id,taskId:tasks.get(id)!.taskId,contractSha256:tasks.get(id)!.contractSha256!,contract:requireInterface(id)}));
+ const generated=ownInterface.behavior?behaviorAcceptance(ownInterface.behavior):[];
+ for(const d of dependencies)if(d.contract.behavior)behaviorAcceptance(d.contract.behavior);
+ if(generated.some(g=>own.acceptance.some(a=>a.name===g.name)))throw new Error('Manual acceptance names must not collide with generated behavior scenario names.');
  const normalized={...spec,assignments:[...spec.assignments].map(a=>({...a,files:[...a.files].sort()})).sort((a,b)=>a.feature<b.feature?-1:1)},specId=identity(normalized);
  return{schema:'carve/work-package@1' as const,planId:analysis.planId,specId,taskId:task.taskId,featureSha256:task.featureSha256,
   goal:plan.goal,projectUnknowns:plan.unknowns,target:plan.target,feature:{id:feature.id,title:feature.title,description:feature.description,unknowns:feature.unknowns,evidenceIds:feature.evidenceIds},
-  interface:{sha256:task.contractSha256!,contract:ownInterface},dependencies,assignment:{files:[...own.files].sort(),acceptance:own.acceptance,sourceContext:own.sourceContext},
+  interface:{sha256:task.contractSha256!,contract:ownInterface},dependencies,assignment:{files:[...own.files].sort(),acceptance:[...own.acceptance,...generated],sourceContext:own.sourceContext},
   ownership:{scope:'supplied-assignments-only' as const,assignedFeatures:assignments.size,unassignedFeatures:plan.features.length-assignments.size},
   authority,
   verification:'not-run' as const,targetAssessment:'not-performed' as const,dependencyImplementation:'not-established' as const,startsAgents:false as const};

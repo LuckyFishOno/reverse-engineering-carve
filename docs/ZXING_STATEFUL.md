@@ -1,10 +1,10 @@
 # Original APK object lifecycle reconstruction
 
-This case extracts a reusable mutable bit-vector boundary from the shipped ZXing Barcode Scanner4.7.8 APK. It uses Carve's existing managed JADX backend and an actual Android ART runtime. REA MCP remains independent; this pure DEX case does not launch REA, proxy its tools or claim a native Evidence handoff.
+This case extracts a reusable mutable bit-vector boundary from the shipped ZXing Barcode Scanner4.7.8 APK. It uses RECarve's existing managed JADX backend and an actual Android ART runtime. REA MCP remains independent; this pure DEX case does not launch REA, proxy its tools or claim a native Evidence handoff.
 
 The original APK is the retained [upstream release](https://github.com/zxing/zxing/releases/tag/BS-4.7.8). Local SHA256 is `4d8c739e115e7aaf824dda3f2a55667459c48c2f140d15eadfd6d3d6271bb0b3`; original classes.dex is `cfa20314b24e002b195501a59e02da4b023447b42808eab89b4757406a8ad0e3`. The script pins these bytes, preserves container/member provenance and decompiles the complete com.google.zxing.common.BitArray class. The local hash is an identity commitment, not an authenticated publisher checksum/signature claim.
 
-The [reviewed Java adapter](../examples/android/ZxingBitArraySequenceHarness.java) compiles only framing/reflection code. It creates the original shipped no-argument BitArray once per sequence, invokes its actual methods on ART and snapshots original getSize/getSizeInBytes/get(i) results. It never compiles a replacement BitArray. An additional runtime probe records the resolved class name, classloader, VM identity and empty constructor snapshot. Carve separately verifies staged DEX/harness hashes before and after comparisons. These observations and source review do not independently trace every method call or prove dependency closure.
+The [reviewed Java adapter](../examples/android/ZxingBitArraySequenceHarness.java) compiles only framing/reflection code. It creates the original shipped no-argument BitArray once per sequence, invokes its actual methods on ART and snapshots original getSize/getSizeInBytes/get(i) results. It never compiles a replacement BitArray. An additional runtime probe records the resolved class name, classloader, VM identity and empty constructor snapshot. RECarve separately verifies staged DEX/harness hashes before and after comparisons. These observations and source review do not independently trace every method call or prove dependency closure.
 
 ## Selected boundary
 
@@ -35,7 +35,7 @@ Append values are signed32 integers and counts0–32. Existing-bit indices only;
 
 ## Reproduce locally
 
-From the Carve source directory, prepare the configured JADX/JDK/D8 tools and retained APK; verify:apk-manifest is the existing APK acquisition workflow. Start only your explicitly selected private emulator/server using the [Android workflow](ANDROID.md). The verification script requires an already connected serial; it does not start/stop devices, install apps or alter global settings.
+From the RECarve source directory, prepare the configured JADX/JDK/D8 tools and retained APK; verify:apk-manifest is the existing APK acquisition workflow. Start only your explicitly selected private emulator/server using the [Android workflow](ANDROID.md). The verification script requires an already connected serial; it does not start/stop devices, install apps or alter global settings.
 
 ```sh
 npm run verify:zxing-stateful
@@ -49,7 +49,7 @@ Actual API35 ARM64 ART result: **33 sequences /692 steps**. Cases cover fresh co
 Full analysis, contract, original/candidate outcomes, negative result, runtime identity, selected-step archive read and reusable folder are under artifacts/zxing-stateful-e2e-*/. The local artifacts/zxing-stateful-verification-summary.json points to the latest successful run and function folder. Construction source/intermediate packages are archived, original APK/DEX retained and unchanged. The function library then passes direct import, CLI and two fresh library-only MCP requests. Complete ordered exampleSequence is preserved; no state-dependent step becomes an independently verified scalar example.
 
 ```sh
-carve invoke-sequence /absolute/functions/zxing-bitarray \
+recarve invoke-sequence /absolute/functions/zxing-bitarray \
   --calls '[["read"],["append",5,3],["clear"],["new"]]' --execute
 ```
 

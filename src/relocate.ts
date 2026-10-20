@@ -22,8 +22,8 @@ export async function relocateWorkspace(input:string,options:RelocateOptions={})
   const workspace=await realpath(input);await authorize(workspace);const markerFile=path.join(workspace,'.carve-workspace.json');
   // MCP checks every live path, including existing SQLite sidecars, before writes.
   for(const name of ['.carve-workspace.json','index.sqlite','index.sqlite-wal','index.sqlite-shm','survey.json','.scan.lock'])await authorize(path.join(workspace,name),name!=='.carve-workspace.json'&&name!=='index.sqlite');
-  let marker:Row;try{marker=JSON.parse(await readFile(markerFile,'utf8'));}catch(error){if(missing(error))throw new Error('Not a Carve workspace: '+workspace);throw error;}
-  if(marker.schema!=='carve/workspace@1'||typeof marker.target!=='string')throw new Error('Not a Carve workspace: '+workspace);
+  let marker:Row;try{marker=JSON.parse(await readFile(markerFile,'utf8'));}catch(error){if(missing(error))throw new Error('Not a RECarve workspace: '+workspace);throw error;}
+  if(marker.schema!=='carve/workspace@1'||typeof marker.target!=='string')throw new Error('Not a RECarve workspace: '+workspace);
   const release=await claim(workspace);let db:DatabaseSync|undefined;
   try{
     db=openIndex(workspace);const index=db;

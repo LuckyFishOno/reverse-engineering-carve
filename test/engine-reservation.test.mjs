@@ -9,7 +9,7 @@ import {defaultReservationDirectory} from '../dist/engine-reservation.js';
 import {hostEngineLimits} from '../dist/engine-resources.js';
 const dist=fileURLToPath(new URL('../dist/',import.meta.url));
 
-// Each child is a separate Carve process with its own TMPDIR, like an MCP host and an agent sandbox
+// Each child is a separate RECarve process with its own TMPDIR, like an MCP host and an agent sandbox
 // started by the same user. It reserves (or lists) and holds until told to release.
 const child=`import {reserveEngineHeap,listEngineReservations} from ${JSON.stringify('file://'+dist+'engine-reservation.js')};
 import {resolveEngineResources} from ${JSON.stringify('file://'+dist+'engine-resources.js')};

@@ -18,7 +18,7 @@ assert.match(release,/IMPLEMENTOR_VERSION="Temurin-21\.0\.12\.1\+1"/,'pinned Tem
 const pinned={'jmods/java.base.jmod':'c56b9ec12246262b4afdd8cdad3e4adf68171ae3300953248576661ab6a09cf7','lib/libzip.dylib':'46e21dc95a453fd5c14050ebf75b1e7a23a75ab3964fca43d69d9dfc1d35df45','lib/libjava.dylib':'30ed8d3f55fce957cd51ce59783115ee3574283c34b52e1b19c4c5382337722d'};
 for(const [file,sha256] of Object.entries(pinned))assert.equal((await hashFile(path.join(jdk,file))).sha256,sha256,file);
 const out=await mkdtemp(path.join(root,'artifacts/jni-e2e-'));const input=path.join(out,'input'),workspace=path.join(out,'work'),extracted=path.join(out,'jmod');
-// The JDK's own jmod tool unpacks the shipped module; Carve does not parse the JMOD container.
+// The JDK's own jmod tool unpacks the shipped module; RECarve does not parse the JMOD container.
 await execute(path.join(jdk,'bin/jmod'),['extract','--dir',extracted,path.join(jdk,'jmods/java.base.jmod')]);
 await mkdir(path.join(input,'classes/java/lang'),{recursive:true});await mkdir(path.join(input,'lib'));
 await cp(path.join(extracted,'classes/java/util/zip'),path.join(input,'classes/java/util/zip'),{recursive:true});

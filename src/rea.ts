@@ -24,7 +24,7 @@ export async function analyzeWithRea(input: string, output: string, executable =
     // Streamed to disk: real application Evidence may be hundreds of MB.
     // This adapter records the provider output without inventing a graph mapping.
     return { status: 'recorded', provider: 'rea', executable, args, output: destination, bytes,
-      normalizedByCarve: false, note: 'REA evidence is saved verbatim. An agent selects a module/symbol for the Carve extraction plan.' };
+      normalizedByCarve: false, note: 'REA evidence is saved verbatim. An agent selects a module/symbol for the RECarve extraction plan.' };
   } catch (error) {
     await handle.close(); await unlink(destination); throw error;
   } finally { await handle.close().catch(() => {}); }

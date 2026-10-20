@@ -27,7 +27,7 @@ An installer may itself be a PE: launcher imports describe that launcher, not th
 {"workspace":"native-work","file":"program.exe","request":{"kind":"target-adapters","target":{"schema":"carve/target@1","platform":"browser","delivery":"web-app"},"view":"cards","budgetBytes":8192}}
 ```
 
-REA remains independent. Carve reads supported PE declarations/byte patterns without running REA, Ghidra or the target. Each call rehashes selected input, records immutable boundary evidence/observation and returns byte-budgeted pages. MCP confines workspace, input, SQLite sidecars and evidence to its root.
+REA remains independent. RECarve reads supported PE declarations/byte patterns without running REA, Ghidra or the target. Each call rehashes selected input, records immutable boundary evidence/observation and returns byte-budgeted pages. MCP confines workspace, input, SQLite sidecars and evidence to its root.
 
 Categories: file-system, process-thread, network, ui-graphics, registry-system, crypto-security, dynamic-loading, text-locale-time, console-stdio, runtime-library, os-specific, unknown. Imports retain module/name/ordinal/slot, ruleId, surface and available call-site counts.
 

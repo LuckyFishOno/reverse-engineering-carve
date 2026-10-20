@@ -43,5 +43,5 @@ export async function bindReaEvidence(file: string, artifact: Artifact, modules:
   if (!bindings.some(b => b.status === 'byte-matched')) throw new Error('REA evidence contains no byte-matching source modules for this operation.');
   return { provider: 'rea', evidenceId: record.evidence_id, evidenceSha256: digest(bytes), artifactMatch,
     modules: bindings, semanticMatch: 'unconfirmed',
-    limitation: 'Content hashes bind recorded module bytes; Carve does not authenticate REA’s evidence ledger or infer that a candidate implements the requested behavior.' };
+    limitation: 'Content hashes bind recorded module bytes; RECarve does not authenticate REA’s evidence ledger or infer that a candidate implements the requested behavior.' };
 }

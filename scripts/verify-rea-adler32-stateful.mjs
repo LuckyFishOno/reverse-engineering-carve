@@ -1,4 +1,4 @@
-// Local test client: independent REA native analysis and Carve evidence/reuse.
+// Local test client: independent REA native analysis and RECarve evidence/reuse.
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';

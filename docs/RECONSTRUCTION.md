@@ -1,6 +1,6 @@
 # Capability reconstruction (experimental)
 
-Carve 0.14 gives an existing agent local analysis and verification tools. The agent interprets the user's request, investigates boundaries and writes any reimplementation. Carve does not contain an LLM. The tested native path currently uses POSIX launchers; Windows launchers, arbitrary software reconstruction and broad device/UI automation are unfinished. Explicit Android DEX runtime references are available.
+RECarve 0.14 gives an existing agent local analysis and verification tools. The agent interprets the user's request, investigates boundaries and writes any reimplementation. RECarve does not contain an LLM. The tested native path currently uses POSIX launchers; Windows launchers, arbitrary software reconstruction and broad device/UI automation are unfinished. Explicit Android DEX runtime references are available.
 
 ## User entry point
 

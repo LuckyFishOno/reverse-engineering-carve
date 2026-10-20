@@ -73,7 +73,7 @@ export async function extract(input: string, options: { file?: string; selector:
     'cli.mjs': outputCli,
     'package.json': JSON.stringify({ name, version: '0.0.0', private: true, type: 'module', exports: './index.mjs',
       bin: { [name]: './cli.mjs' }, engines: { node: '>=22.19.0' }, license: 'UNLICENSED', dependencies: {} }, null, 2) + '\n',
-    'README.md': `# ${name}\n\nExtracted from ${source.module} (${source.sha256}).\n\nRun: \`node cli.mjs '["argument"]'\` or pipe a JSON array to stdin. Use \`node cli.mjs --help\` for raw text and file output.\n${usage}\nWhen Carve is installed, run \`carve use /path/to/this/package\` for actual commands and MCP client configuration. \`carve serve-tool /path/to/this/package --execute\` exposes the capability over stdio MCP.\n\nImport \`capability\` from \`./index.mjs\`. No original application or npm dependencies are required by the generated package. Node.js is required.\n\nThis is source extraction, not an independent rewrite. Original code notices are retained when identified. The generated package is UNLICENSED: determine the input's applicable license before distributing it. Carve's MIT license does not relicense extracted code.\n\nStatic analysis is not behavioral verification. See carve.manifest.json and, after verification, carve.verification.json.\n`
+    'README.md': `# ${name}\n\nExtracted from ${source.module} (${source.sha256}).\n\nRun: \`node cli.mjs '["argument"]'\` or pipe a JSON array to stdin. Use \`node cli.mjs --help\` for raw text and file output.\n${usage}\nWhen RECarve is installed, run \`recarve use /path/to/this/package\` for actual commands and MCP client configuration. \`recarve serve-tool /path/to/this/package --execute\` exposes the capability over stdio MCP.\n\nImport \`capability\` from \`./index.mjs\`. No original application or npm dependencies are required by the generated package. Node.js is required.\n\nThis is source extraction, not an independent rewrite. Original code notices are retained when identified. The generated package is UNLICENSED: determine the input's applicable license before distributing it. RECarve's MIT license does not relicense extracted code.\n\nStatic analysis is not behavioral verification. See carve.manifest.json and, after verification, carve.verification.json.\n`
   };
   if (feature) files['carve.feature.json'] = feature.text;
   Object.assign(files, notices.files);
@@ -99,5 +99,5 @@ export async function extract(input: string, options: { file?: string; selector:
     await rm(out, { recursive: true, force: true });
     throw error;
   }
-  return { out, manifest, status: 'extracted', verification: 'not-run', nextAction: 'Run carve use on the output directory for recorded argument examples and MCP configuration.', helpArgv: [process.execPath, path.join(out, 'cli.mjs'), '--help'] };
+  return { out, manifest, status: 'extracted', verification: 'not-run', nextAction: 'Run recarve use on the output directory for recorded argument examples and MCP configuration.', helpArgv: [process.execPath, path.join(out, 'cli.mjs'), '--help'] };
 }

@@ -58,7 +58,7 @@ export async function packageUsage(input: string) {
       saveText: !pkg.folder&&example && typeof example.expected === 'string' ? shellCommand([process.execPath, cli, '--raw', '--out', 'result.txt', JSON.stringify(example.args)]) : null,
       mcp: shellCommand([mcp.command, ...mcp.args]) }, mcpClientConfig: { mcpServers: { carved_capability: mcp } },
     nextAction:exampleSequence?'Reuse the complete exampleSequence with invoke-sequence / carve_invoke_sequence. Steps share one module instance; a new sequence starts fresh. A single step is not an independent verified example.':pkg.folder?'Import capability from the returned moduleImport file, or call carve_invoke with this folder and JSON args. Read the domains and unknowns first. No standalone program installation is needed.': example ? 'Run the example command, or add the displayed MCP configuration to your client to call capability with {args:[...]}. The original application is not needed.'
-      : 'Inspect the selected function signature and provide a JSON args array. No usable example was recorded; Carve does not invent one.',
+      : 'Inspect the selected function signature and provide a JSON args array. No usable example was recorded; RECarve does not invent one.',
     limitations: ['Examples are supplied expectations or recorded comparison observations, not a proof of untested behavior.', 'Invoking trusted extracted code still executes code; Node permissions are not a malicious-code sandbox.'] };
 }
 

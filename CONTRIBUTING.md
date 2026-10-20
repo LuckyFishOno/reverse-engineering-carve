@@ -19,4 +19,4 @@ npm run check
 
 The release check builds TypeScript, runs tests, exercises the archive demo and public packages, verifies a clean tarball installation, and checks repository language/content hygiene. Native/mobile integrations need their documented engines and references; passing core checks does not imply those integrations were rerun.
 
-REA MCP and Carve MCP remain independent. Explain what changed, which checks actually ran and what remains unverified. A submitted implementation is not accepted or integrated solely because an agent reports success.
+REA MCP and RECarve MCP remain independent. Explain what changed, which checks actually ran and what remains unverified. A submitted implementation is not accepted or integrated solely because an agent reports success.

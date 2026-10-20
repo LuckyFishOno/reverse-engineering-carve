@@ -1,0 +1,28 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import {tmpdir} from 'node:os';
+import {mkdtemp,readFile,rm,realpath,writeFile} from 'node:fs/promises';
+import {promisify} from 'node:util';
+import {execFile} from 'node:child_process';
+import {Client} from '@modelcontextprotocol/sdk/client/index.js';
+import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js';
+import {parseProjectPlan,analyzeProjectPlan} from '../dist/project-plan.js';
+const exec=promisify(execFile),cli=path.resolve('dist/cli.js'),example=JSON.parse(await readFile('examples/behavior/interactive-console.json','utf8'));
+const value=r=>{assert.ok(!r.isError,r.content[0].text);const v=JSON.parse(r.content[0].text);assert.equal(v.receipt.responseBytes,Buffer.byteLength(r.content[0].text));return v;};
+test('CLI/fresh MCP retain behavior gaps, exact budget pages and generated work acceptance without execution',async t=>{
+ const root=await realpath(await mkdtemp(path.join(tmpdir(),'carve-behavior-mcp-')));t.after(()=>rm(root,{recursive:true,force:true}));await writeFile(path.join(root,'behavior.json'),JSON.stringify(example));
+ const raw=(await exec(process.execPath,[cli,'behavior-check',path.join(root,'behavior.json')])).stdout,fromCli=JSON.parse(raw);assert.equal(fromCli.receipt.responseBytes,Buffer.byteLength(raw)-1);
+ const peer=new Client({name:'behavior-test',version:'1'});await peer.connect(new StdioClientTransport({command:process.execPath,args:[cli,'serve','--root',root],stderr:'pipe'}));t.after(()=>peer.close());
+ const call=args=>peer.callTool({name:'carve_behavior_check',arguments:args});const result=value(await call({contract:example}));assert.equal(result.sha256,fromCli.sha256);assert.equal(result.verification,'not-run');
+ const provenance=value(await call({contract:example,view:'provenance'}));assert.equal(provenance.items[0].kind,'target-design');assert.equal(provenance.provenance.authenticated,false);
+ let offset=0,rows=[];do{const page=value(await call({contract:example,view:'requirements',limit:2,offset,budgetBytes:2048}));assert.ok(page.receipt.responseBytes<=2048);rows.push(...page.items);offset=page.nextOffset;}while(offset!==null);
+ assert.ok(rows.some(r=>r.id==='interaction.action.interrupt'));assert.ok(rows.every(r=>r.status==='declared-for-validation'));
+ const changed=structuredClone(example);changed.scenarios=[];assert.equal(value(await call({contract:changed})).status,'needs-clarification');
+ assert.equal((await call({contract:{...example,scenarios:[{id:'bad'}]}})).isError,true);
+ const plan={schema:'carve/project-plan@1',goal:'Synthetic direct-input console',target:{schema:'carve/target@1',platform:'macos',delivery:'desktop-app'},features:[{id:'console',title:'Console',contract:{input:'Keys',output:'Peer bytes',state:'Session',errors:'Typed failures',behavior:example}}]};
+ const analysis=analyzeProjectPlan(parseProjectPlan(plan)),spec={schema:'carve/work-spec@1',planId:analysis.planId,assignments:[{feature:'console',taskId:analysis.tasks[0].taskId,files:['Sources/console/Module.swift'],acceptance:[{name:'build',criterion:'Build is readiness only.'}]}]};
+ await writeFile(path.join(root,'plan.json'),JSON.stringify(plan));await writeFile(path.join(root,'spec.json'),JSON.stringify(spec));
+ const created=value(await peer.callTool({name:'carve_work_package',arguments:{action:'create',plan:'plan.json',spec:'spec.json',feature:'console',out:'packet'}}));assert.equal(created.behaviorContract.sha256,result.sha256);
+ const acceptance=value(await peer.callTool({name:'carve_work_package',arguments:{action:'read',package:'packet',view:'acceptance'}}));assert.equal(acceptance.items.length,5);assert.ok(acceptance.items.some(a=>a.behaviorScenario==='live-input'));assert.equal(acceptance.verification,'not-run');
+});

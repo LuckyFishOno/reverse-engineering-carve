@@ -1,17 +1,17 @@
 # Moving a workspace
 
-A Carve workspace records absolute paths: the surveyed target, the lineage of unpacked container content, and the evidence file behind every observation. After you move a project folder, run `relocate` on each workspace before using it again.
+A RECarve workspace records absolute paths: the surveyed target, the lineage of unpacked container content, and the evidence file behind every observation. After you move a project folder, run `relocate` on each workspace before using it again.
 
 ```sh
-carve relocate ./work
+recarve relocate ./work
 ```
 
-Since 0.24, Carve detects a moved workspace. `survey`, `reverse` and every analysis that selects an indexed file stop with `Workspace was moved from OLD to NEW. Run "carve relocate NEW" first`. This happens before any new evidence is written next to records that still name the old location.
+Since 0.24, RECarve detects a moved workspace. `survey`, `reverse` and every analysis that selects an indexed file stop with `Workspace was moved from OLD to NEW. Run "recarve relocate NEW" first`. This happens before any new evidence is written next to records that still name the old location.
 
 ## What relocation does
 
 1. It finds the previous location. Workspaces record it since 0.24. Older ones are read from `survey.json`. If neither is right, pass `--from OLD_ABSOLUTE_PATH`.
-2. It finds the target. If the recorded target still exists, it is kept. Otherwise Carve looks at the same position relative to the moved workspace, for example `../input` when both lived in one project folder. If the target moved somewhere else, pass `--target NEW_PATH`.
+2. It finds the target. If the recorded target still exists, it is kept. Otherwise RECarve looks at the same position relative to the moved workspace, for example `../input` when both lived in one project folder. If the target moved somewhere else, pass `--target NEW_PATH`.
 3. It checks the target before changing anything. Every indexed file must exist with its recorded size, and a file target is rehashed. Selected files are still rehashed before each analysis, as before.
 4. It checks container lineage. An inventory of unpacked APK/IPA/ZIP content needs the container workspace that unpacked it to be relocated first. The error names the lineage marker that still points at the old location.
 5. It rewrites evidence paths only after hashing every evidence file at its new location against the recorded `evidence_sha256`. Evidence that is not under the previous location must still exist where it was recorded; otherwise relocation stops and asks for `--from`.
@@ -22,8 +22,8 @@ Validation failures leave the live target/evidence bindings unchanged. SQLite co
 ## Order for unpacked containers
 
 ```sh
-carve relocate ./container-work   # the workspace that ran unpack
-carve relocate ./work             # the inventory of the unpacked content
+recarve relocate ./container-work   # the workspace that ran unpack
+recarve relocate ./work             # the inventory of the unpacked content
 ```
 
 ## MCP for agents

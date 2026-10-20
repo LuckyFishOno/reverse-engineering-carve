@@ -2,7 +2,7 @@
 
 For exact Mach-O load commands and bounded local path expansions, use the engine-free [loader reader](LOADER.md). It preserves competing paths and records support evidence; it does not change this symbol query's matching rules or prove runtime binding.
 
-Carve0.12 provides a bounded loader-metadata pass before full native analysis. It reads the configured Ghidra importer's external libraries/import locations/external-entry symbols without running auto-analysis or target code. It uses a separate ghidra-linkage-v1 project cache; a metadata-only project is never accepted as completed full auto-analysis. Native function decompilation retains the existing full-analysis profile.
+RECarve0.12 provides a bounded loader-metadata pass before full native analysis. It reads the configured Ghidra importer's external libraries/import locations/external-entry symbols without running auto-analysis or target code. It uses a separate ghidra-linkage-v1 project cache; a metadata-only project is never accepted as completed full auto-analysis. Native function decompilation retains the existing full-analysis profile.
 
 ```sh
 node dist/cli.js native ./work --file bin/program --linkage imports \

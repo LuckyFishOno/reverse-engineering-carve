@@ -14,7 +14,7 @@ export const terminalRunStates=new Set(['completed','partial','failed','cancelle
 export function runId(id:string){if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id))throw new Error('Choose a returned analysis run ID.');return id;}
 export async function runWorkspace(input:string){
   const root=await realpath(input),marker=path.join(root,'.carve-workspace.json');const info=await lstat(marker);
-  if(!info.isFile()||info.isSymbolicLink()||info.size>1048576)throw new Error('Choose a Carve analysis workspace.');
+  if(!info.isFile()||info.isSymbolicLink()||info.size>1048576)throw new Error('Choose a RECarve analysis workspace.');
   const identity=JSON.parse(await readFile(marker,'utf8')),index=await queryIndex(root,{limit:1});
   if(identity.schema!=='carve/workspace@1'||typeof identity.target!=='string'||identity.target!==index.target)throw new Error('Workspace marker and inventory identity differ.');
   return root;

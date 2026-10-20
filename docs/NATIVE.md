@@ -1,6 +1,6 @@
 # Native feature boundaries and registration tables
 
-Carve 0.7 adds paginated string queries, bounded loaded-memory/reference/pointer/instruction windows and code/data tracing. This helps an existing agent locate native capabilities that are reached through a registration table rather than a direct call. It is an investigation workflow; arbitrary registration layouts and semantic feature selection are not automatically solved.
+RECarve 0.7 adds paginated string queries, bounded loaded-memory/reference/pointer/instruction windows and code/data tracing. This helps an existing agent locate native capabilities that are reached through a registration table rather than a direct call. It is an investigation workflow; arbitrary registration layouts and semantic feature selection are not automatically solved.
 
 For analysis performed by an independent REA MCP, use the [explicit native Evidence handoff](REA_NATIVE.md). Optional complete callees and typed outgoing references retain direct call sites, address spaces, thunks and unresolved callback positions. Trace/context link only source/provider/profile-compatible REA code observations; indexed:false asks for further separate REA analysis, never an implicit cross-image match. relationshipsIncomplete concerns recorded coverage, and dependencyClosure stays not-established.
 
@@ -18,15 +18,15 @@ Actual local result: **160/160 original executable cases**, including Chinese, a
 ## Commands
 
 ```sh
-carve reverse /path/to/native-program --goal 'Extract the capability I need' --out ./work
-carve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
+recarve reverse /path/to/native-program --goal 'Extract the capability I need' --out ./work
+recarve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
   --strings 'observed text' --limit 20
-carve observation ./work RETURNED_ID
-carve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
+recarve observation ./work RETURNED_ID
+recarve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
   --window OBSERVED_DATA_ADDRESS --bytes 256
-carve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
+recarve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
   --function OBSERVED_FUNCTION_ADDRESS
-carve trace ./work STRING_OR_WINDOW_ID --depth 3 --max-nodes 50
+recarve trace ./work STRING_OR_WINDOW_ID --depth 3 --max-nodes 50
 ```
 
 Large binaries can select `--heap-mib` / `--threads` (MCP heapMiB/threads); defaults stay1024MiB/2. A logged OutOfMemoryError fails the call and is never cached as completed analysis. See [engine resource budgets](ENGINE_RESOURCES.md).

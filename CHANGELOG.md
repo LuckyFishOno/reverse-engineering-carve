@@ -1,6 +1,43 @@
 # Changes
 
-## Unreleased — public repository refresh
+## 0.43.0 — RECarve naming, evidence, acceptance and project wiring
+
+- Rename the public project/repository/package to reverse-engineering-carve (RECarve), with recarve CLI/MCP configuration and bundled skill naming. Keep the old CLI alias and existing tool/schema/data identifiers compatible.
+
+- Expose existing Swift skeleton creation/checking through skeleton CLI and carve_skeleton MCP, with paginated inspection and explicit trusted build authorization.
+- Add pinned assigned implementation/resource inputs, SwiftPM copy/process rules, local vendored or exact-revision remote package products, and per-feature framework/library settings. Regenerate new snapshots without overwriting working projects.
+- Preserve source/resource bytes, plan/spec identities and generator ownership; validate stale pins, paths, resource ownership and copied-input bounds. Distinguish copied inputs from stubs in reports.
+- Verify actual Swift resource/localization lookup, vendored product linking and feature dependency flow. Generation does not download/build; host build success is not original equivalence.
+
+## 0.42.0 — executable work acceptance
+
+- Add work-acceptance CLI and carve_work_acceptance MCP with explicit execution authorization, current work-package/plan/spec binding and hashed command/case inputs.
+- Execute bounded build/unit/live harness checks and finite original/candidate JSON comparisons, including ordered stateful sequences. Keep missing, failed and passed categories separate.
+- Persist immutable local result folders with runtime/input/report pins, budgeted inspection and optional reported verification claim hash binding. Reports are unsigned local integrity records, not producer attestations or automatic ledger/provenance acceptance.
+- Enforce scenario validation kinds, deadlines, output/case bounds, input freshness and trusted execution boundaries; add actual command, failure, protocol and clean-install checks.
+
+## 0.41.0 — behavior claim provenance
+
+- Add per-requirement original-evidence, hypothesis, target-design and reported verified-behavior claims, with source/report pins and explicit scope/limitations.
+- Preserve classifications in scope/plan/work contracts and hashes; expose paginated provenance plus unclassified requirement counts through behavior-check and carve_behavior_check.
+- Validate claim structure and requirement references without authenticating labels or reports. Verification remains not-run; legacy missing provenance remains unclassified.
+- Add schema/stale-assignment/protocol regressions and clean-installed provenance inspection. No acceptance execution or REA proxy.
+
+## 0.40.0 — structured behavior contracts
+
+- Add `carve/behavior@1`, budgeted `behavior-check` / `carve_behavior_check`, explicit lifecycle/UI/protocol/persistence/recovery requirements and ordered scenario coverage.
+- Preserve contracts through feature clarification, immutable scope records, project plans and pinned work interfaces. Generate scenario acceptance rows and reject unresolved contracts, conflicting names and tampered rows.
+- Require UI, protocol and restart scenario kinds for their respective requirements. Preserve optional legacy inputs; readiness never implies runtime validation or original equivalence.
+- Include an authored interactive-console contract and clean-installed CLI/MCP checks. No new acceptance executor or REA proxy.
+
+## 0.39.0 — PE UI evidence graph
+
+- Add `pe-ui` / `carve_pe_ui` with source-pinned menu/dialog/string/accelerator nodes, numeric command edges and byte-bound AFX-like x86/x64 WM_COMMAND callback candidates.
+- Preserve notification/range ambiguity and unverified class/function ownership. DLL declarations stay artifact-level boundary leads; no callback dependency or runtime semantics claim.
+- Persist immutable searchable evidence and expose byte-budgeted summary, nodes, edges, command-boundary and issue pages. Enforce resource/tree/read/scan budgets, current source hashes and MCP root confinement.
+- Add source-owned parser/protocol regressions and clean-installed CLI/MCP verification. REA remains a separate server; no target/engine execution.
+
+## Public repository refresh — included in the initial0.38.1 snapshot
 
 - Remove retired case-specific fixtures, demos, verifier entry points and their documentation references. Keep core extraction, contrast and independent native REA integrations.
 - Standardize project prose, feature labels and clarification prompts in English; retain bilingual README editions and escaped Unicode regression data/search aliases.
@@ -32,7 +69,7 @@
 
 - Add optional carve/target@1 to feature requests: source-independent platform, delivery form and optional runtime/language/architecture. Reject incompatible declared pairs without claiming target build support. Historical requests without target keep their normalized shape and immutable IDs; target-bearing views retain targetAssessment:not-performed.
 - Add strict agent-authored project-plan@1, iterative cycle/phase analysis, downstream blockage and stable plan/feature/interface/task identities. Bound500features,4000edges and1MiB input; page cards with exact response budgets, leaving descriptions, full contracts and whole graphs off the summary. Graph ready only means structurally orderable.
-- Expose project-plan CLI and the45th Carve MCP tool carve_project_plan. Read-only local plan-file input with MCP root confinement, no source/evidence authentication, automatic discovery, dispatch, builds or app assembly. Add a packaged four-module example and installed CLI/MCP/target round trips.
+- Expose project-plan CLI and the45th RECarve MCP tool carve_project_plan. Read-only local plan-file input with MCP root confinement, no source/evidence authentication, automatic discovery, dispatch, builds or app assembly. Add a packaged four-module example and installed CLI/MCP/target round trips.
 - Verify original0.35 scope bytes/IDs against retained APK analysis, preserve newly declared Windows/Mac/browser module intents, and check graph paging/cycles through fresh MCP sessions. No new original-runtime comparison or actual platform port. Codex implements target/integration; Claude independently delivers the graph core and tests under disjoint claims.
 
 ## 0.35.0 — saved feature clarification and boundary choices
@@ -47,7 +84,7 @@
 - Add optional toWorkspace / --to-workspace to the existing bridge tool, resolved relative to the caller workspace. Cross-workspace snapshot@2 binds both namespaces and original source/evidence identities without copying callee records; same-workspace snapshot@1/IDs remain unchanged.
 - Rebind both source images and REA records, preserve the exact original Mach-O loader-path policy, and reject undeclared contract endpoints, wrong-index substitutions, stale bytes or changed evidence. MCP checks both workspace/index/source/evidence paths during creation, packaging and verification; canonicalize recorded OS aliases without widening the physical root.
 - Preserve immutable relative commitments when sibling workspaces are explicitly relocated together. Historical package paths/comparisons stay historical. Add seven focused tests for namespace identity, decoys, revisions/tampering, relocation and actual CLI/MCP confinement.
-- Extend the independent REA integration with three image indexes, relocation before reconstruction,162 original CLI cases, wrong-path decoy rejection and library-only reuse after construction paths are archived. REA and Carve stay independent; no new MCP tool/server, target execution by bridge or general runtime/ABI/closure proof.
+- Extend the independent REA integration with three image indexes, relocation before reconstruction,162 original CLI cases, wrong-path decoy rejection and library-only reuse after construction paths are archived. REA and RECarve stay independent; no new MCP tool/server, target execution by bridge or general runtime/ABI/closure proof.
 
 ## 0.33.0 — original DEX stateful sequences on ART
 
@@ -71,25 +108,25 @@
 - Add bridge-rea-native / carve_bridge_rea_native. Bind two complete independent REA function observations to original BL/E8 call bytes, indirect-symbol stub, strong undefined nlist/library ordinal, exact local load path/install name and defined instruction-section export entry. No REA/engine/target launch.
 - Save immutable source-bound support snapshots. Optional multi-artifact relationship.bridgeEvidenceId requires the exact implementation endpoints and caller support binding; rederive both images and records during packaging/comparison. Runtime loading, ABI and semantic/dependency closure stay unknown. Legacy contracts remain agent-reviewed.
 - Restrict the initial bridge to thin little-endian64 Mach-O executable/dylib pairs, supported direct instruction encodings and unambiguous selected-image paths. Reject weak/flat/special-ordinal/ambiguous or stale/mismatched data. Original-byte parser ranges and snapshot/output budgets stay explicit.
-- Add independent REA/Carve integration using two implementation images plus a same-basename/install-name/export/address decoy. Wrong local path is refused; real dyld log,162original CLI comparisons and reusable function-folder import/invoke retained.
+- Add independent REA/RECarve integration using two implementation images plus a same-basename/install-name/export/address decoy. Wrong local path is refused; real dyld log,162original CLI comparisons and reusable function-folder import/invoke retained.
 
 ## 0.29.0 — source/profile-bound REA call and reference handoff
 
 - Extend import-rea-native / carve_import_rea_native with optional complete procedure_callees and outgoing procedure_references Evidence. New owned snapshot/function adapter@2 preserves typed call sites, address spaces, external/thunk classifications, coverage diagnostics and unresolved calls; code/info-only@1 remains compatible.
 - Validate source/provider/profile/selector, raw coverage, body membership and endpoint identities. Data references do not become calls. Unknown/partial coverage and disagreeing call inventories remain incomplete. Rebind all records during packaging and verification.
 - Trace and budgeted context follow only source/provider/profile-compatible REA observations. Missing compatible code stays unindexed, unresolved callback reasons are bounded and dependencyClosure remains not-established. These are recorded local edges, not cross-image/runtime closure.
-- Add a real two-server native integration:20REA records,3selected implementation functions,2direct helper call sites,1unresolved callback, an unindexed puts thunk,160original CLI comparisons and reusable function-folder invocation. REA closes before Carve imports; only REA has engine configuration. No merged/proxy MCP or global setup.
+- Add a real two-server native integration:20REA records,3selected implementation functions,2direct helper call sites,1unresolved callback, an unindexed puts thunk,160original CLI comparisons and reusable function-folder invocation. REA closes before RECarve imports; only REA has engine configuration. No merged/proxy MCP or global setup.
 
 ## 0.28.0 — explicit native Evidence handoff from independent REA
 
-- Add `import-rea-native` / `carve_import_rea_native`. It consumes a complete REA Ghidra procedure_pseudo_code/procedure_info pair without starting REA or a Carve analysis engine. Check freshly hashed native source, format/architecture, RFC8785 record/profile commitments, exact selector/raw results and body ranges before retaining versioned owned snapshots.
+- Add `import-rea-native` / `carve_import_rea_native`. It consumes a complete REA Ghidra procedure_pseudo_code/procedure_info pair without starting REA or a RECarve analysis engine. Check freshly hashed native source, format/architecture, RFC8785 record/profile commitments, exact selector/raw results and body ranges before retaining versioned owned snapshots.
 - Preserve original producer IDs and underlying analysis provider; rebind normalized observations to captured records during reconstruction/verification. Reject source/selector/profile mismatches, partial/null/external results, impossible body metadata, snapshot/SQL tampering and out-of-root MCP paths. Owned evidence survives closed producer sessions, missing external JSON paths and workspace relocation.
 - Keep unimported calls/references explicit; static boundary results now include relationshipsIncomplete. Imported code can participate in bounded context and feature choices, with capped metadata/errors and no behavioral or producer-attestation claim from hashes.
 - Add actual independent REA6.7.0/Ghidra native integration: source-owned compiled CLI, mismatched real procedure metadata and modified-record rejection,160direct original CLI comparisons, then function-library import/invoke with only the library directory accessible. The explicit Ghidra complete-body profile is supported; other native/dynamic providers remain outside this adapter.
 
 ## 0.27.0 — independent REA companion and grounded feature choices
 
-- Position Carve as a companion to a separately launched REA MCP. Keep tool catalogs/processes independent; no proxy or merged server. Rewrite product/readme entrypoints and document a tested two-entry setup.
+- Position RECarve as a companion to a separately launched REA MCP. Keep tool catalogs/processes independent; no proxy or merged server. Rewrite product/readme entrypoints and document a tested two-entry setup.
 - Add `features` / `carve_features`: bounded path/recorded-name candidate cards, source identities, custom descriptions, no-match states, scan/candidate pagination and explicit incomplete-inventory coverage. `reverse` can omit goal to ask for a feature choice while preserving per-goal tasks and the existing explicit-goal flow. Rules are investigation leads, not semantic confidence or extraction success.
 
 ## 0.26.0 — original APK JNI references and reusable bootstrap catalog
@@ -112,16 +149,16 @@
 
 ## 0.24.0 — relocatable workspaces
 
-- New `carve relocate WORKSPACE [--target PATH] [--from PATH]` (direct API `relocateWorkspace`). After a project folder moves, it rewrites the workspace's target binding, container lineage and observation evidence paths in one SQLite transaction. It first checks every indexed file's size at the new target (and rehashes a file target) and hashes every evidence file at its new location against the recorded hash; any mismatch changes nothing. A target that moved together with the workspace is found automatically; one that moved elsewhere needs `--target`. Inventories of unpacked containers require their container workspace to be relocated first. Running it again is safe.
+- New `recarve relocate WORKSPACE [--target PATH] [--from PATH]` (direct API `relocateWorkspace`). After a project folder moves, it rewrites the workspace's target binding, container lineage and observation evidence paths in one SQLite transaction. It first checks every indexed file's size at the new target (and rehashes a file target) and hashes every evidence file at its new location against the recorded hash; any mismatch changes nothing. A target that moved together with the workspace is found automatically; one that moved elsewhere needs `--target`. Inventories of unpacked containers require their container workspace to be relocated first. Running it again is safe.
 - Workspaces now record their own location. `survey`/`reverse` and every analysis that selects an indexed file refuse a moved workspace with a `run carve relocate` message, so new evidence is never written next to records naming the old location. Pre-0.24 workspaces are detected through `survey.json`; when that was rewritten after a move, relocation refuses missing evidence and asks for `--from`.
 - History is not rewritten: queue results, run logs, task reports, engine logs and verification archives keep their recorded paths; observation IDs and evidence files are never edited. Ghidra caches stay reusable after relocation.
 - Real check: all eight pre-move third-party workspaces (jq, OpenSSL, scrcpy, Termux, ZXing inventories and their container workspaces) relocated with hash-verified evidence (up to 10736 rows), indexed-file selection with container lineage works again, and a relocated jq workspace reused its completed Ghidra analysis.
 
 ## 0.23.0 — host-wide heap registry, strict modified UTF-8, relocatable engine configuration
 
-- Ghidra/JADX heap reservations are now shared by every Carve process of the user on the host (CLI, MCP servers, queue runs, background workers), not only within one MCP server. The registry lives under the account home directory (`~/Library/Caches/carve/engine-reservations` on macOS, `~/.cache/carve/engine-reservations` elsewhere) instead of `os.tmpdir()`, so processes with different `TMPDIR` values can no longer each reserve the whole host budget. `CARVE_ENGINE_RESERVATIONS` remains an explicit shared override. Owners that have verifiably exited are reclaimed.
+- Ghidra/JADX heap reservations are now shared by every RECarve process of the user on the host (CLI, MCP servers, queue runs, background workers), not only within one MCP server. The registry lives under the account home directory (`~/Library/Caches/carve/engine-reservations` on macOS, `~/.cache/carve/engine-reservations` elsewhere) instead of `os.tmpdir()`, so processes with different `TMPDIR` values can no longer each reserve the whole host budget. `CARVE_ENGINE_RESERVATIONS` remains an explicit shared override. Owners that have verifiably exited are reclaimed.
 - The modified UTF-8 decoder for class-file and DEX strings rejects overlong forms like HotSpot and ART: a two-byte unit must encode NUL or at least 0x80, a three-byte unit at least 0x800. Class files of major version 47 or older keep HotSpot's legacy acceptance. Checked against Temurin 21 `defineClass` at major 55, 48 and 45.
-- Engine and Android runtime configuration files may use paths relative to the configuration file. `carve serve --engines`, `queue add/run/start --engines` and all verify scripts read them through one loader. The bundled `artifacts/engines/config.json` and `artifacts/android/config.json` now use relative paths, so the project folder can move.
+- Engine and Android runtime configuration files may use paths relative to the configuration file. `recarve serve --engines`, `queue add/run/start --engines` and all verify scripts read them through one loader. The bundled `artifacts/engines/config.json` and `artifacts/android/config.json` now use relative paths, so the project folder can move.
 - Tests: new cross-process registry tests with distinct `TMPDIR` values, a full-registry refusal and SIGKILL reclamation; overlong UTF-8 rejection for class and DEX inputs; relative engine configuration through an actual stdio MCP server started from another working directory.
 
 ## 0.22.0 — JDK Adler32 across JNI
@@ -178,7 +215,7 @@
 - Store closed extracted/reconstructed capabilities in local named folders, without standalone CLI files or per-function installation. Library add/find/get and MCP equivalents preserve provenance/domains/unknowns and recorded source-comparison scope; functions can be imported or invoked through existing MCP/runtime tools.
 - SQLite catalogue search returns small byte-budgeted metadata cards; get checks pinned manifests/file hashes. Generated SKILL.md remains local and no global agent settings are edited.
 - Context queries return observation outlines, bounded recorded static neighbours and optional text excerpts under an exact compact-JSON byte budget. Caller-supplied fingerprints avoid repeated recorded packets; source/evidence freshness and semantic completeness stay explicit. Token estimates are heuristic, not provider/billing measurements.
-- User-supplied Trail-Code/Graft source informed structural retrieval/content-reuse principles. No upstream benchmark savings are claimed for Carve, and no external model/hooks/daemon are installed.
+- User-supplied Trail-Code/Graft source informed structural retrieval/content-reuse principles. No upstream benchmark savings are claimed for RECarve, and no external model/hooks/daemon are installed.
 
 ## 0.13.0 — Mach-O loader evidence
 

@@ -1,6 +1,6 @@
 {
-  "name": "carve-local-prototype",
-  "version": "0.38.1",
+  "name": "reverse-engineering-carve",
+  "version": "0.43.0",
   "private": true,
   "description": "REA companion MCP for agents: evidence-linked feature choices, bounded extraction, behavior checks and reusable local functions.",
   "type": "module",
@@ -9,6 +9,7 @@
     "node": "^22.19.0 || >=24.11.0"
   },
   "bin": {
+    "recarve": "dist/cli.js",
     "carve": "dist/cli.js"
   },
   "files": [
@@ -28,7 +29,8 @@
     "examples/project-plan.json",
     "examples/work-plan.json",
     "examples/work-spec.json",
-    "CONTRIBUTING.md"
+    "CONTRIBUTING.md",
+    "examples/behavior"
   ],
   "scripts": {
     "build": "tsc",
@@ -92,5 +94,13 @@
     "ms": "2.1.3",
     "pretty-bytes": "7.2.0",
     "typescript": "^5.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuckyFishOno/reverse-engineering-carve.git"
+  },
+  "homepage": "https://github.com/LuckyFishOno/reverse-engineering-carve#readme",
+  "bugs": {
+    "url": "https://github.com/LuckyFishOno/reverse-engineering-carve/issues"
   }
 }

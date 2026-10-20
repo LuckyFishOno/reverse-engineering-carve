@@ -8,13 +8,13 @@ npm run verify:rea-adler32-stateful
 node scripts/verify-rea-adler32-stateful.mjs --rea-install /path/to/local/prefix
 ```
 
-The default makes a fresh pinned REA6.7.0 project-local installation with install scripts disabled and no global setup. Existing engines/config.json supplies Ghidra12.1.4, JDK and JADX. This is a local test client, not a new or merged MCP server. The recorded0.32 run had207 REA tools and43 Carve tools (0.35 adds carve_scope as the44th). Carve is configured only for its existing JADX managed-analysis path in this case, while REA performs all native decompilation.
+The default makes a fresh pinned REA6.7.0 project-local installation with install scripts disabled and no global setup. Existing engines/config.json supplies Ghidra12.1.4, JDK and JADX. This is a local test client, not a new or merged MCP server. The recorded0.32 run had207 REA tools and43 RECarve tools (0.35 adds carve_scope as the44th). RECarve is configured only for its existing JADX managed-analysis path in this case, while REA performs all native decompilation.
 
 ## Evidence and runtime identity
 
 1. The JDK jimage tool extracts exactly java/util/zip/Adler32.class from the runtime lib/modules image. The class and native libzip hashes are pinned. No original checksum function is recompiled.
-2. Independent REA analyzes the copied libzip and saves12 complete code/info/callees/outgoing-reference records for the JNI updateBytes entry, adler32 wrapper and adler32_z core. REA closes before Carve imports its owned snapshots; external producer paths are later archived.
-3. Carve's JADX path decompiles the entire original class, including field initialization/reset to1, previous state passed to native updateBytes, and unsigned getValue widening. The JNI declaration parser retains its own source identity. Export metadata is deliberately not indexed in this run; its no-indexed-static-export status remains explicit. The exact REA JNI name, reviewed class call and runtime probe are separate evidence.
+2. Independent REA analyzes the copied libzip and saves12 complete code/info/callees/outgoing-reference records for the JNI updateBytes entry, adler32 wrapper and adler32_z core. REA closes before RECarve imports its owned snapshots; external producer paths are later archived.
+3. RECarve's JADX path decompiles the entire original class, including field initialization/reset to1, previous state passed to native updateBytes, and unsigned getValue widening. The JNI declaration parser retains its own source identity. Export metadata is deliberately not indexed in this run; its no-indexed-static-export status remains explicit. The exact REA JNI name, reviewed class call and runtime probe are separate evidence.
 4. The eight-byte adler32 wrapper carries an actual Ghidra terminal-call boundary warning. The [narrow snapshot@3 policy](REA_NATIVE.md) checks the original last ARM64 B-immediate instruction against the typed target while preserving that warning. The provider flow-model reason and dependency closure stay not-established; graph completeness is not inferred from successful import.
 5. A source-owned [Java invocation adapter](../examples/jvm/Adler32SequenceHarness.java) constructs the original JDK object. Its identity probe reads the bootstrap java.base class resource and checks the exact analyzed class hash, module, bootstrap loader and java.home. All three compiled harness classes, source, lib/modules, libzip and libjvm are bound reference files.
 6. An actual probe with JNI/library logs shows updateBytes linked through JNI and the pinned JDK libzip loaded. Comparisons use -Xint, disabled diagnostic UseAdler32Intrinsics and -Xshare:off. The logs cover one probe, not per-call tracing or default-JIT/intrinsic equivalence.
@@ -23,7 +23,7 @@ The reconstruction@2 contract binds both implementation artifacts: the full clas
 
 ## Operation boundary
 
-The JSON wrapper is a Carve-facing interface, not the original Java method signatures:
+The JSON wrapper is a RECarve-facing interface, not the original Java method signatures:
 
 | Call | Original operation | Observed result |
 | --- | --- | --- |

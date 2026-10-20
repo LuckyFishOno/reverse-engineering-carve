@@ -1,6 +1,6 @@
 # Pinned interfaces and agent work packages
 
-`work-package` turns an agent-declared feature graph into local handoff folders containing the selected task, complete direct dependency interfaces, target, assigned files, acceptance criteria, source leads and unknowns. Existing agents perform the work; Carve does not dispatch agents or implement features.
+`work-package` turns an agent-declared feature graph into local handoff folders containing the selected task, complete direct dependency interfaces, target, assigned files, acceptance criteria, source leads and unknowns. Existing agents perform the work; RECarve does not dispatch agents or implement features.
 
 ```sh
 node dist/cli.js project-plan examples/work-plan.json --limit 4
@@ -46,3 +46,7 @@ planId pins the whole plan; taskId pins the feature/direct interfaces; specId pi
 Creation validates inputs/budget before exclusive folder creation, then publishes a non-overwriting manifest. Interruption may leave partial files for inspection; missing-manifest folders are not ready and are not overwritten automatically. Reads refuse symlinks, oversized files, hash/format mismatches and rewritten handoff text. This is not a malware sandbox.
 
 `npm run verify:work-package` checks four synthetic packages, shared pins, fresh MCP continuation, stale/conflicting declarations and measured output bytes. It does not dispatch agents or execute a target App.
+
+## Behavior and execution follow-up
+
+Optional [structured behavior contracts](BEHAVIOR.md) and [claim provenance](PROVENANCE.md) are pinned in selected/dependency interfaces. Supplied unresolved behavior declarations block packaging; ordered scenarios add generated acceptance rows. The separate [work-acceptance](WORK_ACCEPTANCE.md) command executes explicitly authorized checks and records local results. Preparing/checking a work package itself still executes nothing. Use [skeleton wiring](SKELETON.md) to generate a new Swift project snapshot from those declarations.

@@ -1,6 +1,6 @@
 # Ordered stateful operations
 
-Use this workflow when the same function updates module/global state: a counter, accumulator, undo stack or local parser session. REA investigates the original; the existing agent writes the reconstruction; Carve compares explicitly supplied sequences. REA MCP and Carve MCP remain independent.
+Use this workflow when the same function updates module/global state: a counter, accumulator, undo stack or local parser session. REA investigates the original; the existing agent writes the reconstruction; RECarve compares explicitly supplied sequences. REA MCP and RECarve MCP remain independent.
 
 Every sequence starts a fresh original command or Android VM process and a fresh restricted candidate Node process. Within that candidate process the module is imported once and each call is awaited in order. Return values are serialized immediately, so later mutations cannot rewrite earlier recorded results. A thrown exception is recorded and the next requested step still runs. Serialization, import, timeout, cancellation, output or protocol errors invalidate the complete sequence; they are not matching target exceptions.
 
@@ -31,7 +31,7 @@ The reference receives an array of positional argument arrays on stdin, for exam
 ]
 ```
 
-A target exception uses `{"kind":"throw","error":{"name":"RangeError","message":"message"}}`. Only return/throw are valid step outcomes; a missing value, extra fields, wrong count, nonfinite value, malformed JSON, nonzero process exit or unexpected stdout fails the reference protocol. stderr is diagnostic. Carve checks the declared command/output boundary, not whether an external harness secretly recreates the function or spawns per-step processes.
+A target exception uses `{"kind":"throw","error":{"name":"RangeError","message":"message"}}`. Only return/throw are valid step outcomes; a missing value, extra fields, wrong count, nonfinite value, malformed JSON, nonzero process exit or unexpected stdout fails the reference protocol. stderr is diagnostic. RECarve checks the declared command/output boundary, not whether an external harness secretly recreates the function or spawns per-step processes.
 
 ## Cases and comparison
 
@@ -80,7 +80,7 @@ Use `carve_invoke_sequence` with `{package,calls,execute:true}` or standalone `c
 npm run verify:rea-stateful
 ```
 
-This local test client creates a fresh project-local pinned REA6.7.0 install with install scripts disabled and no global setup. It compiles the owned examples/native-app/stateful-counter.c, then sends only that original executable to independent REA/Ghidra. It saves four complete Evidence records, closes REA, imports them into an engine-free Carve MCP and archives external producer JSON paths before reconstruction.
+This local test client creates a fresh project-local pinned REA6.7.0 install with install scripts disabled and no global setup. It compiles the owned examples/native-app/stateful-counter.c, then sends only that original executable to independent REA/Ghidra. It saves four complete Evidence records, closes REA, imports them into an engine-free RECarve MCP and archives external producer JSON paths before reconstruction.
 
 The original executable itself parses each input sequence and calls its shipped stateful_step repeatedly in that process. The reconstruction implements two persistent signed32 cells initialized to7, read/add/set/swap-undo, and compiled -fwrapv addition.32 sequences /635 steps include initial-state checks, repeated undo, signed32 overflow and deterministic mixed operations. An alternative that resets both cells before every call fails later steps. Complete sequence examples survive function-library import; direct import, CLI and two consecutive library-only MCP requests work and start fresh per request. Original executable bytes remain unchanged and retained. The script records source, producer/install identity, report and scope under artifacts/rea-stateful-e2e-*/report.json. `--rea-install PREFIX` explicitly reuses an existing local install instead, and the report records that distinction.
 

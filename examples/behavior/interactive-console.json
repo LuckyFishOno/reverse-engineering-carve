@@ -1,0 +1,163 @@
+{
+  "schema": "carve/behavior@1",
+  "lifecycle": {
+    "lifetime": "session",
+    "initialize": "Create one session after explicit user connection and peer approval.",
+    "reset": "Disconnect cancels pending input and requires a new session.",
+    "close": "Closing the tab closes its session and stops output delivery.",
+    "isolation": "Input, output and working state belong to one tab only."
+  },
+  "interaction": {
+    "mode": "stream",
+    "surface": "The terminal canvas receives keyboard input directly.",
+    "actions": [
+      {
+        "id": "type",
+        "trigger": "Type on the terminal canvas and press Enter.",
+        "expected": "Input reaches the same remote shell and its response is rendered."
+      },
+      {
+        "id": "interrupt",
+        "trigger": "Press Ctrl+C during an active command.",
+        "expected": "The interrupt byte reaches the active session; the connection stays open."
+      },
+      {
+        "id": "resize",
+        "trigger": "Resize the terminal viewport.",
+        "expected": "The active peer receives the new row and column dimensions."
+      }
+    ]
+  },
+  "protocol": {
+    "mode": "interactive",
+    "name": "SSH PTY plus shell channel",
+    "negotiation": "Await peer approval of PTY and shell requests before accepting input.",
+    "framing": "Preserve ordered UTF-8 and terminal control bytes without inserting local echo.",
+    "ordering": "Keep one shell across commands; never substitute an independent exec per key or command."
+  },
+  "persistence": {
+    "mode": "disk",
+    "retained": "Explicitly saved host, account and viewport preferences.",
+    "excluded": "Passwords, pending keys and authenticated live sessions are not saved automatically.",
+    "restart": "Restore saved metadata; require fresh authentication and an empty input queue."
+  },
+  "errors": {
+    "mode": "specified",
+    "cases": [
+      {
+        "id": "rejected-shell",
+        "trigger": "The peer rejects the shell request.",
+        "expected": "Show the actual rejection and keep terminal input disabled.",
+        "recovery": "Allow explicit retry or disconnect without replaying stale input."
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "live-input",
+      "title": "Persistent direct-input session",
+      "validation": "protocol",
+      "covers": [
+        "lifecycle.lifetime",
+        "lifecycle.initialize",
+        "lifecycle.reset",
+        "lifecycle.close",
+        "lifecycle.isolation",
+        "interaction.mode",
+        "interaction.surface",
+        "interaction.actions",
+        "interaction.action.type",
+        "interaction.action.interrupt",
+        "interaction.action.resize",
+        "protocol.mode",
+        "protocol.name",
+        "protocol.negotiation",
+        "protocol.framing",
+        "protocol.ordering"
+      ],
+      "steps": [
+        {
+          "action": "Open and approve a synthetic peer; focus the terminal canvas.",
+          "expected": "PTY/shell acknowledgements occur before input is enabled."
+        },
+        {
+          "action": "Change directory, then type a directory query; resize and send Ctrl+C.",
+          "expected": "The same shell retains its directory, receives dimensions and interrupt; a second tab is unaffected."
+        },
+        {
+          "action": "Queue input, disconnect, reconnect, then close the tab.",
+          "expected": "No old input replays; output stops for the closed session."
+        }
+      ]
+    },
+    {
+      "id": "restart-metadata",
+      "title": "Retain metadata without credentials or live state",
+      "validation": "restart",
+      "covers": [
+        "persistence.mode",
+        "persistence.retained",
+        "persistence.excluded",
+        "persistence.restart"
+      ],
+      "steps": [
+        {
+          "action": "Save synthetic metadata, terminate and reopen the application.",
+          "expected": "Metadata returns, while passwords, pending keys and authenticated sessions do not."
+        }
+      ]
+    },
+    {
+      "id": "shell-denial",
+      "title": "Rejected shell remains disconnected from terminal input",
+      "validation": "protocol",
+      "covers": [
+        "errors.mode",
+        "errors.cases",
+        "errors.case.rejected-shell",
+        "errors.recovery.rejected-shell"
+      ],
+      "steps": [
+        {
+          "action": "Connect to a synthetic peer rejecting the shell request, then retry.",
+          "expected": "The rejection is visible, no keys are sent before readiness, and retry does not replay old input."
+        }
+      ]
+    },
+    {
+      "id": "canvas-input",
+      "title": "Type directly on the terminal canvas",
+      "validation": "ui",
+      "covers": [
+        "interaction.mode",
+        "interaction.surface",
+        "interaction.actions",
+        "interaction.action.type",
+        "interaction.action.interrupt",
+        "interaction.action.resize"
+      ],
+      "steps": [
+        {
+          "action": "Connect to a synthetic peer, click the terminal canvas, type a marker and press Enter without using a separate command field.",
+          "expected": "The focused terminal sends input and renders the peer response in that canvas."
+        },
+        {
+          "action": "Press Ctrl+C and resize the visible viewport.",
+          "expected": "The same connected session receives the interrupt and new dimensions; typing continues in the focused canvas."
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "schema": "carve/provenance@1",
+    "claims": [
+      {
+        "id": "interactive-target",
+        "subject": "protocol.mode",
+        "statement": "The target uses a continuous interactive shell.",
+        "kind": "target-design",
+        "rationale": "Authored example requirement; no original runtime evidence is supplied."
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 # Termux bootstrap inventory across APK JNI
 
-Carve0.26 investigates the existing pinned [Termux app v0.118.3 GitHub ARM64 release](https://github.com/termux/termux-app/releases/tag/v0.118.3). APK SHA256: `72fdb596045116bf5ba1b5bdf5b26fddb9acc0bd074ad9f2da9eb0ae85e83a4e`,35106607bytes. The reusable output is a **ZIP member metadata catalog and a new query projection**, not the ZIP payload or an installer.
+RECarve0.26 investigates the existing pinned [Termux app v0.118.3 GitHub ARM64 release](https://github.com/termux/termux-app/releases/tag/v0.118.3). APK SHA256: `72fdb596045116bf5ba1b5bdf5b26fddb9acc0bd074ad9f2da9eb0ae85e83a4e`,35106607bytes. The reusable output is a **ZIP member metadata catalog and a new query projection**, not the ZIP payload or an installer.
 
 ## Evidence and original invocation
 
@@ -25,7 +25,7 @@ const page = capability({prefix: 'bin/', offset: 0, limit: 2});
 `prefix` defaults to empty and is limited to256UTF16 units. `offset` is an integer0..1000000(default0); `limit` is1..100(default20). Unknown fields/coercion are rejected. Entries retain original order, name, uncompressed/compressed sizes, CRC32 and directory flag. Paging applies after exact case-sensitive prefix filtering. Returned rows are copied, so a caller cannot modify later query results through a previous result.
 
 ```sh
-carve invoke /absolute/functions/bootstrap-catalog \
+recarve invoke /absolute/functions/bootstrap-catalog \
   --args '[{"prefix":"bin/","limit":2}]' --execute
 ```
 

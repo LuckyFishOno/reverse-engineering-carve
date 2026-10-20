@@ -1,6 +1,6 @@
 # Reuse a contact payload from a shipped Android APK
 
-Carve0.18 includes a real whole-APK investigation that produces a reusable local function folder. Input: the official [ZXing Barcode Scanner4.7.8 release](https://github.com/zxing/zxing/releases/tag/BS-4.7.8),815360 bytes, local SHA256 `4d8c739e115e7aaf824dda3f2a55667459c48c2f140d15eadfd6d3d6271bb0b3`. This old release has no published asset digest in its API record; local pinning is not an upstream signature authentication claim.
+RECarve0.18 includes a real whole-APK investigation that produces a reusable local function folder. Input: the official [ZXing Barcode Scanner4.7.8 release](https://github.com/zxing/zxing/releases/tag/BS-4.7.8),815360 bytes, local SHA256 `4d8c739e115e7aaf824dda3f2a55667459c48c2f140d15eadfd6d3d6271bb0b3`. This old release has no published asset digest in its API record; local pinning is not an upstream signature authentication claim.
 
 The selected operation is **contact vCard payload text**, the first result from the original `VCardContactEncoder.encode` with phoneTypes=null. It excludes the original display string, non-null phone-type metadata, QR pixels, camera/scanning and UI events. This makes a useful function without assuming those other behaviors have been recovered.
 

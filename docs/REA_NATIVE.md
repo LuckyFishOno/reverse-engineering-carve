@@ -1,6 +1,6 @@
 # REA native Evidence handoff
 
-Carve imports complete REA6.7.0 Ghidra function records into its own observation index. REA MCP performs analysis; Carve MCP validates saved Evidence files without starting REA/Ghidra/targets. This is not a universal native/mobile/dynamic provider importer.
+RECarve imports complete REA6.7.0 Ghidra function records into its own observation index. REA MCP performs analysis; RECarve MCP validates saved Evidence files without starting REA/Ghidra/targets. This is not a universal native/mobile/dynamic provider importer.
 
 `rea-ghidra-function@1` supports code/info; @2 adds optional direct callees and typed outgoing references. Existing snapshots stay compatible.
 
@@ -11,11 +11,11 @@ Use [two MCP servers](REA_COMPANION.md), configuring engines only on REA:
 ```json
 {"mcpServers":{
  "rea":{"command":"npx","args":["-y","rea-agents@6.7.0","mcp"],"env":{"REA_ANALYSIS_PROVIDER":"ghidra","GHIDRA_INSTALL_DIR":"/absolute/path/to/ghidra","JAVA_HOME":"/absolute/path/to/jdk-21/Contents/Home"}},
- "carve":{"command":"node","args":["/absolute/path/to/carve/dist/cli.js","serve","--root","/absolute/path/to/workspace"]}
+ "recarve":{"command":"node","args":["/absolute/path/to/reverse-engineering-carve/dist/cli.js","serve","--root","/absolute/path/to/workspace"]}
 }}
 ```
 
-This import path needs no Carve --engines setting. Configuration examples do not install engines or modify global configuration.
+This import path needs no RECarve --engines setting. Configuration examples do not install engines or modify global configuration.
 
 ## Capture and import complete records
 
@@ -29,9 +29,9 @@ node dist/cli.js import-rea-native ./work --file program --code ./rea-code.json 
 node dist/cli.js features ./work --query operation_name
 ```
 
-Omit both optional relationship arguments for code/info-only capture. MCP uses `carve_import_rea_native({workspace,file,code,info,callees?,references?})`. File is an indexed relative path. All workspace/input/evidence/output paths must be root-confined. Reply includes Carve observationId, source SHA256, original REA IDs, analysis profile digest and owned snapshot location.
+Omit both optional relationship arguments for code/info-only capture. MCP uses `carve_import_rea_native({workspace,file,code,info,callees?,references?})`. File is an indexed relative path. All workspace/input/evidence/output paths must be root-confined. Reply includes RECarve observationId, source SHA256, original REA IDs, analysis profile digest and owned snapshot location.
 
-Read full observations/context and bind Carve observationIds into reconstruction contracts; original ev_ IDs remain provenance. The agent writes implementations. Reconstruction packages/binds them; verify-reconstruction compares explicit original cases. Then store reusable [function folders](LIBRARY.md).
+Read full observations/context and bind RECarve observationIds into reconstruction contracts; original ev_ IDs remain provenance. The agent writes implementations. Reconstruction packages/binds them; verify-reconstruction compares explicit original cases. Then store reusable [function folders](LIBRARY.md).
 
 ## Validation and integrity limits
 
@@ -66,7 +66,7 @@ npm run verify:rea-native -- --engines ./artifacts/engines/config.json
 npm run verify:rea-relationships -- --engines ./artifacts/engines/config.json
 ```
 
-Optional --rea-install reuses an explicit REA installation; otherwise scripts install pinned6.7.0 project-locally without setup. Configured Ghidra/JDK must exist. Source-owned C inputs are analyzed only through REA; Carve imports after REA closes, refuses mismatched/tampered records, retains owned snapshots and compares160 selected original CLI cases. Relationship integration captures20 Evidence records, links three functions/two direct sites and separately retains unresolved callback/thunk leads. These are same-image cases, not general App or platform proofs.
+Optional --rea-install reuses an explicit REA installation; otherwise scripts install pinned6.7.0 project-locally without setup. Configured Ghidra/JDK must exist. Source-owned C inputs are analyzed only through REA; RECarve imports after REA closes, refuses mismatched/tampered records, retains owned snapshots and compares160 selected original CLI cases. Relationship integration captures20 Evidence records, links three functions/two direct sites and separately retains unresolved callback/thunk leads. These are same-image cases, not general App or platform proofs.
 
 ## Stateful operations
 
@@ -76,7 +76,7 @@ Follow [sequence verification](STATEFUL.md) for process-local state. Declare ini
 
 A narrow @3 snapshot policy admits matching function-boundary-v4 terminal-call diagnostics only with four complete records, exact supported profiles, complete callee coverage, matching direct typed name/entry/reference and a terminal instruction. Zero-diagnostic paths retain @1/@2 identities.
 
-The source must be thin ARM64 Mach-O. Carve maps both endpoints into file-backed code and decodes original B-immediate bytes. BL, indirect/conditional flow, wrong/non-code targets, other headers/architectures, absent records, unknown/truncation messages and inconsistent warnings are refused. Rebinding happens again during packaging/verification. Bytes establish absence of machine-code fallthrough, not the provider's semantic flow reason or closure.
+The source must be thin ARM64 Mach-O. RECarve maps both endpoints into file-backed code and decodes original B-immediate bytes. BL, indirect/conditional flow, wrong/non-code targets, other headers/architectures, absent records, unknown/truncation messages and inconsistent warnings are refused. Rebinding happens again during packaging/verification. Bytes establish absence of machine-code fallthrough, not the provider's semantic flow reason or closure.
 
 Observations retain decompilationStatus:completed-with-boundary-warnings, original bounded statements, byte coordinates/hash and reasonForProviderFlow:not-established. Context/trace expose boundaryWarningCount; full statements remain owned. Relationship limitations remain. Older versions cannot rebind @3, while old @1/@2 identities stay unchanged.
 

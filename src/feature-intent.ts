@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {behaviorSchema,behaviorSummary} from './behavior.js';
 import {targetSpecSchema} from './target.js';
 
 // Questions and literal-name filters only. They do not classify runtime behavior.
@@ -26,6 +27,7 @@ const text=z.string().trim().min(1).max(2000),id=z.string().regex(/^[a-f0-9]{64}
 export const featureRequestSchema=z.object({
  schema:z.literal('carve/feature-request@1'),origin:z.enum(['user-described','agent-proposed','test-fixture']).default('agent-proposed'),goal:text,choice:z.string().min(1).max(40).optional(),facet:z.string().min(1).max(40).optional(),
  target:targetSpecSchema.optional(),
+ contract:behaviorSchema.optional(),
  behavior:z.object({trigger:text.optional(),input:text.optional(),output:text.optional(),state:z.enum(['stateless','sequence','unknown']).default('unknown')}).strict().default({state:'unknown'}),
  boundary:z.object({ui:boundary.default('unknown'),remote:boundary.default('unknown'),host:boundary.default('unknown')}).strict().default({ui:'unknown',remote:'unknown',host:'unknown'}),
  leads:z.array(z.object({workspace:z.string().min(1).max(4096).default('.'),file:z.string().min(1).max(4096),sourceSha256:id,observationId:id.optional()}).strict()).max(16).default([])
@@ -37,8 +39,11 @@ export type FeatureRequest=z.infer<typeof featureRequestSchema>;
 export function featureQuestions(request:FeatureRequest){
  const questions:{id:string;audience:'user'|'agent';prompt:string}[]=[];
  for(const [id,prompt] of [['trigger','Which operation or screen triggers this behavior?'],['input','What input is supplied? A synthetic example is sufficient.'],['output','What exact output is expected?']] as const)if(!request.behavior[id])questions.push({id,audience:'user',prompt});
- if(request.behavior.state==='unknown')questions.push({id:'state',audience:'user',prompt:'Are calls independent, or do they require sequences, initialization and reset?'});
+ if(request.behavior.state==='unknown'&&(!request.contract||request.contract.lifecycle.lifetime==='unknown'))questions.push({id:'state',audience:'user',prompt:'Are calls independent, or do they require sequences, initialization and reset?'});
  for(const [id,prompt] of [['ui','Include UI, gestures and animations?'],['remote','Include remote decisions/transport or only local processing?'],['host','Include operating system, file/permission or hardware behavior?']] as const)if(request.boundary[id]==='unknown')questions.push({id,audience:'user',prompt});
+ if(request.contract&&((request.behavior.state==='stateless'&&['session','persistent'].includes(request.contract.lifecycle.lifetime))||(request.behavior.state==='sequence'&&request.contract.lifecycle.lifetime==='independent')))questions.push({id:'state-contract-conflict',audience:'user',prompt:'The legacy state declaration and structured lifetime disagree. Clarify whether calls share a session or are independent.'});
+ if(request.contract&&request.boundary.ui==='excluded'&&['events','stream'].includes(request.contract.interaction.mode))questions.push({id:'ui-contract-conflict',audience:'user',prompt:'The boundary excludes UI but the structured contract requires UI interaction. Choose the intended boundary.'});
+ if(request.contract&&behaviorSummary(request.contract).status==='needs-clarification')questions.push({id:'behavior-contract',audience:'user',prompt:'Resolve the structured behavior declarations and scenario coverage using carve_behavior_check gaps view.'});
  if(!request.leads.length)questions.push({id:'leads',audience:'agent',prompt:'Select relevant components or observations from the current index. Continue investigating if none exist; never invent sources.'});
  return questions;
 }

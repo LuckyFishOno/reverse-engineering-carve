@@ -1,5 +1,5 @@
 // Independent bounded reconstruction of JDK Adler32 object state and libzip
-// incremental adler32_z. The operation wrapper is a Carve API, not Java overloads.
+// incremental adler32_z. The operation wrapper is a RECarve API, not Java overloads.
 let state = 1;
 export function adler32Step(operation, ...parameters) {
   if (operation === 0 || operation === 2) {

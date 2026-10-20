@@ -1,6 +1,6 @@
 package carve.reference;
 
-/** Carve-owned invocation adapter. Calculation runs in the original released DEX. */
+/** RECarve-owned invocation adapter. Calculation runs in the original released DEX. */
 public final class ScrcpySizeHarness {
     public static void main(String[] args) throws Exception {
         Class<?> sizeClass = Class.forName("com.genymobile.scrcpy.model.Size");

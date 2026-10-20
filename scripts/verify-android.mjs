@@ -54,7 +54,7 @@ const r8=engines.r8??path.join(root,'artifacts/engines/r8-9.5.26.jar');
 await exec(path.join(engines.javaHome,'bin/javac'),['--release','8','-Xlint:-options','-d',classes,path.join(root,'examples/android/ScrcpySizeHarness.java')]);
 await exec(java,['-cp',r8,'com.android.tools.r8.D8','--min-api','21','--output',dex,path.join(classes,'carve/reference/ScrcpySizeHarness.class')]);
 const harness=path.join(dex,'classes.dex');const reference=path.join(out,'reference.json');
-await writeFile(reference,JSON.stringify({schema:'carve/android-reference@1',adb:device.adb,serial,serverPort,harness,entryClass:'carve.reference.ScrcpySizeHarness',dependencies:[],description:'Carve-owned reflection harness calls original released scrcpy DEX Size.constrain with actual Android framework types and null codec capabilities. No copied or recompiled original algorithm.'},null,2));
+await writeFile(reference,JSON.stringify({schema:'carve/android-reference@1',adb:device.adb,serial,serverPort,harness,entryClass:'carve.reference.ScrcpySizeHarness',dependencies:[],description:'RECarve-owned reflection harness calls original released scrcpy DEX Size.constrain with actual Android framework types and null codec capabilities. No copied or recompiled original algorithm.'},null,2));
 const cases=[{name:'previously observed landscape resize',args:[1920,1080,1000,8,true],expected:[1000,560]}];
 for(const [w,h] of [[1080,1920],[1920,1080],[1919,1079],[1,1],[7,2000],[4096,2160],[2147483647,1337],[65536,65536]])for(const max of [0,1000,2147483647])for(const aspect of [true,false])cases.push({name:`${w}x${h};max=${max};aspect=${aspect}`,args:[w,h,max,8,aspect]});
 let seed=123456789;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed;};

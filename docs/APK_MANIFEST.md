@@ -1,6 +1,6 @@
 # Find Android entrypoints in a shipped APK
 
-Carve0.17 reads compiled AndroidManifest.xml locally through `manifest` / `carve_manifest`. It needs no SDK, Java, decompiler, network or running device. Unpack the APK and index its members first; container/member SHA256 lineage stays available. Your existing agent uses the declarations to choose DEX classes to investigate.
+RECarve0.17 reads compiled AndroidManifest.xml locally through `manifest` / `carve_manifest`. It needs no SDK, Java, decompiler, network or running device. Unpack the APK and index its members first; container/member SHA256 lineage stays available. Your existing agent uses the declarations to choose DEX classes to investigate.
 
 ```sh
 node dist/cli.js reverse /path/to/app.apk --goal 'Reuse the QR encoding function' --out ./apk-work
@@ -27,11 +27,11 @@ Manifest evidence has its own source identity and never counts as complete decom
 
 ## Actual full APK check
 
-The optional check uses the official [ZXing Barcode Scanner4.7.8 APK](https://github.com/zxing/zxing/releases/tag/BS-4.7.8),815360 bytes, local SHA256 `4d8c739e115e7aaf824dda3f2a55667459c48c2f140d15eadfd6d3d6271bb0b3`. The release API has no digest for this old asset; the pinned local hash identifies downloaded bytes without authenticating an upstream signature. Its Apache2 notice is retained with the local input; no application code is distributed in the Carve package.
+The optional check uses the official [ZXing Barcode Scanner4.7.8 APK](https://github.com/zxing/zxing/releases/tag/BS-4.7.8),815360 bytes, local SHA256 `4d8c739e115e7aaf824dda3f2a55667459c48c2f140d15eadfd6d3d6271bb0b3`. The release API has no digest for this old asset; the pinned local hash identifies downloaded bytes without authenticating an upstream signature. Its Apache2 notice is retained with the local input; no application code is distributed in the RECarve package.
 
-Carve extracts/indexes the full APK and finds69 manifest elements/100 attributes,9 Activities,9 permissions and5 features. Every ordered element/parent/line and attribute namespace/resource ID/raw string/typed value is independently compared with official [AAPT2 xmltree](https://developer.android.com/tools/aapt2). CLI and actual stdio MCP queries find EncodeActivity. With JADX configured, two complete selected class observations from the shipped classes.dex retain EncodeActivity/QRCodeEncoder use-site leads. These are static records; the app is not installed or executed, and QR encoding, camera, UI events, server behavior and device compatibility are not verified by this check.
+RECarve extracts/indexes the full APK and finds69 manifest elements/100 attributes,9 Activities,9 permissions and5 features. Every ordered element/parent/line and attribute namespace/resource ID/raw string/typed value is independently compared with official [AAPT2 xmltree](https://developer.android.com/tools/aapt2). CLI and actual stdio MCP queries find EncodeActivity. With JADX configured, two complete selected class observations from the shipped classes.dex retain EncodeActivity/QRCodeEncoder use-site leads. These are static records; the app is not installed or executed, and QR encoding, camera, UI events, server behavior and device compatibility are not verified by this check.
 
-For reproduction, install an appropriate official AAPT2 separately (normal Carve manifest queries do not need it), and configure JADX/JDK as for other managed analyses:
+For reproduction, install an appropriate official AAPT2 separately (normal RECarve manifest queries do not need it), and configure JADX/JDK as for other managed analyses:
 
 ```sh
 npm run verify:apk-manifest -- --aapt2 /path/to/aapt2 --engines /path/to/engines.json

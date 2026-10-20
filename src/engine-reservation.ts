@@ -6,7 +6,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {processIdentity,processIsLive,type ProcessIdentity} from './process-inspection.js';
 import type {ResolvedEngineResources} from './engine-resources.js';
 
-// One per-user registry shared by every Carve process on this host: CLI calls, MCP servers,
+// One per-user registry shared by every RECarve process on this host: CLI calls, MCP servers,
 // queue runners and background workers. Rows belong to a live process identity; rows whose
 // owner is verifiably gone are reclaimed, and uninspectable owners are kept conservatively.
 // The default location comes from the account's home directory in the user database, not from
@@ -43,7 +43,7 @@ export async function reserveEngineHeap(resources:ResolvedEngineResources,contex
       const others=Number((db.prepare('SELECT COALESCE(SUM(heap),0) n FROM reservations').get() as {n:number}).n);
       if(others+resources.heapMiB>resources.host.heapLimitMiB){
         db.exec('ROLLBACK');inTransaction=false;
-        throw new Error(`Engine heap budget busy: ${others} MiB is reserved by running Carve engine launches on this host; ${resources.heapMiB} MiB more exceeds the ${resources.host.heapLimitMiB} MiB host limit. Retry after they finish or request less heap.`);
+        throw new Error(`Engine heap budget busy: ${others} MiB is reserved by running RECarve engine launches on this host; ${resources.heapMiB} MiB more exceeds the ${resources.host.heapLimitMiB} MiB host limit. Retry after they finish or request less heap.`);
       }
       const id=randomUUID();db.prepare('INSERT INTO reservations VALUES(?,?,?,?,?,?)').run(id,JSON.stringify(owner),resources.heapMiB,context.engine,context.workspace,new Date().toISOString());db.exec('COMMIT');inTransaction=false;
       let released=false;retained=true;

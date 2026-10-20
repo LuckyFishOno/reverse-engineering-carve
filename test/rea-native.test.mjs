@@ -126,7 +126,7 @@ test('bounds input bytes/JSON depth and refuses symlink snapshot storage',async 
  await f.save();const outside=path.join(f.root,'outside');await mkdir(outside);await symlink(outside,path.join(f.workspace,'rea-native-evidence'));await assert.rejects(f.run(),/symlink/);
 });
 
-test('actual Carve MCP imports local records, confines all supplied paths and exposes REA provenance',async t=>{
+test('actual RECarve MCP imports local records, confines all supplied paths and exposes REA provenance',async t=>{
  const f=await fixture(t),client=new Client({name:'rea-native-import-test',version:'1'});await client.connect(new StdioClientTransport({command:process.execPath,args:[fileURLToPath(new URL('../dist/cli.js',import.meta.url)),'serve','--root',f.root],stderr:'pipe'}));t.after(()=>client.close());
  const call=async args=>client.callTool({name:'carve_import_rea_native',arguments:args});
  const result=await call({workspace:'work',file:'swipe.bin',code:'code.json',info:'info.json'});assert.ok(!result.isError);const row=JSON.parse(result.content[0].text);assert.equal(row.provider.name,'rea');

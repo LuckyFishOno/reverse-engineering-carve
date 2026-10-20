@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import {behaviorSchema,behaviorSummary} from './behavior.js';
 import { mkdir, readFile, writeFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { digest } from './artifact.js';
@@ -13,7 +14,7 @@ export const exampleSchema = z.object({
   if (value.origin === 'observed-original' && !value.evidence) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'An original observation needs an evidence reference.' });
 });
 export const featureSchema = z.object({
-  schema: z.literal('carve/feature@1'), title: z.string().min(1).max(160), description: z.string().min(1).max(8000),
+  schema: z.literal('carve/feature@1'), behavior:behaviorSchema.optional(), title: z.string().min(1).max(160), description: z.string().min(1).max(8000),
   target: z.object({ path: z.string().min(1), file: z.string().optional() }).optional(),
   steps: z.array(z.string().min(1)).max(30).default([]),
   searchTerms: z.array(z.string().min(1).max(100)).max(40).default([]),
@@ -33,7 +34,9 @@ export function assessFeature(value: unknown) {
   if (!feature.steps.length) missing.push('steps: describe where/how the original feature is used');
   if (!feature.examples.length) missing.push('examples: supply concrete arguments and expected results');
   if (!feature.acceptance.length) missing.push('acceptance: state which behavior must be retained');
-  return { feature, status: missing.length ? 'draft' as const : 'ready-for-probe' as const, missing,
+  const behavior=feature.behavior?behaviorSummary(feature.behavior):undefined;
+  if(behavior?.status==='needs-clarification')missing.push('behavior: resolve structured declarations and scenario coverage');
+  return { feature,...(behavior?{behavior}:{}), status: missing.length ? 'draft' as const : 'ready-for-probe' as const, missing,
     semanticMatch: 'unconfirmed' as const, note: 'A complete specification defines a task; it does not prove that any implementation matches it.' };
 }
 
@@ -44,7 +47,7 @@ export async function readFeature(file: string) {
 }
 
 export function featurePrompt(feature: Feature, featurePath: string) {
-  return `Use Carve to extract this local capability.\n\nGoal: ${feature.title}\n${feature.description}\n\nSpecification: ${featurePath}\nTarget: ${feature.target?.path ?? 'not yet located'}\nOriginal operations:\n${feature.steps.map(s => '- ' + s).join('\n') || '- not yet supplied'}\nAcceptance:\n${feature.acceptance.map(s => '- ' + s).join('\n') || '- not yet supplied'}\nExclusions:\n${feature.exclusions.map(s => '- ' + s).join('\n') || '- not yet supplied'}\n\nRead the specification and distinguish observed examples from hypotheses. Use carve_discover (or carve discover TARGET --feature SPEC) to find evidence-backed candidates; a ranking is not semantic confirmation. Use REA when lexical evidence is insufficient. If multiple candidates pass, use carve_contrast (or carve contrast TARGET --feature SPEC --execute) for concrete distinguishing inputs. Its candidate outputs are questions, not expected UI behavior; add an example only after user confirmation or observing the requested original operation. Inspect and plan candidate declarations before extraction. Compare against the original on the specified cases, including meaningful boundaries and errors. Do not treat function-name similarity, matching unexpected errors or a successful build as confirmation. Preserve unknowns. Report the independent output, its dependencies, the tested behavior and any unverified behavior.\n`;
+  return `Use RECarve to extract this local capability.\n\nGoal: ${feature.title}\n${feature.description}\n\nSpecification: ${featurePath}\nTarget: ${feature.target?.path ?? 'not yet located'}\nOriginal operations:\n${feature.steps.map(s => '- ' + s).join('\n') || '- not yet supplied'}\nStructured behavior contract: ${feature.behavior?JSON.stringify(behaviorSummary(feature.behavior)):"not-supplied"}. Read feature.behavior from the specification, retain its lifecycle/UI/protocol/persistence/errors/scenarios and provenance classifications, and do not replace continuous sessions with independent calls.\nAcceptance:\n${feature.acceptance.map(s => '- ' + s).join('\n') || '- not yet supplied'}\nExclusions:\n${feature.exclusions.map(s => '- ' + s).join('\n') || '- not yet supplied'}\n\nRead the specification and distinguish observed examples from hypotheses. Use carve_discover (or recarve discover TARGET --feature SPEC) to find evidence-backed candidates; a ranking is not semantic confirmation. Use REA when lexical evidence is insufficient. If multiple candidates pass, use carve_contrast (or recarve contrast TARGET --feature SPEC --execute) for concrete distinguishing inputs. Its candidate outputs are questions, not expected UI behavior; add an example only after user confirmation or observing the requested original operation. Inspect and plan candidate declarations before extraction. Compare against the original on the specified cases, including meaningful boundaries and errors. Do not treat function-name similarity, matching unexpected errors or a successful build as confirmation. Preserve unknowns. Report the independent output, its dependencies, the tested behavior and any unverified behavior.\n`;
 }
 
 export async function createFeature(description: string, out: string, target?: string) {

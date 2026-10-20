@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, rm, readFile, rename, realpath } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -7,6 +8,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import {binaryXml,manifestFixture} from '../test/fixtures/android-manifest.mjs';
 import {buildPe} from '../test/fixtures/pe-image.mjs';
+import {buildUiPe} from '../test/fixtures/pe-ui-image.mjs';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const temp = await mkdtemp(path.join(tmpdir(), 'carve-install-'));
@@ -16,7 +18,7 @@ try {
   const tarball = path.join(temp, packed[0].filename);
   const prefix = path.join(temp, 'clean-install');
   execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--prefix', prefix, tarball], { cwd: temp, stdio: 'pipe' });
-  const executable = path.join(prefix, 'node_modules', '.bin', process.platform === 'win32' ? 'carve.cmd' : 'carve');
+  const executable = path.join(prefix, 'node_modules', '.bin', process.platform === 'win32' ? 'recarve.cmd' : 'recarve');
   const help = execFileSync(executable, ['--help'], { cwd: temp, encoding: 'utf8' });
   if (!help.includes('Investigate and reconstruct software capabilities')) throw new Error('Installed executable did not start.');
   const input = path.join(temp, 'bundle.mjs');
@@ -43,13 +45,23 @@ try {
   if(reversed.status!=='ready-for-analysis') throw new Error('Installed reconstruction task/index failed.');
   const indexed=JSON.parse(execFileSync(executable,['index',reversed.workspace,'--limit','1'],{cwd:temp,encoding:'utf8'}));
   if(indexed.items.length!==1||indexed.total!==3)throw new Error('Installed paginated inventory failed.');
-  const packagedRoot=path.join(prefix,'node_modules/carve-local-prototype');
+  const packagedRoot=path.join(prefix,'node_modules/reverse-engineering-carve');
+  const behaviorExample=path.join(packagedRoot,'examples/behavior/interactive-console.json'),behaviorInput=JSON.parse(await readFile(behaviorExample,'utf8'));
+  const behaviorCli=JSON.parse(execFileSync(executable,['behavior-check',behaviorExample,'--view','requirements','--limit','3'],{cwd:temp,encoding:'utf8'}));
+  if(behaviorCli.status!=='declared-for-validation'||behaviorCli.verification!=='not-run'||behaviorCli.nextOffset!==3)throw new Error('Installed behavior contract CLI failed.');
+  const behaviorClient=new Client({name:'carve-packed-behavior',version:'1'});try{
+    await behaviorClient.connect(new StdioClientTransport({command:process.execPath,args:[path.join(packagedRoot,'dist/cli.js'),'serve','--root',temp],stderr:'pipe'}));
+    const called=await behaviorClient.callTool({name:'carve_behavior_check',arguments:{contract:behaviorInput}}),result=JSON.parse(called.content[0].text);
+    const provenanceCall=await behaviorClient.callTool({name:'carve_behavior_check',arguments:{contract:behaviorInput,view:'provenance'}}),provenance=JSON.parse(provenanceCall.content[0].text);
+    if(provenanceCall.isError||provenance.items[0]?.kind!=='target-design'||provenance.provenance.authenticated!==false)throw new Error('Installed provenance classification failed.');
+    if(called.isError||result.sha256!==behaviorCli.sha256||result.executesTarget!==false)throw new Error('Installed behavior MCP differs from CLI.');
+  }finally{await behaviorClient.close();}
   const scopeRequest=path.join(temp,'scope-request.json');await writeFile(scopeRequest,JSON.stringify({schema:'carve/feature-request@1',origin:'test-fixture',goal:'Extract number formatting; more answers are still needed.'}));
   const scopeRaw=execFileSync(executable,['scope',reversed.workspace,'--request',scopeRequest,'--budget-bytes','8192'],{cwd:temp,encoding:'utf8'}),scope=JSON.parse(scopeRaw);
   if(scope.status!=='needs-clarification'||scope.questions.filter(q=>q.audience==='user').length!==7||scope.receipt.responseBytes!==Buffer.byteLength(scopeRaw)-1)throw new Error('Installed clarification CLI failed.');
   const scopeClient=new Client({name:'carve-packed-scope-test',version:'1'});try{
     await scopeClient.connect(new StdioClientTransport({command:process.execPath,args:[path.join(packagedRoot,'dist/cli.js'),'serve','--root',temp],stderr:'pipe'}));
-    const tools=(await scopeClient.listTools()).tools;if(tools.length!==48||!tools.some(t=>t.name==='carve_scope'))throw new Error('Installed scope MCP is missing.');
+    const tools=(await scopeClient.listTools()).tools;if(tools.length!==52||!tools.some(t=>t.name==='carve_scope'))throw new Error('Installed scope MCP is missing.');
     const called=await scopeClient.callTool({name:'carve_scope',arguments:{workspace:'reconstruction-work',id:scope.id}}),stored=called.structuredContent??JSON.parse(called.content[0].text);
     if(called.isError||stored?.id!==scope.id||stored.sourceIdentityCheck!=='recorded-only-no-current-source-check'||stored.verification!=='not-run')throw new Error('Installed historical scope MCP failed.');
     const withTarget=await scopeClient.callTool({name:'carve_scope',arguments:{workspace:'reconstruction-work',parentId:scope.id,request:{schema:'carve/feature-request@1',origin:'test-fixture',goal:'Reuse formatting in a browser module',target:{schema:'carve/target@1',platform:'browser',delivery:'module'}}}});
@@ -70,7 +82,22 @@ try {
     await workClient.connect(new StdioClientTransport({command:process.execPath,args:[path.join(packagedRoot,'dist/cli.js'),'serve','--root',temp],stderr:'pipe'}));
     const called=await workClient.callTool({name:'carve_work_package',arguments:{action:'check',package:'parser-work',plan:'work-plan.json',spec:'work-spec.json',view:'dependencies'}}),checked=JSON.parse(called.content[0].text);
     if(called.isError||checked.id!==work.id||checked.items[0].feature!=='model'||checked.currentPlanCheck!=='matched-supplied-plan-and-spec')throw new Error('Installed work-package MCP failed.');
+    const smoke='process.stdout.write("ready")';await writeFile(path.join(temp,'acceptance-smoke.mjs'),smoke);
+    const record=JSON.parse(await readFile(path.join(workFolder,'work.json'),'utf8')),acceptanceChecks={schema:'carve/acceptance-spec@1',packageId:work.id,files:[{path:'acceptance-smoke.mjs',sha256:createHash('sha256').update(smoke).digest('hex')}],checks:[{id:'smoke',kind:'build',acceptance:[record.assignment.acceptance[0].name],command:{runtime:'node',file:'acceptance-smoke.mjs',args:[]},expectedStdout:'ready'}]};
+    await writeFile(path.join(temp,'acceptance-checks.json'),JSON.stringify(acceptanceChecks));
+    const acceptanceRoot=await realpath(temp);
+    const acceptanceRun=JSON.parse(execFileSync(executable,['work-acceptance','run',work.package,'--root',acceptanceRoot,'--checks',path.join(temp,'acceptance-checks.json'),'--plan',path.join(temp,'work-plan.json'),'--spec',path.join(temp,'work-spec.json'),'--out',path.join(acceptanceRoot,'acceptance-run'),'--execute'],{cwd:temp,encoding:'utf8'}));
+    const acceptanceRead=await workClient.callTool({name:'carve_work_acceptance',arguments:{action:'read',package:'parser-work',root:'.',plan:'work-plan.json',spec:'work-spec.json',directory:'acceptance-run'}}),receipt=JSON.parse(acceptanceRead.content[0].text);
+    if(acceptanceRead.isError||receipt.reportSha256!==acceptanceRun.reportSha256||receipt.categories.build!=='passed-declared-checks'||receipt.categories['original-comparison']!=='not-run')throw new Error('Installed acceptance CLI/MCP failed.');
   }finally{await workClient.close();}
+  const snapshotFolder=path.join(await realpath(temp),'swift-snapshot');
+  const skeletonCli=JSON.parse(execFileSync(executable,['skeleton','create',path.join(temp,'work-plan.json'),path.join(temp,'work-spec.json'),'--out',snapshotFolder],{cwd:temp,encoding:'utf8'}));
+  if(skeletonCli.built!==false||skeletonCli.originalComparison!=='not-performed')throw new Error('Installed skeleton creation failed.');
+  const skeletonClient=new Client({name:'carve-packed-skeleton',version:'1'});try{
+    await skeletonClient.connect(new StdioClientTransport({command:process.execPath,args:[path.join(packagedRoot,'dist/cli.js'),'serve','--root',temp],stderr:'pipe'}));
+    const inspected=await skeletonClient.callTool({name:'carve_skeleton',arguments:{action:'inspect',directory:'swift-snapshot',limit:1}});if(inspected.isError)throw new Error(inspected.content[0].text);const snapshot=JSON.parse(inspected.content[0].text);if(snapshot.planId!==skeletonCli.planId||snapshot.items.length!==1||snapshot.nextOffset!==1)throw new Error('Installed skeleton inspection differs.');
+    const denied=await skeletonClient.callTool({name:'carve_skeleton',arguments:{action:'check',directory:'swift-snapshot',plan:'work-plan.json',spec:'work-spec.json'}});if(!denied.isError)throw new Error('Installed skeleton check must require execution authorization.');
+  }finally{await skeletonClient.close();}
   const installedLedger=JSON.parse(execFileSync(executable,['work-ledger','create',path.join(temp,'ledger')],{cwd:temp,encoding:'utf8'}));
   execFileSync(executable,['work-ledger','register',installedLedger.ledger,'--package',work.package,'--plan',path.join(temp,'work-plan.json'),'--spec',path.join(temp,'work-spec.json')],{cwd:temp,stdio:'pipe'});
   const installedClaim=JSON.parse(execFileSync(executable,['work-ledger','claim',installedLedger.ledger,'--id',work.id,'--owner','installed-fixture-worker','--plan',path.join(temp,'work-plan.json'),'--spec',path.join(temp,'work-spec.json')],{cwd:temp,encoding:'utf8'}));
@@ -86,6 +113,15 @@ try {
     const called=await platformClient.callTool({name:'carve_platform',arguments:{workspace:'platform-work',file:'platform.exe',request:{kind:'target-adapters',target:{schema:'carve/target@1',platform:'macos',delivery:'desktop-app'},view:'cards'}}}),assessment=JSON.parse(called.content[0].text);
     if(called.isError||assessment.assessment!=='static-guidance-not-verified'||assessment.items.find(i=>i.category==='ui-graphics').availability!=='native-framework')throw new Error('Installed target adapter MCP failed.');
   }finally{await platformClient.close();}
+  const uiInput=path.join(temp,'ui.exe'),uiWork=path.join(temp,'ui-work');await writeFile(uiInput,buildUiPe({plus:true,extended:true}).bytes);
+  execFileSync(executable,['survey',uiInput,'--workspace',uiWork],{cwd:temp,stdio:'pipe'});
+  const uiCli=JSON.parse(execFileSync(executable,['pe-ui',uiWork,'--file','ui.exe','--view','boundary','--command','1001','--limit','100','--budget-bytes','16384'],{cwd:temp,encoding:'utf8'}));
+  if(!uiCli.items.some(n=>n.kind==='handler-candidate'))throw new Error('Installed PE UI CLI is missing handler candidates.');
+  const uiClient=new Client({name:'carve-packed-pe-ui',version:'1'});try{
+    await uiClient.connect(new StdioClientTransport({command:process.execPath,args:[path.join(packagedRoot,'dist/cli.js'),'serve','--root',temp],stderr:'pipe'}));
+    const called=await uiClient.callTool({name:'carve_pe_ui',arguments:{workspace:'ui-work',file:'ui.exe'}}),report=JSON.parse(called.content[0].text);
+    if(called.isError||report.observationId!==uiCli.observationId||report.counts.handlerRows!==2||report.executesTarget!==false)throw new Error('Installed PE UI MCP graph differs from CLI.');
+  }finally{await uiClient.close();}
   const nativeInput=path.join(temp,'loader-fixture'),nativeWorkspace=path.join(temp,'loader-work'),header=Buffer.alloc(32),command=Buffer.alloc(48);
   header.writeUInt32LE(0xfeedfacf,0);header.writeUInt32LE(0x100000c,4);header.writeUInt32LE(2,12);header.writeUInt32LE(1,16);header.writeUInt32LE(48,20);command.writeUInt32LE(12,0);command.writeUInt32LE(48,4);command.writeUInt32LE(24,8);command.write('@loader_path/sibling',24);
   await writeFile(nativeInput,Buffer.concat([header,command]));execFileSync(executable,['survey',nativeInput,'--workspace',nativeWorkspace],{cwd:temp,stdio:'pipe'});
@@ -142,7 +178,7 @@ try {
   }finally{await recordedClient.close();}
   const invoked=JSON.parse(execFileSync(executable,['invoke',tool,'--args','[21]','--execute'],{cwd:temp,encoding:'utf8'}));
   if(invoked!==42) throw new Error('Installed independent invocation failed.');
-  const transport=new StdioClientTransport({command:process.execPath,args:[path.join(prefix,'node_modules/carve-local-prototype/dist/cli.js'),'serve-tool',tool,'--execute'],stderr:'pipe'});
+  const transport=new StdioClientTransport({command:process.execPath,args:[path.join(prefix,'node_modules/reverse-engineering-carve/dist/cli.js'),'serve-tool',tool,'--execute'],stderr:'pipe'});
   const client=new Client({name:'carve-packed-runtime-test',version:'1'});
   try {
     await client.connect(transport);

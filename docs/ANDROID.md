@@ -1,10 +1,10 @@
 # Android runtime reference
 
-Carve can compare a reconstruction against exact selected DEX/archive bytes on an explicitly selected Android runtime. This is separate from JVM/source-equivalent references. It requires trusted execution authorization, an already running ADB server/device and a small reviewed DEX invocation harness.
+RECarve can compare a reconstruction against exact selected DEX/archive bytes on an explicitly selected Android runtime. This is separate from JVM/source-equivalent references. It requires trusted execution authorization, an already running ADB server/device and a small reviewed DEX invocation harness.
 
 ## Actual third-party case
 
-The pinned [scrcpy v5.0.1 release](https://github.com/Genymobile/scrcpy/releases/tag/v5.0.1) Android server is an Apache-2.0 input. Its official asset SHA256 is `764eb6f79811d5211fe9df341120882ba9994c7a61b897d7bf3fb662e53bc536`. Carve unpacks the release, retains the container/member hashes, and analyzes `Size` and `VideoConstraints` with JADX. The reference invokes the original shipped DEX methods through [a Carve-owned reflection adapter](../examples/android/ScrcpySizeHarness.java); no original algorithm is recompiled into the harness.
+The pinned [scrcpy v5.0.1 release](https://github.com/Genymobile/scrcpy/releases/tag/v5.0.1) Android server is an Apache-2.0 input. Its official asset SHA256 is `764eb6f79811d5211fe9df341120882ba9994c7a61b897d7bf3fb662e53bc536`. RECarve unpacks the release, retains the container/member hashes, and analyzes `Size` and `VideoConstraints` with JADX. The reference invokes the original shipped DEX methods through [a RECarve-owned reflection adapter](../examples/android/ScrcpySizeHarness.java); no original algorithm is recompiled into the harness.
 
 Selected behavior: `Size.constrain(constraints, preserveAspect)` where encoder capabilities are null. Preserve aspect-ratio selection, max-size clamp, alignment and signed-int32 arithmetic. The [independent implementation](../examples/android/scrcpy-size.mjs) has no Android dependency. Hardware codec constraints, capture/encoding, UI/server and non-int32 inputs remain outside the selected boundary.
 
@@ -43,7 +43,7 @@ The development helper resolves SDK/AVD/user paths against the real configuratio
 
 Before launching, the helper refuses an absent ADB server or occupied emulator ports. It never stops an existing process. AVD `.ini` files contain an absolute `path=` even when the SDK configuration uses relative paths: after moving the folder, review that entry yourself. The helper refuses a missing or mismatched entry and does not rewrite AVD metadata, reset userdata or delete lock files. An already-running emulator must be stopped through its verified owner before moving it. Port inspection is a preflight check, not an exclusive reservation against concurrent launchers.
 
-The emulator stays in the foreground; interruption signals are forwarded to that newly spawned child. The helper never starts or stops ADB. After startup, separately verify the actual AVD name, `sys.boot_completed`, build/API/ABI and current process/port ownership before comparisons. After stopping the owned emulator and private server, observe process and port absence instead of trusting a historical PID. SDK installation and this development script are not bundled in the installed Carve package; normal reference verification still accepts any explicitly selected authorized runtime.
+The emulator stays in the foreground; interruption signals are forwarded to that newly spawned child. The helper never starts or stops ADB. After startup, separately verify the actual AVD name, `sys.boot_completed`, build/API/ABI and current process/port ownership before comparisons. After stopping the owned emulator and private server, observe process and port absence instead of trusting a historical PID. SDK installation and this development script are not bundled in the installed RECarve package; normal reference verification still accepts any explicitly selected authorized runtime.
 
 ## Reference configuration
 
@@ -63,23 +63,23 @@ The emulator stays in the foreground; interruption signals are forwarded to that
 `harness` and optional classpath dependencies are precompiled DEX or DEX-bearing archives. Compile only the adapter, using a JDK and D8. The selected original DEX/archive is automatically taken from the package's bound reconstruction contract, placed first on the runtime classpath and rehashed; it must not be substituted by recompiled source. Java `.class` input is refused for direct ART execution. AAB/AAR/other archives must actually contain executable DEX for this path to work; format recognition alone does not make them executable.
 
 ```sh
-carve verify-reconstruction ./work --package ./independent-tool \
+recarve verify-reconstruction ./work --package ./independent-tool \
   --cases ./cases.json --reference ./android-reference.json --execute
 ```
 
 The invocation harness takes scalar positional arguments and emits exactly one JSON value on stdout. stderr remains diagnostic. Harness exceptions/nonzero exits, non-JSON/nonfinite results, >1 MiB output and deadlines fail. Each case starts a fresh VM process. ADB shell argv is individually quoted; strings are data. A remote `timeout` process bounds VM execution even after the host transport is cancelled, with up to two seconds of host transport allowance. A pending remote process may remain until that deadline after cancellation.
 
-Carve snapshots exact host bytes, creates a random `/data/local/tmp/carve-*` directory, pushes read-only files, verifies remote SHA256 before and after the cases, records Android build/API/ABI plus ART executable/version/hash, and removes its private staging directory. Host snapshot copies are removed; logs and identity evidence remain in `WORKSPACE/verification/android/run-*`. A transport failure can prevent cleanup and is reported explicitly.
+RECarve snapshots exact host bytes, creates a random `/data/local/tmp/carve-*` directory, pushes read-only files, verifies remote SHA256 before and after the cases, records Android build/API/ABI plus ART executable/version/hash, and removes its private staging directory. Host snapshot copies are removed; logs and identity evidence remain in `WORKSPACE/verification/android/run-*`. A transport failure can prevent cleanup and is reported explicitly.
 
 ## Structured Android arguments
 
-Carve0.18 also accepts `carve/android-reference@2` with the same fields plus explicit `mode:"json-stdin"` or `mode:"argv-values"`. Version1 remains scalar argv without silent changes. JSON-stdin sends the complete positional argument array as UTF8 JSON through ADB stdin to the VM, with no case values added to the shell command/argv. A reviewed harness must read stdin, parse the JSON and invoke the original method. It supports nested objects/arrays/null and NUL inside JSON strings; plain finite JSON only, no undefined/functions/BigInt/cycles or implicit toJSON conversion. Input is limited to1MiB before a per-case process starts. JSON stdout remains mandatory; the existing combined output cap, fresh processes, remote timeout, identity checks and cleanup apply. The recorded runtime includes inputMode.
+RECarve0.18 also accepts `carve/android-reference@2` with the same fields plus explicit `mode:"json-stdin"` or `mode:"argv-values"`. Version1 remains scalar argv without silent changes. JSON-stdin sends the complete positional argument array as UTF8 JSON through ADB stdin to the VM, with no case values added to the shell command/argv. A reviewed harness must read stdin, parse the JSON and invoke the original method. It supports nested objects/arrays/null and NUL inside JSON strings; plain finite JSON only, no undefined/functions/BigInt/cycles or implicit toJSON conversion. Input is limited to1MiB before a per-case process starts. JSON stdout remains mandatory; the existing combined output cap, fresh processes, remote timeout, identity checks and cleanup apply. The recorded runtime includes inputMode.
 
 This is a data transport, not automatic method discovery or an Android ABI bridge. The owned structured protocol check echoes nested/NUL/Unicode/shell-looking values and a300000-byte string on actual ART, keeping it separate from third-party feature cases. The [shipped APK contact case](ZXING_VCARD.md) uses it for a structured contact object and compares160 original payload results through reflection.
 
 ## Ordered Android object operations
 
-Carve0.33 adds `carve/android-reference@4` with required `mode:"json-sequence-stdin"`. Use the same explicit adb/serial/serverPort/harness/entryClass/dependencies/description fields as above. Versions1–3 remain scalar. Optional named nativeLibraries use the version3 staging and ABI checks; the new managed-object integration does not establish JNI stateful coverage.
+RECarve0.33 adds `carve/android-reference@4` with required `mode:"json-sequence-stdin"`. Use the same explicit adb/serial/serverPort/harness/entryClass/dependencies/description fields as above. Versions1–3 remain scalar. Optional named nativeLibraries use the version3 staging and ABI checks; the new managed-object integration does not establish JNI stateful coverage.
 
 ```json
 {
@@ -95,7 +95,7 @@ Carve0.33 adds `carve/android-reference@4` with required `mode:"json-sequence-st
 }
 ```
 
-Use [sequence-cases@1](STATEFUL.md) with1–200 uniquely named sequences,1–64 calls each and at most1000 total steps. Each sequence starts one fresh original ART VM and one fresh candidate Node module. All calls arrive in one stdin array; the reviewed harness must invoke the original methods on the intended shared object and emit exactly one return/throw outcome per call. Carve validates outcome shape/count. A finite JSON echo, missing outcome, process/protocol failure, timeout or excessive output is a harness error, never a target exception. An explicit lifecycle operation such as new belongs to the adapter boundary and must be labeled.
+Use [sequence-cases@1](STATEFUL.md) with1–200 uniquely named sequences,1–64 calls each and at most1000 total steps. Each sequence starts one fresh original ART VM and one fresh candidate Node module. All calls arrive in one stdin array; the reviewed harness must invoke the original methods on the intended shared object and emit exactly one return/throw outcome per call. RECarve validates outcome shape/count. A finite JSON echo, missing outcome, process/protocol failure, timeout or excessive output is a harness error, never a target exception. An explicit lifecycle operation such as new belongs to the adapter boundary and must be labeled.
 
 The existing whole-sequence deadline is50–30000ms; the remote timeout bounds the VM and host transport allows up to two additional seconds. Input/output limits and per-run byte hashing/cleanup remain unchanged. Runtime schema android-runtime@2 records inputMode:json-sequence-stdin, processLifetime:one-sequence, freshVmPerSequence:true and crossSequenceVmState:false. Object retention is defined by the reviewed harness; these fields are not independent method instrumentation. OS/device state can persist between processes.
 
@@ -103,7 +103,7 @@ The report scope is **selected-dex-android-harness-sequences**, with sequence an
 
 ## Shipped native JNI libraries
 
-Carve0.26 adds `carve/android-reference@3` for a selected DEX-bearing target plus explicitly declared native libraries. It retains version2's input modes; versions1/2 do not accept native-library fields.
+RECarve0.26 adds `carve/android-reference@3` for a selected DEX-bearing target plus explicitly declared native libraries. It retains version2's input modes; versions1/2 do not accept native-library fields.
 
 ```json
 {
@@ -122,7 +122,7 @@ Carve0.26 adds `carve/android-reference@3` for a selected DEX-bearing target plu
 }
 ```
 
-Each library has a unique portable `lib*.so` basename (up to20 libraries). Carve snapshots it, verifies the snapshot hash and checks a little-endian ELF shared-object header against the selected device's primary ABI: arm64-v8a, armeabi-v7a, x86 or x86_64. It does not automatically select another ABI. Limits are64MiB per native library and256MiB total. ELF header compatibility is a preflight check; a malformed file or unresolved dependency can still fail at the real loader.
+Each library has a unique portable `lib*.so` basename (up to20 libraries). RECarve snapshots it, verifies the snapshot hash and checks a little-endian ELF shared-object header against the selected device's primary ABI: arm64-v8a, armeabi-v7a, x86 or x86_64. It does not automatically select another ABI. Limits are64MiB per native library and256MiB total. ELF header compatibility is a preflight check; a malformed file or unresolved dependency can still fail at the real loader.
 
 Native files are staged under the session's private `lib/` directory, separately from the DEX classpath. ART receives `-Djava.library.path` for that directory. The original class or reviewed harness must actually load/invoke the library. Host reference bindings and before/after remote hashes include native bytes; runtime metadata records their role, ELF header/ABI and remote paths. Native staging, all failure paths and tamper checks share the existing private-directory cleanup.
 

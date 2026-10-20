@@ -1,6 +1,6 @@
 # Feature scope and clarification
 
-`scope` / `carve_scope` stores requirements, missing answers and selected leads in an analysis workspace. The agent presents clarification questions in conversation. Carve does not launch an LLM or REA.
+`scope` / `carve_scope` stores requirements, missing answers and selected leads in an analysis workspace. The agent presents clarification questions in conversation. RECarve does not launch an LLM or REA.
 
 ## Minimal request
 

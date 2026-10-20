@@ -1,4 +1,5 @@
 import path from 'node:path';
+import {behaviorSummary} from './behavior.js';
 import {constants} from 'node:fs';
 import {open,realpath,lstat,mkdir,writeFile,link,unlink} from 'node:fs/promises';
 import {randomUUID} from 'node:crypto';
@@ -79,7 +80,7 @@ function presentation(root:string,selected:string,record:RecordValue,options:Fea
  }
  if(offset>record.sources.length)throw new Error('Scope source offset exceeds the recorded source count.');
  const declarations=Object.entries(record.request.boundary).filter(([,v])=>v==='required').map(([name])=>name+'-required');
- return budgetItems({...base,total:record.sources.length,offset,...(view==='summary'?{origin:record.request.origin,goal:record.request.goal.slice(0,160),goalTruncated:record.request.goal.length>160,choice:record.request.choice??null,facet:record.request.facet??null,questions,declaredRequirements:declarations,coverageIncomplete:record.sources.some(s=>s.inventoryStatus!=='indexed'),encryptedInputs:record.sources.filter(s=>s.encrypted).length,
+ return budgetItems({...base,total:record.sources.length,offset,...(view==='summary'?{origin:record.request.origin,goal:record.request.goal.slice(0,160),goalTruncated:record.request.goal.length>160,choice:record.request.choice??null,facet:record.request.facet??null,questions,declaredRequirements:declarations,...(record.request.contract?{behaviorContract:behaviorSummary(record.request.contract)}:{}),coverageIncomplete:record.sources.some(s=>s.inventoryStatus!=='indexed'),encryptedInputs:record.sources.filter(s=>s.encrypted).length,
   authority:'User/agent intent plus source identities and recorded name metadata; no complete code-evidence, runtime/dependency, availability or extraction claim.',nextAction:status==='ready-for-investigation'?'Investigate complete code/calls with the separate REA MCP and existing tools. Create/resume reverse with this request ID in the goal; do not copy intent into verified behavior.':'Ask the missing user questions and investigate missing source leads. Submit a complete revised request with parentId; earlier records remain unchanged.'}:{} )},record.sources.slice(offset,offset+limit).map(value=>({value})),budget);
 }
 

@@ -1,6 +1,6 @@
 # Engine resource budgets
 
-Carve 0.20 lets a caller choose the JVM maximum heap and worker-thread budget for Ghidra and JADX. Before 0.20 both engines used a fixed 1 GiB heap and two workers. Those remain the defaults, so existing calls launch exactly as before.
+RECarve 0.20 lets a caller choose the JVM maximum heap and worker-thread budget for Ghidra and JADX. Before 0.20 both engines used a fixed 1 GiB heap and two workers. Those remain the defaults, so existing calls launch exactly as before.
 
 ## Options
 
@@ -12,7 +12,7 @@ Carve 0.20 lets a caller choose the JVM maximum heap and worker-thread budget fo
 | Direct API `nativeAnalysis` / `managedAnalysis` | `resources.heapMiB` | `resources.threads` |
 
 ```sh
-carve native ./work --file relative/large-program --ghidra /path/to/ghidra --java-home /path/to/jdk \
+recarve native ./work --file relative/large-program --ghidra /path/to/ghidra --java-home /path/to/jdk \
   --heap-mib 8192 --threads 4 --timeout 7200000
 ```
 
@@ -33,11 +33,11 @@ carve native ./work --file relative/large-program --ghidra /path/to/ghidra --jav
 
 ## Heap exhaustion
 
-After every Ghidra/JADX launch, Carve scans the whole retained engine log for `java.lang.OutOfMemoryError`. Ghidra analyzers can report a heap failure and still exit 0. When that happens the call fails, the project is not marked as a completed cache, and the next call imports and analyzes again. A JADX heap failure also fails the call before anything is indexed. The error names the heap that was used and the host limit, so you can retry with a larger heap or a narrower scope.
+After every Ghidra/JADX launch, RECarve scans the whole retained engine log for `java.lang.OutOfMemoryError`. Ghidra analyzers can report a heap failure and still exit 0. When that happens the call fails, the project is not marked as a completed cache, and the next call imports and analyzes again. A JADX heap failure also fails the call before anything is indexed. The error names the heap that was used and the host limit, so you can retry with a larger heap or a narrower scope.
 
 ## What resources do not change
 
-Resources do not enter the analysis cache identity. A cached auto-analysis completed under one budget can be reused for exports under another. `analysisResources` records which budget completed it. The heap is the JVM maximum only. The native decompiler process, JVM metaspace/stacks and OS caches use memory beyond it. Carve does not measure peak memory or provide a CPU/memory sandbox, and does not claim any speedup.
+Resources do not enter the analysis cache identity. A cached auto-analysis completed under one budget can be reused for exports under another. `analysisResources` records which budget completed it. The heap is the JVM maximum only. The native decompiler process, JVM metaspace/stacks and OS caches use memory beyond it. RECarve does not measure peak memory or provide a CPU/memory sandbox, and does not claim any speedup.
 
 ## Real check
 

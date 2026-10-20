@@ -37,7 +37,7 @@ export async function probe(input: string, options: { feature: string; execute: 
   return { schema: 'carve/probe@1', target: discovery.target, featureSha256: feature.sha256,
     status: matches.length === 1 ? 'one-tested-match' : matches.length > 1 ? 'ambiguous' : 'no-tested-match',
     semanticMatch: 'tested-examples-only', matches, discovery, results,
-    nextAction: matches.length > 1 ? 'Use carve contrast TARGET --feature SPEC --execute to find a concrete distinguishing question, or gather UI/call evidence. Never choose arbitrarily.'
+    nextAction: matches.length > 1 ? 'Use recarve contrast TARGET --feature SPEC --execute to find a concrete distinguishing question, or gather UI/call evidence. Never choose arbitrarily.'
       : matches.length === 1 ? 'Run extraction and report the match as limited to the supplied examples and tested shortlist.'
       : 'Inspect blocked candidates, add observed technical terms or use REA/reference harnesses. A blocked candidate is not disproved.',
     limitations: ['Only the returned lexical shortlist was probed; other implementations may exist.',

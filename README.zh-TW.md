@@ -1,14 +1,19 @@
-# Carve
+# reverse-engineering-carve
+
+**RECarve** — REA companion MCP.
 
 **把逆向調查的功能，整理成 AI 可以直接重用的本機功能。**
 
-Carve 是 **REA 的獨立附加 MCP**。LLM 分別呼叫 REA MCP 調查軟體，使用 Carve MCP 選擇功能、界定範圍、抽離或重建、比較行為，最後存成本機功能資料夾。REA 與 Carve 各自啟動，各自保有工具與身份。
+RECarve 是 **REA 的獨立附加 MCP**。LLM 分別呼叫 REA MCP 調查軟體，使用 RECarve MCP 選擇功能、界定範圍、抽離或重建、比較行為，最後存成本機功能資料夾。REA 與 RECarve 各自啟動，各自保有工具與身份。
 
-**0.38.1 本機 alpha，尚未發佈 npm。** [English](README.md) · [雙 MCP 接法與乾淨安裝實測](docs/REA_COMPANION.md)
+**0.43.0 alpha，尚未發佈 npm。** [English](README.md) · [雙 MCP 接法與乾淨安裝實測](docs/REA_COMPANION.md)
+
+
+[0.43.0 更新說明](docs/RELEASE_0.43.0.md)：PE 介面證據、行為契約、來源分類、可執行驗收及 Swift 專案整合；已通過388項測試與乾淨安裝檢查。
 
 ## 解決什麼問題
 
-看懂一個功能後，還需要確認它依賴哪些模組、如何獨立使用，以及重建後是否符合預期。Carve 把這些工作整理成可交付的成果：
+看懂一個功能後，還需要確認它依賴哪些模組、如何獨立使用，以及重建後是否符合預期。RECarve 把這些工作整理成可交付的成果：
 
 - **功能選單**：列出有來源線索的候選；都不符合時，接受使用者自己的描述。
 - **抽離邊界**：記下選中的程式碼、證據與依賴；伺服器或平台未知項目保持明確。
@@ -19,14 +24,16 @@ Carve 是 **REA 的獨立附加 MCP**。LLM 分別呼叫 REA MCP 調查軟體，
 flowchart LR
     U[使用者描述功能] --> A[既有 LLM agent]
     A <--> R[REA MCP：逆向調查]
-    A <--> C[Carve MCP：選擇、抽離、驗證]
+    A <--> C[RECarve MCP：選擇、抽離、驗證]
     C --> F[本機功能資料夾]
     F --> P[其他專案或 agent]
 ```
 
-LLM 協調兩個獨立連線。Carve MCP 不包裝、代理或啟動 REA，也不新增把兩者合併的 MCP。既有 Carve Ghidra／JADX 工具保留相容性，不代表把 REA 引擎納入 Carve。
+LLM 協調兩個獨立連線。RECarve MCP 不包裝、代理或啟動 REA，也不新增把兩者合併的 MCP。既有 RECarve Ghidra／JADX 工具保留相容性，不代表把 REA 引擎納入 RECarve。
 
 ## 接到現有 agent
+
+專案與套件名稱為 `reverse-engineering-carve`，CLI 與 MCP 設定名稱使用 `recarve`；既有 `carve_*` 工具與 `carve/*` 資料格式保留相容性。
 
 需要 Node22.19（22系列）或 Node24.11以上。在這份Carve原始碼目錄執行：
 
@@ -35,30 +42,26 @@ npm ci
 npm run build
 ```
 
-保留兩個 MCP 設定項目，絕對路徑換成實際位置：
+已經有 REA？保留原本的安裝與 MCP 設定，只將下面的 `recarve` 項目加入既有的 `mcpServers`，不要覆蓋其他設定。絕對路徑換成實際位置：
 
 ```json
 {
   "mcpServers": {
-    "rea": {
-      "command": "npx",
-      "args": ["-y", "rea-agents@6.7.0", "mcp"]
-    },
-    "carve": {
+    "recarve": {
       "command": "node",
-      "args": ["/absolute/path/to/carve/dist/cli.js", "serve", "--root", "/absolute/path/to/workspace"]
+      "args": ["/absolute/path/to/reverse-engineering-carve/dist/cli.js", "serve", "--root", "/absolute/path/to/workspace"]
     }
   }
 }
 ```
 
-REA 另外安裝，Carve 在本機建置。root 必須包含 Carve 要讀取的軟體、Evidence JSON 和輸出位置。Carve 不需要網站、網域、API服務或每個功能分別安裝，也不會由這份範例自動修改全域設定。[完整接法](docs/REA_COMPANION.md)
+重新載入客戶端的 MCP 連線後，REA 與 RECarve 應分別出現；RECarve 有52個工具，包括 `carve_features`、`carve_behavior_check`、`carve_work_acceptance` 和 `carve_skeleton`。先用 `node dist/cli.js --version` 確認為0.43.0，再請 agent 分別列出兩個 server 的工具。不需要重裝 REA，也不用把 RECarve 塞進 REA 套件。全新 REA 安裝範例見下方完整接法。RECarve 在本機建置。root 必須包含 RECarve 要讀取的軟體、Evidence JSON 和輸出位置。RECarve 不需要網站、網域、API服務或每個功能分別安裝，也不會由這份範例自動修改全域設定。[完整接法](docs/REA_COMPANION.md)
 
 ## 使用者怎麼用
 
 可以直接對既有 agent 說：
 
-> 用 REA 調查這個軟體，再用 Carve 列出可能抽離的功能，附上來源線索和未知依賴。沒有合適選項時讓我自行描述。選定後確認範圍，抽出或重建，以具體案例驗證，存成下次能重用的功能資料夾。
+> 用 REA 調查這個軟體，再用 RECarve 列出可能抽離的功能，附上來源線索和未知依賴。沒有合適選項時讓我自行描述。選定後確認範圍，抽出或重建，以具體案例驗證，存成下次能重用的功能資料夾。
 
 已知道功能時，補上「在哪裡觸發、給什麼輸入、希望得到什麼輸出」，agent 仍需確認實際程式碼與依賴。
 
@@ -82,6 +85,16 @@ node dist/cli.js features ./work --choice image --facet transform
 
 Windows PE可用 `platform dependencies`／`platform adapters` 或 `carve_platform` 查來源import分類與目標adapter指引；結果指出需要調查的邊界，尚未實作或驗證移植。[平台分析](docs/PLATFORM_ANALYSIS.md)
 
+PE 桌面介面可用 `pe-ui`／`carve_pe_ui`，將原始選單、對話框、字串與快捷鍵串成命令及候選處理函式的證據圖譜。查詢命令邊界後，由獨立 REA MCP 檢查位址；候選尚未證明類別歸屬、功能語意或完整性。[介面證據圖譜](docs/PE_UI.md)
+
+結構化行為契約保留生命週期、直接介面操作、通訊模式、持久化與錯誤復原，再將有順序的情境帶入工作包驗收。`behavior-check`／`carve_behavior_check` 找出宣告與情境覆蓋缺口；不代表已執行驗證。[行為契約](docs/BEHAVIOR.md)
+
+行為要求也會區分原始靜態證據、推測、目標設計與已回報的驗證宣告。缺少分類就維持未分類；標籤或報告雜湊本身不代表已認證的證明。[來源分類](docs/PROVENANCE.md)
+
+透過 `work-acceptance`／`carve_work_acceptance` 執行明確授權的工作驗收，分開記錄建置、單元、即時測試與有限案例的原始比對，並保留輸入雜湊及可檢查的本機報告。[可執行驗收](docs/WORK_ACCEPTANCE.md)
+
+使用 `skeleton`／`carve_skeleton` 產生 Swift 專案快照，保留指定的實作與資源，接上套件、模組及系統函式庫，再明確授權建置測試。更新時產生新快照，保留原有專案。[專案整合](docs/SKELETON.md)
+
 ## 交付成果
 
 | 輸入與功能範圍 | 成果 |
@@ -93,7 +106,7 @@ Windows PE可用 `platform dependencies`／`platform adapters` 或 `carve_platfo
 
 用 `carve_library_add` 存入本機功能庫；下次 `carve_library_find`、`carve_library_get`，再 import 或 `carve_invoke`。不必做成獨立程式。[功能庫](docs/LIBRARY.md)
 
-JS／ASAR Evidence可保存實際回傳JSON，交給Carve核對模組／封裝檔位元組。原生Ghidra的指定完整紀錄可保存相同selector的procedure_pseudo_code與procedure_info，交給carve_import_rea_native；核對來源、語意ID、分析設定與函式範圍後，保存owned snapshot及原producer身分。選用的procedure_callees／outgoing procedure_references可保留呼叫位置、缺少的helper與未解析callback；trace／context只接相同REA分析設定。Carve MCP不會啟動REA。[原生交接](docs/REA_NATIVE.md) · [雙MCP設定](docs/REA_COMPANION.md)
+JS／ASAR Evidence可保存實際回傳JSON，交給Carve核對模組／封裝檔位元組。原生Ghidra的指定完整紀錄可保存相同selector的procedure_pseudo_code與procedure_info，交給carve_import_rea_native；核對來源、語意ID、分析設定與函式範圍後，保存owned snapshot及原producer身分。選用的procedure_callees／outgoing procedure_references可保留呼叫位置、缺少的helper與未解析callback；trace／context只接相同REA分析設定。RECarve MCP不會啟動REA。[原生交接](docs/REA_NATIVE.md) · [雙MCP設定](docs/REA_COMPANION.md)
 
 ## 已做過的實測
 
@@ -124,7 +137,7 @@ npm run check
 
 ## 目前限制
 
-Carve 提供工具與保存紀錄，推理和重建仍由既有 agent 主導。選單目前支援十類明確規則及自訂文字命中；名稱或圖譜線索不等於功能語意。原生／行動全自動抽離、任意外部Evidence匯入、複雜狀態／OS依賴、缺失伺服器邏輯與一般等價證明仍未完成。每份比較只涵蓋指定案例與參考範圍。
+RECarve 提供工具與保存紀錄，推理和重建仍由既有 agent 主導。選單目前支援十類明確規則及自訂文字命中；名稱或圖譜線索不等於功能語意。原生／行動全自動抽離、任意外部Evidence匯入、複雜狀態／OS依賴、缺失伺服器邏輯與一般等價證明仍未完成。每份比較只涵蓋指定案例與參考範圍。
 
 功能保留來源與適用授權通知；產物預設UNLICENSED，直到適用權利明確。Carve的MIT授權不會替輸入軟體重新授權。開發維持本機，尚無npm發佈版本。
 

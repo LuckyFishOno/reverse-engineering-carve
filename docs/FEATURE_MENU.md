@@ -1,6 +1,6 @@
 # Feature choices
 
-Carve presents evidence-linked feature choices after indexing. The current LLM shows the JSON choices to the user; there is no separate website or popup. REA MCP and Carve MCP remain independent.
+RECarve presents evidence-linked feature choices after indexing. The current LLM shows the JSON choices to the user; there is no separate website or popup. REA MCP and RECarve MCP remain independent.
 
 ```sh
 node dist/cli.js reverse /path/to/software --out ./work
@@ -31,4 +31,4 @@ Merge leads for repeated IDs across batches. Changes to index revision, observat
 
 A selected choice returns question templates in `refinement.options`. Supplying a facet performs another literal filter without reading code or proving semantics. If the facet has no hits, broader components appear only in `componentLeadsNotFacetMatches`; they are not successful facet matches. `componentCountInScan` counts matching file/hash pairs in this batch, not dependency closure.
 
-Use [scope](FEATURE_SCOPE.md) to record trigger/input/output/state and UI/remote/host boundaries. Read complete code and call/loader evidence before preparing a reconstruction contract. Carve does not invoke an LLM or approve requirements on the user's behalf.
+Use [scope](FEATURE_SCOPE.md) to record trigger/input/output/state and UI/remote/host boundaries. Read complete code and call/loader evidence before preparing a reconstruction contract. RECarve does not invoke an LLM or approve requirements on the user's behalf.

@@ -1,5 +1,8 @@
 #!/usr/bin/env node
+import {runWorkAcceptance,readWorkAcceptance} from './work-acceptance.js';
+import {skeletonCreate,skeletonCheck,skeletonInspect} from './skeleton-api.js';
 import { Command } from 'commander';
+import {checkBehavior} from './behavior.js';
 import { inspect, plan, serve } from './mcp.js';
 import { extract } from './extract.js';
 import { verify } from './verify.js';
@@ -31,6 +34,7 @@ import {enqueueAnalysis,queryAnalysisJobs,runAnalysisQueue} from './analysis-que
 import {startAnalysisRun,queryAnalysisRuns,cancelAnalysisRun} from './analysis-background.js';
 import {queryLinks} from './linkage.js';
 import {inspectLoader} from './loader.js';
+import {inspectPeUi} from './pe-ui.js';
 import {inspectAndroidManifest} from './android-manifest.js';
 import {inspectJni} from './jni.js';
 import {readVerificationArchive,verificationResponse} from './verification-archive.js';
@@ -42,7 +46,7 @@ import { unpackContainer } from './container.js';
 import {readEngineConfiguration} from './engine-config.js';
 import {relocateWorkspace} from './relocate.js';
 
-const cli = new Command().name('carve').description('Investigate and reconstruct software capabilities using local analysis, CLI and MCP tools.').version(VERSION);
+const cli = new Command().name('recarve').description('Investigate and reconstruct software capabilities using local analysis, CLI and MCP tools.').version(VERSION);
 const output = (value: unknown): void => { process.stdout.write(JSON.stringify(value, null, 2) + '\n'); };
 const compactOutput = (value: unknown): void => { process.stdout.write(JSON.stringify(value) + '\n'); };
 const cliResources = (options: { heapMib?: string; threads?: string }) => ({ heapMiB: options.heapMib === undefined ? undefined : Number(options.heapMib), threads: options.threads === undefined ? undefined : Number(options.threads) });
@@ -128,6 +132,9 @@ cli.command('scope').argument('<workspace>').description('Save or read a source-
   .option('--offset <count>', 'Source index or JSON text UTF16 offset', '0').option('--limit <count>', 'Source cards1–16', '8').option('--characters <count>', 'Record text characters1–12000', '12000')
   .option('--budget-bytes <bytes>', 'Compact JSON response budget', '8192')
   .action(async(workspace,options)=>compactOutput(await withCancellation(async signal=>featureScope(workspace,{request:options.request?(await boundedJson(options.request)).value:undefined,id:options.id,parentId:options.parent,view:options.view,offset:Number(options.offset),limit:Number(options.limit),characters:Number(options.characters),budgetBytes:Number(options.budgetBytes),signal}))));
+cli.command('behavior-check').argument('<json>').description('Check structured lifecycle/UI/protocol/persistence requirements and declared scenario coverage; never executes cases')
+  .option('--view <name>', 'summary, requirements, scenarios, gaps or provenance', 'summary').option('--offset <count>', 'Row offset', '0').option('--limit <count>', 'Rows1–100', '10').option('--budget-bytes <bytes>', 'Compact JSON response budget', '8192')
+  .action(async(file,options)=>compactOutput(checkBehavior((await boundedJson(file)).value,{...options,offset:Number(options.offset),limit:Number(options.limit),budgetBytes:Number(options.budgetBytes)})));
 cli.command('project-plan').argument('<json>').description('Order an agent-declared project graph and page its tasks; no dispatch or target execution')
   .option('--offset <count>', 'Task offset', '0').option('--limit <count>', 'Task cards1–100', '20')
   .option('--budget-bytes <bytes>', 'Compact JSON response budget1024–65536', '8192')
@@ -143,6 +150,18 @@ workPages(workPackage.command('read').argument('<directory>'))
   .action(async(input,options)=>compactOutput(await withCancellation(signal=>readWorkPackage(input,workOptions(options,signal)))));
 workPages(workPackage.command('check').argument('<directory>').requiredOption('--plan <json>', 'Current complete project plan').requiredOption('--spec <json>', 'Current work specification'))
   .action(async(input,options)=>compactOutput(await withCancellation(async signal=>readWorkPackage(input,workOptions(options,signal),{plan:(await boundedJson(options.plan)).value,spec:(await boundedJson(options.spec)).value}))));
+const acceptance=cli.command('work-acceptance').description('Execute explicitly trusted checks or inspect pinned local results; no automatic ledger acceptance');
+acceptance.command('run').argument('<package>').requiredOption('--root <directory>', 'Trusted implementation root').requiredOption('--checks <json>', 'Acceptance command/file-pin specification').requiredOption('--plan <json>', 'Current plan').requiredOption('--spec <json>', 'Current work specification').requiredOption('--out <directory>', 'New result directory').option('--execute', 'Authorize trusted command execution').option('--timeout-ms <ms>', 'Per-command deadline50–30000', '3000').option('--budget-bytes <bytes>', 'Response budget', '8192')
+ .action(async(pkg,o)=>compactOutput(await withCancellation(async signal=>runWorkAcceptance(pkg,o.root,(await boundedJson(o.checks)).value,o.out,{plan:(await boundedJson(o.plan)).value,spec:(await boundedJson(o.spec)).value},{execute:o.execute,timeoutMs:Number(o.timeoutMs),budgetBytes:Number(o.budgetBytes),signal}))));
+acceptance.command('read').argument('<directory>').requiredOption('--package <directory>', 'Current work package').requiredOption('--root <directory>', 'Implementation root').requiredOption('--plan <json>', 'Current plan').requiredOption('--spec <json>', 'Current work specification').option('--claim <json>', 'Optional reported verification claim to bind to this report').option('--check-id <id>', 'Passing comparison check for claim binding').option('--offset <count>', 'Acceptance row offset', '0').option('--limit <count>', 'Acceptance rows', '8').option('--budget-bytes <bytes>', 'Response budget', '8192')
+ .action(async(dir,o)=>compactOutput(await readWorkAcceptance(dir,o.package,o.root,{plan:(await boundedJson(o.plan)).value,spec:(await boundedJson(o.spec)).value},{claim:o.claim?(await boundedJson(o.claim)).value:undefined,checkId:o.checkId,offset:Number(o.offset),limit:Number(o.limit),budgetBytes:Number(o.budgetBytes)})));
+const skeleton=cli.command('skeleton').description('Generate or inspect a Swift project snapshot with explicit package/resource wiring');
+const skeletonPages=(c:Command)=>c.option('--offset <count>', 'Feature row offset', '0').option('--limit <count>', 'Feature rows1–100', '8').option('--budget-bytes <bytes>', 'JSON response budget', '8192');
+skeletonPages(skeleton.command('create').argument('<plan>').argument('<spec>').requiredOption('--out <directory>', 'New snapshot directory').option('--wiring <json>', 'Pinned dependency/resource/input declarations').option('--source-root <directory>', 'Pinned implementation and vendored inputs'))
+ .action(async(plan,spec,o)=>compactOutput(await withCancellation(async signal=>skeletonCreate((await boundedJson(plan)).value,(await boundedJson(spec)).value,o.out,{signal,wiring:o.wiring?(await boundedJson(o.wiring)).value:undefined,sourceRoot:o.sourceRoot,offset:Number(o.offset),limit:Number(o.limit),budgetBytes:Number(o.budgetBytes)}))));
+skeletonPages(skeleton.command('inspect').argument('<directory>')).action(async(dir,o)=>compactOutput(await skeletonInspect(dir,{offset:Number(o.offset),limit:Number(o.limit),budgetBytes:Number(o.budgetBytes)})));
+skeletonPages(skeleton.command('check').argument('<directory>').requiredOption('--plan <json>', 'Current project plan').requiredOption('--spec <json>', 'Current work specification').option('--execute', 'Execute trusted Swift build and feature code').option('--test', 'Run Swift tests').option('--flow <feature>', 'Flow to exercise').option('--scratch-path <directory>', 'Swift build products').option('--timeout-ms <ms>', 'Per-command deadline50–900000', '900000'))
+ .action(async(dir,o)=>compactOutput(await withCancellation(async signal=>skeletonCheck(dir,{plan:(await boundedJson(o.plan)).value,spec:(await boundedJson(o.spec)).value},{signal,execute:o.execute,test:o.test,flow:o.flow,scratchPath:o.scratchPath,timeoutMs:Number(o.timeoutMs),offset:Number(o.offset),limit:Number(o.limit),budgetBytes:Number(o.budgetBytes)}))));
 const ledger=cli.command('work-ledger').description('Coordinate durable claims, retries and handoffs; does not start agents or merge code');
 const ledgerBudget=(command:Command)=>command.option('--budget-bytes <bytes>', 'Compact JSON budget1024–65536', '8192');
 const ledgerCurrent=(command:Command)=>command.requiredOption('--plan <json>', 'Current complete project plan').requiredOption('--spec <json>', 'Current work specification');
@@ -225,6 +244,11 @@ cli.command('native').argument('<workspace>').description('Index native function
   .option('--limit <count>', 'Functions per page', '500').option('--timeout <milliseconds>', 'Engine deadline', '600000')
   .option('--heap-mib <MiB>', 'JVM maximum heap, default1024; checked against host memory').option('--threads <count>', 'Engine worker threads, default2; checked against host parallelism')
   .action(async(workspace,options)=>output(await nativeAnalysis(workspace,{resources:cliResources(options),file:options.file,ghidra:options.ghidra,javaHome:options.javaHome,function:options.function,linkage:options.linkage,strings:options.strings,window:options.window,bytes:options.bytes===undefined?undefined:Number(options.bytes),after:options.after,limit:Number(options.limit),timeoutMs:Number(options.timeout)})));
+cli.command('pe-ui').argument('<workspace>').description('Inspect PE UI resources and command-handler candidates without running the target or REA')
+  .requiredOption('--file <path>', 'Indexed relative PE path').option('--view <name>', 'summary, nodes, edges, boundary or issues', 'summary')
+  .option('--command <id>', 'Filter one numeric command; required for boundary').option('--query <text>', 'Literal case-insensitive node-label filter')
+  .option('--offset <count>', 'Result offset', '0').option('--limit <count>', 'Page size1–100', '20').option('--budget-bytes <bytes>', 'Compact UTF8 response budget1024–65536', '8192')
+  .action(async(workspace,options)=>compactOutput(await withCancellation(signal=>inspectPeUi(workspace,{...options,command:options.command===undefined?undefined:Number(options.command),offset:Number(options.offset),limit:Number(options.limit),budgetBytes:Number(options.budgetBytes),signal}))));
 cli.command('loader').argument('<workspace>').description('Inspect Mach-O load commands and bounded static path candidates without Ghidra or target execution')
   .requiredOption('--file <path>', 'Indexed relative Mach-O path').option('--slice <index>', 'Explicit universal-binary slice index0–63')
   .option('--limit <count>', 'Dependency page size1–100', '20').option('--offset <count>', 'Dependency page offset', '0')

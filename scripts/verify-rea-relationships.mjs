@@ -1,4 +1,4 @@
-// A local test client. REA and Carve are independent MCP servers.
+// A local test client. REA and RECarve are independent MCP servers.
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';

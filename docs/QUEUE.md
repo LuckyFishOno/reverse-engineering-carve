@@ -1,6 +1,6 @@
 # Component analysis queue
 
-Carve0.12 persists selected static-analysis requests across CLI/MCP sessions. Your existing agent still locates the requested behavior, selects components, follows evidence, writes a reconstruction and tests it. A completed queue job only means that its bounded analysis request finished.
+RECarve0.12 persists selected static-analysis requests across CLI/MCP sessions. Your existing agent still locates the requested behavior, selects components, follows evidence, writes a reconstruction and tests it. A completed queue job only means that its bounded analysis request finished.
 
 After `reverse`/`survey`, choose paths from index pages and save a bounded `requests.json`:
 
@@ -19,7 +19,7 @@ node dist/cli.js queue run ./work --engines ./engines.json --max-jobs 1 --progre
 node dist/cli.js queue list ./work --id RETURNED_JOB_ID --limit 20
 ```
 
-`engines.json` names the local Ghidra, JDK and JADX installations: `{"ghidra":"...","javaHome":"...","jadx":"..."}` (an `r8` jar is optional for the verify scripts). Since 0.23 a relative path is resolved against the directory of the configuration file itself, not the current directory, so a project folder holding both the engines and their configuration can move. Absolute paths are used as written. `carve serve --engines` and the Android runtime configuration of the verify scripts follow the same rule.
+`engines.json` names the local Ghidra, JDK and JADX installations: `{"ghidra":"...","javaHome":"...","jadx":"..."}` (an `r8` jar is optional for the verify scripts). Since 0.23 a relative path is resolved against the directory of the configuration file itself, not the current directory, so a project folder holding both the engines and their configuration can move. Absolute paths are used as written. `recarve serve --engines` and the Android runtime configuration of the verify scripts follow the same rule.
 
 For a short synchronous batch, repeat `queue run` while queued work remains. Defaults: one job/run (maximum10), up to100 requests/enqueue, pages of20 jobs/attempts (maximum100). CLI progress uses stderr JSON lines. Synchronous MCP equivalents are `carve_analysis_enqueue`, `carve_analysis_jobs`, `carve_analysis_run`; engine paths come from `serve --engines`. Standard progress tokens and cancellation are supported. SIGINT/SIGTERM stop the owned synchronous analysis group and preserve attempts.
 

@@ -1,6 +1,6 @@
 # Persistent claims, retries and submissions
 
-`work-ledger` registers [work packages](WORK_PACKAGES.md) in local SQLite. Claims, failures, retries, proposals and submissions survive CLI/MCP restarts. Carve does not launch workers or mark submissions accepted/merged.
+`work-ledger` registers [work packages](WORK_PACKAGES.md) in local SQLite. Claims, failures, retries, proposals and submissions survive CLI/MCP restarts. RECarve does not launch workers or mark submissions accepted/merged.
 
 ```sh
 node dist/cli.js work-ledger create ./jobs
@@ -73,3 +73,5 @@ Jobs filter by id/status; attempts requires id; result requires id+attempt. List
 Response budget is checked before commit; failures roll back. If the external connection drops after commit, read state before retrying. Historical read explicitly returns currentPlanCheck:not-performed.
 
 `npm run verify:work-ledger` tests independent MCP competition/reconnect, older package compatibility, retries, proposal/requeue/implementation, stale rejection. [Platform guidance](PLATFORM_ANALYSIS.md) is separate static evidence, not proof of App reconstruction.
+
+[Executable acceptance](WORK_ACCEPTANCE.md) is a separate command/tool. Its pinned reports can support review; they do not change ledger states or authenticate worker-reported checks automatically.

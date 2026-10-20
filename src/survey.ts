@@ -38,7 +38,7 @@ export async function assertWorkspaceInPlace(workspace: string, db?: DatabaseSyn
   if (!db) { try { await lstat(path.join(workspace, 'index.sqlite')); } catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT') return; throw error; } own = db = openIndex(workspace, true); }
   try {
     const recorded = await recordedWorkspace(db, workspace);
-    if (recorded && recorded !== workspace) throw new Error(`Workspace was moved from ${recorded} to ${workspace}. Run "carve relocate ${workspace}" first; its recorded evidence and target paths still name the old location.`);
+    if (recorded && recorded !== workspace) throw new Error(`Workspace was moved from ${recorded} to ${workspace}. Run "recarve relocate ${workspace}" first; its recorded evidence and target paths still name the old location.`);
   } finally { own?.close(); }
 }
 export async function hashFile(input: string, signal?:AbortSignal) {
@@ -95,7 +95,7 @@ export async function survey(input:string,options:SurveyOptions){
   };
   try{
     const marker=path.join(workspace,'.carve-workspace.json');
-    try{const identity=JSON.parse(await readFile(marker,'utf8'));if(identity.schema!=='carve/workspace@1')throw new Error('Workspace belongs to another target or is not a Carve workspace.');await assertWorkspaceInPlace(workspace);if(identity.target!==target)throw new Error('Workspace belongs to another target or is not a Carve workspace. If the same target moved, run carve relocate with --target.');}
+    try{const identity=JSON.parse(await readFile(marker,'utf8'));if(identity.schema!=='carve/workspace@1')throw new Error('Workspace belongs to another target or is not a RECarve workspace.');await assertWorkspaceInPlace(workspace);if(identity.target!==target)throw new Error('Workspace belongs to another target or is not a RECarve workspace. If the same target moved, run recarve relocate with --target.');}
     catch(error){
       if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;
       if((await readdir(workspace)).some(name=>name!=='.scan.lock'))throw new Error('Use a new or empty analysis workspace; existing files are preserved.');

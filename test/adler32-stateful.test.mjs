@@ -10,7 +10,7 @@ const bytes=s=>[...Buffer.from(s)];
 test('incremental Adler32 preserves observed initialization, chunks, empty updates, reads and reset',()=>{
  assert.equal(step(2),1);assert.equal(step(0),1);assert.equal(step(1,bytes('Wiki')),64618901);assert.equal(step(1,[]),64618901);assert.equal(step(1,bytes('pedia')),300286872);assert.equal(step(0),300286872);assert.equal(step(2),1);assert.equal(step(1,bytes('abc')),38600999);assert.equal(step(2),1);assert.equal(step(2),1);
 });
-test('invalid Carve wrapper inputs are rejected without partially changing existing state',()=>{
+test('invalid RECarve wrapper inputs are rejected without partially changing existing state',()=>{
  step(2);step(1,bytes('abc'));for(const args of [[3],[0,[]],[2,null],[1],[1,[1,256]],[1,Array(65537).fill(0)],[1,[NaN]],[1,Array(2)],[1,[null]],[1,[-1]]]){assert.throws(()=>step(...args),TypeError);assert.equal(step(0),38600999);}step(2);
 });
 test('extracted Adler32 folder runs ordered chunks and starts from its initial state on the next request',async t=>{

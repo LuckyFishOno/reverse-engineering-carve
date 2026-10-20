@@ -16,7 +16,7 @@ export async function readPackage(input: string) {
   const manifestText = new TextDecoder('utf-8', { fatal: true }).decode(data);
   const manifest = JSON.parse(manifestText);
   const folder=manifest?.schema==='carve/manifest@2'&&manifest.output?.kind==='capability-folder';
-  if ((!folder&&manifest?.schema !== 'carve/manifest@1') || manifest.output?.entry !== 'index.mjs' || manifest.output?.export !== 'capability') throw new Error('Unsupported Carve manifest.');
+  if ((!folder&&manifest?.schema !== 'carve/manifest@1') || manifest.output?.entry !== 'index.mjs' || manifest.output?.export !== 'capability') throw new Error('Unsupported RECarve manifest.');
   if(folder){capabilityMetadata.parse(manifest.library);if(manifest.output.cli!==null)throw new Error('A capability folder has no standalone CLI.');}
   const required = ['README.md', ...(folder?['SKILL.md']:['cli.mjs']), 'index.mjs', 'package.json', ...(manifest.feature ? ['carve.feature.json'] : [])];
   const optional=folder?['carve.source-verification.json']:[];

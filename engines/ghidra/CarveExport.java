@@ -1,5 +1,5 @@
-// Carve-owned static analysis exporter. Target code is never executed.
-// @category Carve
+// RECarve-owned static analysis exporter. Target code is never executed.
+// @category RECarve
 import ghidra.app.util.headless.HeadlessScript;
 import ghidra.app.decompiler.DecompInterface;
 import ghidra.app.decompiler.DecompileResults;

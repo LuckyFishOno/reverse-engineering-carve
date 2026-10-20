@@ -1,17 +1,17 @@
 # JNI boundaries
 
-Carve 0.21 connects the Java/Android side of an application to its native libraries. `jni` / `carve_jni` reads the `native` method declarations in selected Java class or DEX files and derives each method's JNI symbol names. It then compares those names with the loader export pages already indexed for native libraries. No engine runs and no target code executes.
+RECarve 0.21 connects the Java/Android side of an application to its native libraries. `jni` / `carve_jni` reads the `native` method declarations in selected Java class or DEX files and derives each method's JNI symbol names. It then compares those names with the loader export pages already indexed for native libraries. No engine runs and no target code executes.
 
 ## Workflow
 
 ```sh
 # 1. Unpack the APK/JAR and survey it, so class/DEX/.so files are indexed.
-carve unpack ./work --file app.apk
+recarve unpack ./work --file app.apk
 # 2. Index complete export pages for each candidate library (loader only, no auto-analysis).
-carve native ./work --file lib/arm64-v8a/libapp.so --ghidra /path/to/ghidra --java-home /path/to/jdk --linkage exports --limit 1000
+recarve native ./work --file lib/arm64-v8a/libapp.so --ghidra /path/to/ghidra --java-home /path/to/jdk --linkage exports --limit 1000
 # Repeat with --after NEXT_CURSOR until nextCursor is null.
 # 3. Match declarations to exports.
-carve jni ./work --file classes.dex classes2.dex --library lib/arm64-v8a/libapp.so
+recarve jni ./work --file classes.dex classes2.dex --library lib/arm64-v8a/libapp.so
 ```
 
 MCP: `carve_jni` with `files` (1–500 indexed class/DEX paths), optional `libraries`, `query`, `limit`, `offset` and `budgetBytes`.
@@ -31,7 +31,7 @@ MCP: `carve_jni` with `files` (1–500 indexed class/DEX paths), optional `libra
 | `no-indexed-static-export` | No match in the indexed pages. Some pages are incomplete, or some library exports `JNI_OnLoad`; those libraries are listed as `dynamicRegistrationLeads`. |
 | `no-static-export-in-complete-index` | Every selected export index is complete and no library exports `JNI_OnLoad`. Registration by the runtime itself (as the JVM does for `java.lang.Object`) is still possible. |
 
-A static-export candidate is not a binding. Carve does not establish which library `System.loadLibrary` loads, whether `RegisterNatives` overrides the static name, ABI/architecture selection, signature correctness or behavior. Requested libraries without an export index, and native artifacts without one, are reported.
+A static-export candidate is not a binding. RECarve does not establish which library `System.loadLibrary` loads, whether `RegisterNatives` overrides the static name, ABI/architecture selection, signature correctness or behavior. Requested libraries without an export index, and native artifacts without one, are reported.
 
 ## Real check
 

@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {behaviorSchema,behaviorSummary} from './behavior.js';
 import {digest} from './artifact.js';
 import {budgetItems,responseBudget} from './context-budget.js';
 import {targetSpecSchema} from './target.js';
@@ -9,8 +10,8 @@ import {targetSpecSchema} from './target.js';
 export const PROJECT_PLAN_LIMITS={features:500,dependsOnPerFeature:64,edges:4000,inputBytes:1048576,unknowns:64,featureUnknowns:32,evidenceIds:32} as const;
 const featureId=z.string().regex(/^[a-z0-9][a-z0-9._-]{0,63}$/,'Feature ids are 1–64 lowercase letters, digits, ".", "_" or "-", starting with a letter or digit.');
 const text=(max:number)=>z.string().trim().min(1).max(max);
-const contractSchema=z.object({input:text(2000).optional(),output:text(2000).optional(),state:text(2000).optional(),errors:text(2000).optional()}).strict()
- .refine(contract=>Object.keys(contract).length>0,'A contract needs at least one of input, output, state or errors.');
+const contractSchema=z.object({input:text(2000).optional(),output:text(2000).optional(),state:text(2000).optional(),errors:text(2000).optional(),behavior:behaviorSchema.optional()}).strict()
+ .refine(contract=>Object.keys(contract).length>0,'A contract needs at least one of input, output, state or errors, or a structured behavior contract.');
 const featureSchema=z.object({
  id:featureId,title:text(200),description:text(2000).optional(),
  dependsOn:z.array(featureId).max(PROJECT_PLAN_LIMITS.dependsOnPerFeature).default([]),
@@ -132,7 +133,7 @@ export function planProject(input:unknown,options:{offset?:number;limit?:number;
   return{value:{id:task.id,taskId:task.taskId,title:title.text,...(title.truncated?{titleTruncated:true}:{}),status:task.status,phase:task.phase,cycle:task.cycle,
    dependsOn:deps.values,...(deps.total>deps.values.length?{dependsOnTotal:deps.total}:{}),dependents:task.dependents,
    blockedBy:blocked.values,...(blocked.total>blocked.values.length?{blockedByTotal:blocked.total}:{}),
-   contract:{present:Boolean(f.contract),fields:f.contract?Object.keys(f.contract).sort():[],sha256:task.contractSha256},
+   contract:{present:Boolean(f.contract),fields:f.contract?Object.keys(f.contract).sort():[],sha256:task.contractSha256,...(f.contract?.behavior?{behavior:behaviorSummary(f.contract.behavior)}:{})},
    featureSha256:task.featureSha256,declaredUnknowns:f.unknowns.length,declaredEvidenceIds:f.evidenceIds.length}};
  });
  return budgetItems({schema:'carve/project-plan-view@1',planId:analysis.planId,goal:goal.text,...(goal.truncated?{goalTruncated:true}:{}),target:plan.target,

@@ -1,6 +1,6 @@
 # Static REA handoff across images
 
-`bridge-rea-native` / `carve_bridge_rea_native` checks complete REA function records and original Mach-O bytes, then records an explicit direct import relation as a support observation. REA and Carve remain independent; the bridge starts no engine or target.
+`bridge-rea-native` / `carve_bridge_rea_native` checks complete REA function records and original Mach-O bytes, then records an explicit direct import relation as a support observation. REA and RECarve remain independent; the bridge starts no engine or target.
 
 ## Supported boundary
 
@@ -14,7 +14,7 @@ Import complete caller code/info/callees/outgoing references through [native han
 node dist/cli.js bridge-rea-native ./work --from CALLER_ID --to CALLEE_ID --stub 0x100000598
 ```
 
-Replace IDs and stub with actual observations/addresses. MCP uses `{workspace,from,to,stub}`. IDs are Carve64-hex observation IDs; stub belongs to caller image. Sources/evidence/workspace must be inside MCP root.
+Replace IDs and stub with actual observations/addresses. MCP uses `{workspace,from,to,stub}`. IDs are RECarve64-hex observation IDs; stub belongs to caller image. Sources/evidence/workspace must be inside MCP root.
 
 ## Cross-workspace handoff
 
@@ -67,6 +67,6 @@ npm run verify:rea-bridge -- --engines ./artifacts/engines/config.json
 npm run verify:rea-bridge-cross-workspace
 ```
 
-Scripts default to fresh local REA6.7.0 without setup; --rea-install reuses an explicit install. Engines are configured only for REA. Source-owned CLI/dylib/decoy inputs produce12 complete records across three images; REA closes before Carve imports. A same-name wrong-path decoy is rejected, selected reconstruction compares162 original CLI cases, and library-only MCP reuse is exercised. A real dyld observation is separate from static bridge status. Cross-workspace mode additionally relocates indexes while retaining bridge bytes.
+Scripts default to fresh local REA6.7.0 without setup; --rea-install reuses an explicit install. Engines are configured only for REA. Source-owned CLI/dylib/decoy inputs produce12 complete records across three images; REA closes before RECarve imports. A same-name wrong-path decoy is rejected, selected reconstruction compares162 original CLI cases, and library-only MCP reuse is exercised. A real dyld observation is separate from static bridge status. Cross-workspace mode additionally relocates indexes while retaining bridge bytes.
 
 See local generated artifacts/rea-bridge-verification-summary.json and artifacts/rea-bridge-cross-workspace-verification-summary.json after running. These are owned ARM64 operation-boundary cases, not arbitrary App, loader, state or closure proofs.

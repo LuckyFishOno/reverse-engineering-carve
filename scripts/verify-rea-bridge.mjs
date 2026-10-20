@@ -1,4 +1,4 @@
-// Local integration client; REA and Carve stay independent MCP servers.
+// Local integration client; REA and RECarve stay independent MCP servers.
 import assert from 'node:assert/strict';import path from 'node:path';import {fileURLToPath,pathToFileURL} from 'node:url';import {mkdtemp,mkdir,readFile,writeFile,rename} from 'node:fs/promises';import {execFile} from 'node:child_process';import {promisify,parseArgs} from 'node:util';import {Client} from '@modelcontextprotocol/sdk/client/index.js';import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js';import {readEngineConfiguration} from '../dist/engine-config.js';import {hashFile} from '../dist/survey.js';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),exec=promisify(execFile),{values}=parseArgs({options:{'rea-install':{type:'string'},'cross-workspace':{type:'boolean'},engines:{type:'string',default:path.join(root,'artifacts/engines/config.json')}}});
 if(process.platform!=='darwin'||process.arch!=='arm64')throw new Error('This actual original-image test requires macOS arm64. Other supported parser branches have validator tests only.');

@@ -29,7 +29,7 @@ node dist/cli.js verification ./work --id REPORT_ID --view metadata --field unkn
 node dist/cli.js verification ./work --id REPORT_ID --view metadata --field reference
 ```
 
-The MCP equivalents use `workspace`, `id`, `view`, `failedOnly`, `limit`, `caseIndex`, `field`, `item`, `offset`, `characters` and `budgetBytes`. The main server exposes37 tools; this reader is available without native/Android engines. Server root/workspace confinement still applies. A missing original source may remain recorded in the workspace: historical reads do not need to reopen it.
+The MCP equivalents use `workspace`, `id`, `view`, `failedOnly`, `limit`, `caseIndex`, `field`, `item`, `offset`, `characters` and `budgetBytes`. The main server exposes52 tools; this reader is available without native/Android engines. Server root/workspace confinement still applies. A missing original source may remain recorded in the workspace: historical reads do not need to reopen it.
 
 - `summary` returns no case bodies. It is also the default view.
 - `cases` pages whole cards with zero-based `index`, name, passed status, outcome kinds, byte count and checksum. `total` counts the filtered cards; `verificationPassed` and `verificationTotal` retain the report counters. Follow `nextOffset` in the same filtered list. Default limit20, maximum100.
