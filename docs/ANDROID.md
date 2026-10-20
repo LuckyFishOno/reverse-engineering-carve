@@ -63,7 +63,7 @@ The emulator stays in the foreground; interruption signals are forwarded to that
 `harness` and optional classpath dependencies are precompiled DEX or DEX-bearing archives. Compile only the adapter, using a JDK and D8. The selected original DEX/archive is automatically taken from the package's bound reconstruction contract, placed first on the runtime classpath and rehashed; it must not be substituted by recompiled source. Java `.class` input is refused for direct ART execution. AAB/AAR/other archives must actually contain executable DEX for this path to work; format recognition alone does not make them executable.
 
 ```sh
-recarve verify-reconstruction ./work --package ./independent-tool \
+carve verify-reconstruction ./work --package ./independent-tool \
   --cases ./cases.json --reference ./android-reference.json --execute
 ```
 

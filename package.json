@@ -1,6 +1,6 @@
 {
   "name": "reverse-engineering-carve",
-  "version": "0.43.0",
+  "version": "0.43.1",
   "private": true,
   "description": "REA companion MCP for agents: evidence-linked feature choices, bounded extraction, behavior checks and reusable local functions.",
   "type": "module",
@@ -9,7 +9,6 @@
     "node": "^22.19.0 || >=24.11.0"
   },
   "bin": {
-    "recarve": "dist/cli.js",
     "carve": "dist/cli.js"
   },
   "files": [

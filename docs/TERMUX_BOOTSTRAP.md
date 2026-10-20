@@ -25,7 +25,7 @@ const page = capability({prefix: 'bin/', offset: 0, limit: 2});
 `prefix` defaults to empty and is limited to256UTF16 units. `offset` is an integer0..1000000(default0); `limit` is1..100(default20). Unknown fields/coercion are rejected. Entries retain original order, name, uncompressed/compressed sizes, CRC32 and directory flag. Paging applies after exact case-sensitive prefix filtering. Returned rows are copied, so a caller cannot modify later query results through a previous result.
 
 ```sh
-recarve invoke /absolute/functions/bootstrap-catalog \
+carve invoke /absolute/functions/bootstrap-catalog \
   --args '[{"prefix":"bin/","limit":2}]' --execute
 ```
 

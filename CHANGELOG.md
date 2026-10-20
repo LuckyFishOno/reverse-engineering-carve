@@ -1,5 +1,11 @@
 # Changes
 
+## 0.43.1 — carve command and concise setup
+
+- Use carve for the CLI, MCP configuration and bundled skill. Keep reverse-engineering-carve as the project/package name; RECarve is a prose abbreviation only. Existing carve_* tools and carve/* formats remain unchanged.
+- Reduce both README editions to purpose, installation, existing-REA configuration and quick start. Move detailed capabilities, verification and limitations into release notes and linked reference documents.
+- Correct current command examples and installed-package verification. No global MCP configuration changes.
+
 ## 0.43.0 — RECarve naming, evidence, acceptance and project wiring
 
 - Rename the public project/repository/package to reverse-engineering-carve (RECarve), with recarve CLI/MCP configuration and bundled skill naming. Keep the old CLI alias and existing tool/schema/data identifiers compatible.

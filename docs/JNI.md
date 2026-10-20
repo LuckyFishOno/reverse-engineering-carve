@@ -6,12 +6,12 @@ RECarve 0.21 connects the Java/Android side of an application to its native libr
 
 ```sh
 # 1. Unpack the APK/JAR and survey it, so class/DEX/.so files are indexed.
-recarve unpack ./work --file app.apk
+carve unpack ./work --file app.apk
 # 2. Index complete export pages for each candidate library (loader only, no auto-analysis).
-recarve native ./work --file lib/arm64-v8a/libapp.so --ghidra /path/to/ghidra --java-home /path/to/jdk --linkage exports --limit 1000
+carve native ./work --file lib/arm64-v8a/libapp.so --ghidra /path/to/ghidra --java-home /path/to/jdk --linkage exports --limit 1000
 # Repeat with --after NEXT_CURSOR until nextCursor is null.
 # 3. Match declarations to exports.
-recarve jni ./work --file classes.dex classes2.dex --library lib/arm64-v8a/libapp.so
+carve jni ./work --file classes.dex classes2.dex --library lib/arm64-v8a/libapp.so
 ```
 
 MCP: `carve_jni` with `files` (1–500 indexed class/DEX paths), optional `libraries`, `query`, `limit`, `offset` and `budgetBytes`.

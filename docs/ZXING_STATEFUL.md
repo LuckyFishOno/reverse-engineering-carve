@@ -49,7 +49,7 @@ Actual API35 ARM64 ART result: **33 sequences /692 steps**. Cases cover fresh co
 Full analysis, contract, original/candidate outcomes, negative result, runtime identity, selected-step archive read and reusable folder are under artifacts/zxing-stateful-e2e-*/. The local artifacts/zxing-stateful-verification-summary.json points to the latest successful run and function folder. Construction source/intermediate packages are archived, original APK/DEX retained and unchanged. The function library then passes direct import, CLI and two fresh library-only MCP requests. Complete ordered exampleSequence is preserved; no state-dependent step becomes an independently verified scalar example.
 
 ```sh
-recarve invoke-sequence /absolute/functions/zxing-bitarray \
+carve invoke-sequence /absolute/functions/zxing-bitarray \
   --calls '[["read"],["append",5,3],["clear"],["new"]]' --execute
 ```
 

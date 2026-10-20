@@ -18,7 +18,7 @@ try {
   const tarball = path.join(temp, packed[0].filename);
   const prefix = path.join(temp, 'clean-install');
   execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--prefix', prefix, tarball], { cwd: temp, stdio: 'pipe' });
-  const executable = path.join(prefix, 'node_modules', '.bin', process.platform === 'win32' ? 'recarve.cmd' : 'recarve');
+  const executable = path.join(prefix, 'node_modules', '.bin', process.platform === 'win32' ? 'carve.cmd' : 'carve');
   const help = execFileSync(executable, ['--help'], { cwd: temp, encoding: 'utf8' });
   if (!help.includes('Investigate and reconstruct software capabilities')) throw new Error('Installed executable did not start.');
   const input = path.join(temp, 'bundle.mjs');

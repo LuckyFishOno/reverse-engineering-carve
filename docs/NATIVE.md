@@ -18,15 +18,15 @@ Actual local result: **160/160 original executable cases**, including Chinese, a
 ## Commands
 
 ```sh
-recarve reverse /path/to/native-program --goal 'Extract the capability I need' --out ./work
-recarve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
+carve reverse /path/to/native-program --goal 'Extract the capability I need' --out ./work
+carve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
   --strings 'observed text' --limit 20
-recarve observation ./work RETURNED_ID
-recarve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
+carve observation ./work RETURNED_ID
+carve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
   --window OBSERVED_DATA_ADDRESS --bytes 256
-recarve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
+carve native ./work --file relative/program --ghidra /path/to/ghidra --java-home /path/to/jdk \
   --function OBSERVED_FUNCTION_ADDRESS
-recarve trace ./work STRING_OR_WINDOW_ID --depth 3 --max-nodes 50
+carve trace ./work STRING_OR_WINDOW_ID --depth 3 --max-nodes 50
 ```
 
 Large binaries can select `--heap-mib` / `--threads` (MCP heapMiB/threads); defaults stay1024MiB/2. A logged OutOfMemoryError fails the call and is never cached as completed analysis. See [engine resource budgets](ENGINE_RESOURCES.md).

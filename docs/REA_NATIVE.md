@@ -11,7 +11,7 @@ Use [two MCP servers](REA_COMPANION.md), configuring engines only on REA:
 ```json
 {"mcpServers":{
  "rea":{"command":"npx","args":["-y","rea-agents@6.7.0","mcp"],"env":{"REA_ANALYSIS_PROVIDER":"ghidra","GHIDRA_INSTALL_DIR":"/absolute/path/to/ghidra","JAVA_HOME":"/absolute/path/to/jdk-21/Contents/Home"}},
- "recarve":{"command":"node","args":["/absolute/path/to/reverse-engineering-carve/dist/cli.js","serve","--root","/absolute/path/to/workspace"]}
+ "carve":{"command":"node","args":["/absolute/path/to/reverse-engineering-carve/dist/cli.js","serve","--root","/absolute/path/to/workspace"]}
 }}
 ```
 

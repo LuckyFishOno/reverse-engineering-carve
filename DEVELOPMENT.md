@@ -1,5 +1,11 @@
 # RECarve development checkpoint
 
+## Naming correction and concise README —0.43.1
+
+User corrected operational names to carve: CLI, MCP configuration and bundled skill. Project/package remains reverse-engineering-carve, with RECarve used only as a prose abbreviation. Removed the recarve binary entry introduced in0.43.0; existing carve_* tools and carve/* schemas are unchanged. Current command examples and clean-install checks updated; historical0.43.0 records remain explicitly historical.
+
+Reduced English/Traditional Chinese READMEs to purpose, install, existing-REA MCP entry and a brief workflow. Detailed capabilities and verified limitations live in docs/RELEASE_0.43.1.md and linked references. User authorized push/publication correction. No unrelated implementation changes, client settings, native migration or heartbeat changes. Final node scripts/check-release.mjs PASS6/6 with388tests/0failures/0skips, build/content hygiene, archive demo,7packages47cases and clean-installed carve CLI/fresh MCP. Both README editions are42lines;136local Markdown links resolve and git diff --check passes. Skill validator passed. Logs artifacts/carve-0.43.1-release.log and checks/.
+
 ## Public0.43.0 release preparation
 
 Renamed project/repository/package to reverse-engineering-carve, with RECarve display branding, recarve CLI/MCP configuration and bundled recarve skill. Legacy carve CLI alias, carve_* tools, carve/* schemas, stored filenames and generated Swift interface identifiers remain compatible. Updated bilingual setup for users with existing REA: preserve that server and add only the independent recarve entry. Public documentation and package scans exclude private analysis inputs and local workspaces.

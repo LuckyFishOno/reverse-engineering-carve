@@ -12,7 +12,7 @@ RECarve 0.20 lets a caller choose the JVM maximum heap and worker-thread budget 
 | Direct API `nativeAnalysis` / `managedAnalysis` | `resources.heapMiB` | `resources.threads` |
 
 ```sh
-recarve native ./work --file relative/large-program --ghidra /path/to/ghidra --java-home /path/to/jdk \
+carve native ./work --file relative/large-program --ghidra /path/to/ghidra --java-home /path/to/jdk \
   --heap-mib 8192 --threads 4 --timeout 7200000
 ```
 

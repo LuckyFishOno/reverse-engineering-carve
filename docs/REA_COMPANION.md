@@ -14,11 +14,11 @@ npm run build
 node dist/cli.js --version
 ```
 
-Version0.43.0 requires Node22.19 in the22 line or Node24.11+. Add only this entry to the existing client's `mcpServers` map; merge it with existing entries instead of replacing them:
+Version0.43.1 requires Node22.19 in the22 line or Node24.11+. Add only this entry to the existing client's `mcpServers` map; merge it with existing entries instead of replacing them:
 
 ```json
 {
-  "recarve": {
+  "carve": {
     "command": "node",
     "args": ["/absolute/path/to/reverse-engineering-carve/dist/cli.js", "serve", "--root", "/absolute/path/to/workspace"]
   }
@@ -27,9 +27,9 @@ Version0.43.0 requires Node22.19 in the22 line or Node24.11+. Add only this entr
 
 This is the entry fragment, not the entire client configuration. Use an absolute Node executable path if the client does not inherit your shell's PATH. The workspace must exist and contain the inputs, exported evidence and output directories needed by RECarve. Reload MCP connections using your client's own mechanism. Do not run RECarve inside REA or alter REA's package files.
 
-Confirm two separate servers and ask the agent to list their tools. RECarve0.43.0 exposes52tools, including carve_features, carve_behavior_check, carve_work_acceptance and carve_skeleton. A request to inventory/select features does not authorize executing the target; later comparison/build actions still require their execution flags and authorization. The agent saves compatible evidence from REA and explicitly supplies it to RECarve. No additional LLM API key, website, domain or server-to-server connection is required by RECarve.
+Confirm two separate servers and ask the agent to list their tools. RECarve0.43.1 exposes52tools, including carve_features, carve_behavior_check, carve_work_acceptance and carve_skeleton. A request to inventory/select features does not authorize executing the target; later comparison/build actions still require their execution flags and authorization. The agent saves compatible evidence from REA and explicitly supplies it to RECarve. No additional LLM API key, website, domain or server-to-server connection is required by RECarve.
 
-If using the downloadable release tarball instead of a source clone, install it into a local prefix and use that installation's absolute `node_modules/reverse-engineering-carve/dist/cli.js` path. See [release installation](RELEASE_0.43.0.md).
+If using the downloadable release tarball instead of a source clone, install it into a local prefix and use that installation's absolute `node_modules/reverse-engineering-carve/dist/cli.js` path. See [release installation](RELEASE_0.43.1.md).
 
 ## Project-local setup
 
@@ -48,7 +48,7 @@ Build RECarve with `npm ci && npm run build` in its own source directory. Config
 {
   "mcpServers": {
     "rea": {"command":"node","args":["/absolute/path/to/rea-local/node_modules/rea-agents/dist/cli.js","mcp"]},
-    "recarve": {"command":"node","args":["/absolute/path/to/reverse-engineering-carve/dist/cli.js","serve","--root","/absolute/path/to/workspace"]}
+    "carve": {"command":"node","args":["/absolute/path/to/reverse-engineering-carve/dist/cli.js","serve","--root","/absolute/path/to/workspace"]}
   }
 }
 ```

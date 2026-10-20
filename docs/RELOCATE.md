@@ -3,10 +3,10 @@
 A RECarve workspace records absolute paths: the surveyed target, the lineage of unpacked container content, and the evidence file behind every observation. After you move a project folder, run `relocate` on each workspace before using it again.
 
 ```sh
-recarve relocate ./work
+carve relocate ./work
 ```
 
-Since 0.24, RECarve detects a moved workspace. `survey`, `reverse` and every analysis that selects an indexed file stop with `Workspace was moved from OLD to NEW. Run "recarve relocate NEW" first`. This happens before any new evidence is written next to records that still name the old location.
+Since 0.24, RECarve detects a moved workspace. `survey`, `reverse` and every analysis that selects an indexed file stop with `Workspace was moved from OLD to NEW. Run "carve relocate NEW" first`. This happens before any new evidence is written next to records that still name the old location.
 
 ## What relocation does
 
@@ -22,8 +22,8 @@ Validation failures leave the live target/evidence bindings unchanged. SQLite co
 ## Order for unpacked containers
 
 ```sh
-recarve relocate ./container-work   # the workspace that ran unpack
-recarve relocate ./work             # the inventory of the unpacked content
+carve relocate ./container-work   # the workspace that ran unpack
+carve relocate ./work             # the inventory of the unpacked content
 ```
 
 ## MCP for agents

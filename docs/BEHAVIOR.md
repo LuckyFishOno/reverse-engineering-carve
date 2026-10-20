@@ -5,9 +5,9 @@
 ## Inspect a contract
 
 ```sh
-recarve behavior-check examples/behavior/interactive-console.json
-recarve behavior-check examples/behavior/interactive-console.json --view requirements
-recarve behavior-check examples/behavior/interactive-console.json --view gaps
+carve behavior-check examples/behavior/interactive-console.json
+carve behavior-check examples/behavior/interactive-console.json --view requirements
+carve behavior-check examples/behavior/interactive-console.json --view gaps
 ```
 
 The separate read-only MCP tool is `carve_behavior_check`. It accepts a contract and returns byte-budgeted summary, requirements, scenarios or gaps pages. Follow pagination and byte receipts. Larger individual scenarios may require a larger response budget; records are not silently shortened.

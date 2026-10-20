@@ -5,9 +5,9 @@ RECarve can generate a macOS SwiftPM CLI, module or desktop-app shell from a cur
 ## Basic workflow
 
 ```sh
-recarve skeleton create ./plan.json ./work-spec.json --out ./snapshot
-recarve skeleton inspect ./snapshot --limit 8
-recarve skeleton check ./snapshot --plan ./plan.json --spec ./work-spec.json --execute --test
+carve skeleton create ./plan.json ./work-spec.json --out ./snapshot
+carve skeleton inspect ./snapshot --limit 8
+carve skeleton check ./snapshot --plan ./plan.json --spec ./work-spec.json --execute --test
 ```
 
 The MCP tool is `carve_skeleton` with `create`, `inspect` and `check` actions. Create needs current plan/spec and a new output directory. Inspect pages recorded feature metadata without building or checking current source integrity. Check needs the current plan/spec, directory and `execute:true`; it compiles and runs trusted Swift manifests, dependencies and feature code with host permissions. This is not a security sandbox. Remote package resolution may access the network only during an explicitly authorized build, not during creation.
@@ -17,7 +17,7 @@ Supported generation targets remain `macos/desktop-app`, `macos/cli` and `macos/
 ## Preserve existing implementations and resources
 
 ```sh
-recarve skeleton create ./plan.json ./work-spec.json --out ./next-snapshot \
+carve skeleton create ./plan.json ./work-spec.json --out ./next-snapshot \
   --wiring ./wiring.json --source-root ./implementation
 ```
 

@@ -46,7 +46,7 @@ import { unpackContainer } from './container.js';
 import {readEngineConfiguration} from './engine-config.js';
 import {relocateWorkspace} from './relocate.js';
 
-const cli = new Command().name('recarve').description('Investigate and reconstruct software capabilities using local analysis, CLI and MCP tools.').version(VERSION);
+const cli = new Command().name('carve').description('Investigate and reconstruct software capabilities using local analysis, CLI and MCP tools.').version(VERSION);
 const output = (value: unknown): void => { process.stdout.write(JSON.stringify(value, null, 2) + '\n'); };
 const compactOutput = (value: unknown): void => { process.stdout.write(JSON.stringify(value) + '\n'); };
 const cliResources = (options: { heapMib?: string; threads?: string }) => ({ heapMiB: options.heapMib === undefined ? undefined : Number(options.heapMib), threads: options.threads === undefined ? undefined : Number(options.threads) });

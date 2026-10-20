@@ -1,5 +1,7 @@
 # RECarve0.43.0
 
+Historical release: corrected operational naming and concise setup are available in [0.43.1](https://github.com/LuckyFishOno/reverse-engineering-carve/releases/tag/v0.43.1). Use `carve` for current CLI/MCP setup; the0.43.0 archive retains its original naming.
+
 This alpha release brings the changes since0.38.1 into one public release: UI evidence, explicit behavior requirements, claim provenance, executable task acceptance and Swift project wiring. RECarve remains a local CLI/skill/MCP companion to an independent REA MCP. It exposes52MCP tools and is not published to npm.
 
 ## Existing REA users

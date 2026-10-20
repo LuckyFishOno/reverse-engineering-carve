@@ -5,10 +5,10 @@
 ## Run and inspect
 
 ```sh
-recarve work-acceptance run ./task --root ./implementation \
+carve work-acceptance run ./task --root ./implementation \
   --checks ./checks.json --plan ./plan.json --spec ./work-spec.json \
   --out ./acceptance-run --execute
-recarve work-acceptance read ./acceptance-run --package ./task \
+carve work-acceptance read ./acceptance-run --package ./task \
   --root ./implementation --plan ./plan.json --spec ./work-spec.json
 ```
 
@@ -43,7 +43,7 @@ The result folder contains `report.json` and a SHA256/byte-count manifest. Repor
 ## Bind a reported verification claim
 
 ```sh
-recarve work-acceptance read ./acceptance-run --package ./task \
+carve work-acceptance read ./acceptance-run --package ./task \
   --root ./implementation --plan ./plan.json --spec ./work-spec.json \
   --claim ./reported-claim.json --check-id compare
 ```

@@ -14,8 +14,8 @@ Every claim includes a unique ID, a `subject` matching a behavior requirement ID
 ## Inspect and preserve
 
 ```sh
-recarve behavior-check examples/behavior/interactive-console.json --view provenance
-recarve behavior-check examples/behavior/interactive-console.json --view requirements
+carve behavior-check examples/behavior/interactive-console.json --view provenance
+carve behavior-check examples/behavior/interactive-console.json --view requirements
 ```
 
 The read-only `carve_behavior_check` MCP supports the same `provenance` view and byte-budgeted pages. Summary returns counts and the number of unclassified requirements. Requirement rows link claim IDs/kinds, while full statements and references are available in provenance pages and the contract file.
