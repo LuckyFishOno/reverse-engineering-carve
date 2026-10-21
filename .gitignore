@@ -12,8 +12,10 @@ functions/
 # Swift/other build caches
 .build/
 
-# Shared agent memory lives outside this package; the symlink points there
+# Private agent routing, shared memory and local research
 AGENTS.md
+.agent-memory/
+research/
 
 # OS files
 .DS_Store

@@ -1,5 +1,71 @@
 # RECarve development checkpoint
 
+## Unreleased — x86 resource API stack arguments
+
+Added src/pe-resource-api-x86.ts for straight-line32bit argument stacks. Track immediate/register pushes, sign extension, pops, register moves/self-XOR and aligned ESP adjustments under64instruction/256prefix-byte/64stack-word bounds. ESP/EBP-relative loads/LEA/memory pushes remain unknown; unknown writes, alignment changes, ESP replacement, branches and prior calls stop analysis without conclusions. Reuse exact imported entry/body/section/IAT/source guards. Resource API roles use stack0–3on x86 and existing register roles on x64, with callingConvention disclosed and module/language/runtime binding unverified. Three focused tests cover whole dependency output, FindResourceEx parameter positions, pushed-value preservation, signs/pops/adjustments and unsupported/truncated forms.
+
+The optional state integration additionally compiles real i686 stdcall LoadStringW code into an owned probe32.exe, narrowly resolving its single trusted COFF DIR32 import relocation. Separate real REA/Ghidra records must yield ID1001/string-table63candidate with unknown module handle. Pin probe32 bytes/native/UI evidence and resource-api32-boundary.json alongside the prior x64 static probe. Neither API probe executes; the40sequence/926step state/resource machine-code example remains separate. Initial standalone integration passes both architecture probes and prior state/mutant/tamper/offline reuse assertions. Docs: docs/PE_RESOURCE_API.md; final check log/summary: artifacts/setup/pe-resource-api32-release-final.log and artifacts/verification-summary.json. No version bump, commits/push/publication or global configuration changes.
+
+## Unreleased — bounded resource API argument leads
+
+Added src/pe-resource-api.ts and resourceApi annotations in dependency rows for declared user32 LoadString/LoadMenu/LoadAccelerators and kernel32/kernelbase FindResource A/W imports. A forward x64 whitelist decoder starts at the exact imported entry, remains inside one captured body/executable file-backed section, and caps256prefix bytes/64instructions. Immediate/register moves, zeroing XOR, stack adjustment/address generation and NOP are handled; unsupported instructions, branches, preceding calls, dynamic values, pointer names, other architectures and bounds remain unresolved. Numeric0–65535arguments produce caller-image resource candidates only, with8candidate preview/exact count, full source byte trace, requested language and explicit module/language/runtime uncertainty. Signature roles follow linked Microsoft documentation; imported names are declarations, not runtime API authentication.
+
+Real Ghidra labels the owned LoadStringW probe call as unresolved because ReferenceManager supplies no call destination. Preserve that unresolved record and its coverage; separately decode the original call instruction at its recorded unresolved-call address, require unique IAT/body bounds, then annotate the static API lead. Do not create a resolved callee edge or traverse it. Six focused tests cover known arguments, zero extension/copies, unsupported flow/dynamic/pointer/x86 cases, FindResourceEx parameter/language handling, lookalike/budget/body refusals and preserved unresolved-call leads. Optional state integration compiles a separate unexecuted resource-api.c probe and collects real independent REA records; require constant1001/string-table63candidate while retaining module uncertainty. The existing40sequence/926step state/resource execution is separate and never executes the API probe. Docs: docs/PE_RESOURCE_API.md. Final release log/summary: artifacts/setup/pe-resource-api-release.log and artifacts/verification-summary.json. No version bump, commits/push or global configuration changes.
+
+## Unreleased — direct resource links and reconstruction pins
+
+Dependencies associate valid original data-reference targets with successfully parsed menu/dialog/string-table/accelerator payload ranges. Preserve exact type/name/language paths, payload offsets/full hashes and ambiguous alternatives; return at most8matches with exact counts. Per-image catalogs and parse issues are retained in immutable evidence; counts.byResourceStatus summarizes rows. Numeric IDs, resource API arguments, language fallback and unsupported/malformed resources never become guessed dependencies. Optional dataBinding.resource pins an exact unique payload path/hash; selected prefixes must remain inside it. Existing source/section/write/handling guards still apply. Documentation: docs/PE_RESOURCE_LINKS.md.
+
+The owned state fixture now compiles a real readonly42byte RT_STRING array, with its PE resource-directory leaf pointing at that array. Operation4reads code units from string1001ready. Real independent REA records expose9data references, including direct resource-array targets; packaging retains4reviewed data selections with one full resource hash/path pin. Original memory hooks separately observe resource reads. The updated40sequence/926step comparison covers those characters; modified resource bytes invalidate acceptance. Offline-original library-only MCP and direct module imports explicitly reuse resource-derived values. Runtime scope remains declared-harness/windowsExecuted:false/uiExecuted:false. Four focused tests cover exact provenance/catalogs, language/hash/prefix rejection, ambiguous bounded alternatives and numeric-ID refusal. Full aggregate status/log: artifacts/verification-summary.json and artifacts/setup/pe-resource-links-release.log. No version bump, commit/push or global configuration change.
+
+## Unreleased — reviewed data bindings in reconstruction
+
+Version2 artifact contracts accept optional dataBindings: exact complete imported PE/REA observation/reference coordinates, reviewed initial prefix length/SHA256 and declared embedded-readonly/modeled-state/unresolved treatment. Reuse owned snapshot/body/section/source validation, account for exact selected writes across the artifact's implementation observations, and reject guessed references, duplicate selections, mismatched byte pins or incompatible state/readonly treatment. Limits are32bindings per artifact/64per contract and the native loader's64MiB snapshot budget per artifact. Existing contracts retain their prior shape. Packaging rechecks data before success; later reconstruction verification compares rebound artifact/data provenance. An unresolved selection alone forces packaged-with-unknowns and is exposed as unresolvedDataBindings. No handling policy proves implementation use, runtime immutability or dependency closure.
+
+The real REA/state integration now selects three explicit prefixes:12byte rates table,8byte terminated label and4byte initial mutable counter. The emitted package retains byte/source/snapshot pins and declared state handling. The40sequence/921step original-machine-code comparison, mutant/tamper rejection and original-free independent reuse remain required; acceptance also pins the contract/reconstruction receipt. Five focused tests exercise provenance rebinding, readonly/state restrictions and selected writes, unresolved/legacy behavior, invalid references/pins/limits and fresh MCP packaging. Documentation: docs/RECONSTRUCTION_DATA.md. Final aggregate check status is recorded in artifacts/verification-summary.json and artifacts/setup/pe-data-bindings-release.log; no version bump, commit, push or global configuration change.
+
+## Unreleased — PE data references and stateful reconstruction
+
+Dependencies now include typed data-reference rows with source/target virtual addresses and sections, access kinds, target directory locations and at most64initial file bytes with exact offset/SHA256. Printable terminated ASCII/ASCII-range UTF-16LE and uint32 little-endian previews are interpretations with unknown object extent/type. Writable sections and exact selected write targets remain mutable candidates; virtual-only, external, ambiguous and unavailable mappings remain explicit. Static kinds are imported records, not decoded instruction semantics or runtime memory observations. State lifetime/resource semantics and dependency closure remain unverified. Documentation: docs/PE_DATA.md.
+
+The optional npm run verify:pe-state / check-release --pe-state compiles an owned real x64 function with readonly settings2/5/9and label counter plus writable initial counter7. Separate real REA6.7.0/Ghidra closes before RECarve imports its source-bound records. Dependency inspection identifies7data references, readonly settings/string and writable read/write counter evidence. An agent-reviewed closed sequence implementation reconstructs explicit session initialization, updates, reset, uint32 wrapping, label reads and error preservation.
+
+Original instructions execute under the declared Unicorn2.1.4ABI harness, preserving mapped memory across each ordered sequence.40sequences/921steps compare against the independent module; memory hooks separately confirm settings reads and counter reads/writes. A reset-per-step mutant fails; a modified settings byte invalidates the acceptance report. Original input is temporarily unavailable while a fresh library-only MCP and direct import still work; independent module invocations start isolated sessions. Originals are restored unchanged. No Windows loader, UI/OS execution or persistence equivalence is claimed. Results: artifacts/pe-state-verification-summary.json and per-run reports/packages. Existing arithmetic/DLL integration remains a separate optional check.
+
+## Unreleased — real REA and owned PE machine-code behavior case
+
+Added npm run verify:pe-behavior and optional check-release --pe-behavior. The source-owned fixture compiles freestanding x64 caller/helper and DLL functions with Clang, then uses a deliberately narrow COFF/text relocation builder and PE resource/import/export envelopes. It is not an arbitrary linker or a Windows application/runtime implementation. Separate real REA6.7.0/Ghidra captures complete code/info/callee/reference records for all3functions; REA closes before the independent52tool RECarve MCP imports them without engine configuration.
+
+The existing entries/dependencies views identify the actual entry, internal helper call and original IAT/DLL export candidate. Reviewed actual decompilation informs an agent-authored closed JavaScript module and multi-artifact reconstruction package. Original machine code executes under project-local Unicorn2.1.4 with explicit Windows x64 function ABI/fixed image addresses/IAT mapping, bounded instructions/time and section permissions. No Windows loader/UI execution occurs; all reports retain declared-harness scope/windowsExecuted:false/uiExecuted:false.
+
+Executable acceptance separately verifies module-load/unit/protocol assertions and160finite signed32 original-machine-code/candidate comparisons. Original instruction hooks observe entry/helper/DLL visits, including negative/free guards. A constant-zero mutant fails comparison; altered DLL bytes invalidate a result read. A reported claim binds the exact passing local report/wrapper/case pins. Runtime input pins also include all captured REA/UI evidence, candidate package, images and adapters. Toolchain metadata is not a signed or transitive runtime attestation.
+
+The original input directory is temporarily moved offline: original emulation fails, while library-only MCP invocation and direct closed-module import succeed. Original images are restored and SHA256-checked afterward; the passing report reads again with current inputs. Each run retains report.json, accepted/report.json, producer snapshots, negative receipts and functions/pe-quote in artifacts/pe-behavior-e2e-*. Documentation: docs/PE_BEHAVIOR.md.
+
+Actual local release check with --pe-behavior passes7/7:408tests/0failures/0skips plus build/content/archive/public packages/clean-installed CLI+MCP and the new real REA/160case emulator integration. After adding full UI-evidence input pins, the standalone integration also passes with25pinned inputs. Final logs artifacts/setup/pe-behavior-release-check-complete.log and artifacts/checks/; latest run pointer artifacts/pe-behavior-verification-summary.json. Default core checks remain independent of optional Python/Unicorn/REA prerequisites. No Windows/UI equivalence, automatic synthesis, global configuration, publication or version bump is claimed.
+
+## Unreleased — selected PE UI call and DLL dependency boundaries
+
+Added dependencies view to the existing pe-ui CLI/carve_pe_ui MCP. Bind explicitly selected entry observations, then traverse only supplied imported REA function records. Same-image expansion requires matching source/profile/provider; missing code, competing observations, incomplete coverage and unresolved calls remain explicit. Internal cycles stop at visited observations; depth0–8and5000row limits never become closure claims. Function coverage reports also retain non-call reference counts and unanalysed state/resource dependencies.
+
+Cross-image edges remain static DLL-export candidates. Decode original x86/x64 call instructions only at imported typed-call locations, require the entire instruction inside the captured caller body and one unambiguous IAT slot declaration, then match selected DLL basename/machine/defined executable export name or ordinal to an exact selected function entry. Preserve delay imports and reject automatic resolution of API-set contracts, forwarded exports, ambiguous DLL alternatives and unsupported encodings. Runtime loading, original UI dispatch, state/OS/resource dependencies and full semantic closure remain unverified. No REA or target execution is added.
+
+Shared owned-snapshot loading validates all selected records, including unreachable ones, with16source images/64MiB limits and MCP path authorization before extra reads. Final source hashes are checked per distinct image. Reuse import/export metadata indexes across call sites; report immutable source/profile/snapshot/byte witnesses without pseudocode. Paginated responses retain one dependencyId, preview arrays/strings explicitly, and preserve full reports under ui-evidence/. Documentation: docs/PE_UI.md.
+
+Actual final node scripts/check-release.mjs passes6/6: build/content hygiene,408tests/0failures/0skips, archive demo,7public packages/47cases and clean-installed CLI/fresh MCP. New dependency tests cover synthetic source-owned PE/REA commitments, x86/x64, cycles/depth/paging, ordinal/delay imports, missing/conflicting profiles/code, forwarders/API-set refusal, source/snapshot tampering, authorization, byte limits, instruction body extent and overlapping IAT declarations. Existing differential tests against LLVM across14real shipped Windows images also pass. Logs artifacts/setup/pe-ui-dependencies-release-check-final.log and artifacts/checks/.
+
+No actual Windows execution or live REA investigation was rerun for this feature; the new graph fixtures are validator/byte-witness tests, not UI behavior equivalence. Local uncommitted Unreleased changes remain on package0.43.1; no publication/global configuration changes. Next substantive scope is a representative original/candidate executable comparison with an explicitly declared runtime/harness boundary.
+
+## Unreleased — PE UI function-entry binding
+
+Added pe-ui entries view in CLI and the existing carve_pe_ui MCP tool. One command binds up to16explicit imported REA function observation IDs to exact preferred-image callback entry addresses. Revalidate canonical owned snapshots, current source hashes, complete imported code/body metadata and normalized SQL rows; reject foreign artifacts, redirected storage, stale/edited input and cumulative snapshot reads above64MiB. Conflicting selected records remain ambiguous, containing bodies do not imply entry matches, and missing UI commands/handler candidates/function evidence remain distinct.
+
+Immutable ui-evidence binding reports pin the UI graph and selected snapshot/profile/producer identities; ID ordering does not change report identity. Budgeted entry pages retain one bindingId, omit pseudocode and preview at most8dispatch rows while full rows remain in evidence. UI dispatch/class ownership/notification selection/semantics/dependency closure are not confirmed. REA stays independent; no target or REA execution is added. New positive matching fixtures are synthetic source-owned commitment tests, not observed original UI dispatch.
+
+Relocated local memory exposed a pre-existing content-hygiene scope problem. Exclude root-only private agent records/research from product scanning and Git, while nested product research still receives checks. Existing historical records are preserved.
+
+Actual final node scripts/check-release.mjs passes all6checks: build/content hygiene,396tests/0failures/0skips, archive demo,7public packages/47cases and clean-installed CLI/fresh MCP. Tests cover x86/x64, explicit missing/conflicting selection, snapshot/SQL/source tampering, redirects, stable report identity, bounded paging and CLI/MCP parity. Logs artifacts/setup/pe-ui-entries-release-check-final.log and artifacts/checks/. The earlier full check failed only on private-memory content scanning and is retained separately. No real REA/native/mobile/UI runtime integration rerun for this implementation, no publication or version bump.
+
 ## Naming correction and concise README —0.43.1
 
 User corrected operational names to carve: CLI, MCP configuration and bundled skill. Project/package remains reverse-engineering-carve, with RECarve used only as a prose abbreviation. Removed the recarve binary entry introduced in0.43.0; existing carve_* tools and carve/* schemas are unchanged. Current command examples and clean-install checks updated; historical0.43.0 records remain explicitly historical.
@@ -186,7 +252,7 @@ Final validation: node scripts/check-release.mjs passed all 6 checks (TypeScript
 - Formal node scripts/check-release.mjs:7/7 PASS (build, Node24.20.0 full211/211,3JSdemos,7publicpackages47cases,clean installed tarball). Exact182-file source tree matched the formal sourceSetSha256 before this checkpoint was added. artifacts/release-check-0.27.0.log, verification-summary-0.27.0-core.json, checks-0.27.0/, source-files-0.27.0-tested.json. Serialized Node22.19.0 full211/211 PASS; node22-tests-0.27.0.log. Targeted initial menu/MCP8/8 passed before the final incomplete-inventory regression, which is included in the211 final tests. No build/provider hashing overlapped these tests.
 - 112local document/skill/demo links exist. Skill validator initially lacked PyYAML; pinned6.0.3 installed only in the existing case venv, final validator PASS. No publishing/Git/heartbeat/global agent changes, original input execution/network or existing workspace deletion. Full native/mobile automatic extraction, arbitrary external Evidence ingestion, complex state/OS closures and missing server behavior remain incomplete. Older optional native/Android/JDK/jq/scale integrations were not rerun in0.27; their previous scopes remain historical, not relabeled.
 
-Updated 2026-10-18 (Asia/Taipei). Development was handed from the Codex heartbeat to a Claude Code session. The user paused heartbeat carve-85 themself (automation.toml status PAUSED) and delegated development direction, asking for continuous rounds. The project moved from ~/Desktop/side/open/carve to ~/Desktop/side/carve/carve; historical artifact paths keep the old location. Claude Code and Codex read ../AGENTS.md as the entry point and share status/claims/handoffs only in ../.agent-memory/. Local0.26.0 verified checks are recorded below; earlier full integration releases remain separately archived. Full objective remains incomplete. Root is not a Git repo by user choice; nothing pushed/published.
+Historical local verification notes follow. Earlier paths and engine versions describe their original runs, not the current release prerequisites. Prior results retain their stated scope; the complete reconstruction goal remains unfinished.
 
 ## 0.26 original APK JNI reference and bootstrap metadata projection
 
@@ -291,7 +357,7 @@ Updated 2026-10-18 (Asia/Taipei). Development was handed from the Codex heartbea
 - Resumed after later authorized heartbeat input. Latest get_goal still null; sourceSet hash was freshly recomputed and matched the recorded full0.18 check exactly before any test correction. Original full release run17/17 requested checks PASS, including Node24 160/160, real Android protocol/scrcpy/Zxing, actual REA, public packages47cases, clean installed tarball and prior native/library integrations. Full output artifacts/release-check-0.18.0.log, unchanged baseline summary/source-file hashes at artifacts/release-baseline-0.18.0 and checks-0.18.0-baseline. No implementation/build/runtime files changed after that pass.
 - Resumed Node22 first full run159/160 failed only a progress callback timing assumption in test/mcp.test.mjs. Installed SDK schedules notifications asynchronously and can remove its progress handler when final notification/response share a read. RECarve already awaits sending both events. Corrected only the test to observe actual public transport wire order and assert both job events precede the completed response. No SDK/product workaround or artificial delay added. Targeted Node22 MCP2/2 PASS (mcp-wire-node22-0.18.0.log). Initial failed log preserved.
 - Parallel follow-up full suites overloaded their short subprocess-start deadlines: Node24 158/160 and Node22 159/160, solely2s reference/tool startup timeouts. Retained *-concurrent-failed.log. Product deadlines unchanged. Serialized full suites with --test-concurrency=2 now PASS160/160 Node24.20.0 (exec15669) and160/160 Node22.19.0 (exec13971), both exit0. Final canonical logs node24-tests-0.18.0.log/node22-tests-0.18.0.log. Final aggregate artifacts/verification-summary-0.18.0.json explicitly reuses16 unchanged executable/config/input checks from baseline and replaces its tests check with the fresh full Node24 run, plus the fresh full Node22 run. It does not claim those integrations reran after a test-only correction. Only the checkpoint journal and final release/demo artifacts follow the tests.
-- Final original APK operation /Users/luckyfishovo/Desktop/side/open/carve/artifacts/zxing-vcard-e2e-2TQZxc/report.json:160/160 payload-only results on actual Android15/API35 arm64 ART, mode json-stdin,7 complete original DEX class records and separate fresh manifest support binding. Source DEX SHA256cfa20314b24e002b195501a59e02da4b023447b42808eab89b4757406a8ad0e3, manifest SHA256e852a9f5c9acd0e0090ecfbf6acd0678b00373d6eb7a8f93866e175949a321d0; remote staging/VM identity/cleanup recorded. Owned original APK/DEX/manifest invocation paths, rewrite/intermediate package removed before folder import/invoke/CLI/MCP. Upstream cache/analysis snapshots retained. This is bounded contact payload, not QR rendering/UI/app installation/whole-app recovery.
+- Final original APK operation artifacts/zxing-vcard-e2e-2TQZxc/report.json:160/160 payload-only results on actual Android15/API35 arm64 ART, mode json-stdin,7 complete original DEX class records and separate fresh manifest support binding. Source DEX SHA256cfa20314b24e002b195501a59e02da4b023447b42808eab89b4757406a8ad0e3, manifest SHA256e852a9f5c9acd0e0090ecfbf6acd0678b00373d6eb7a8f93866e175949a321d0; remote staging/VM identity/cleanup recorded. Owned original APK/DEX/manifest invocation paths, rewrite/intermediate package removed before folder import/invoke/CLI/MCP. Upstream cache/analysis snapshots retained. This is bounded contact payload, not QR rendering/UI/app installation/whole-app recovery.
 - User-ready functions/contact-vcard promoted from the final real APK report, preserves original160-case scope through verification.source chains, manifest role and unknowns. Direct module import/restricted invoke/actual MCP passed, user-function-library-0.18.0.json; bundled/generated skill validators PASS. Meaningful quoted-name/organization/phone/note example is first. Existing user entries remain intact. No global skill/client install or npm/GitHub publication.
 - On resumed host, actual process command inventory and private ports5039/5580/5581 were absent. Old emulator97013/ADB97024/session92903 were not presumed live or killed. lifecycle-observed-0.18.0.json records observed absence; cause/gracefulness of prior shutdown is unknown, no stop command issued on resume. Current final tests/engines/workers are terminal; final process-check-0.18.0.json records fresh observations. Existing automation ACTIVE/every5h remains unchanged. Full objective is incomplete; no inferred goal marked complete.
 - Next concrete gap found: verification itself still returns the full case report to CLI/MCP, unlike bounded context/usage. Recorded actual Zxing comparison is289966 compact Python-JSON bytes for160 cases (not exact JS/MCP framing or tokenizer/billing); artifacts/verification-output-investigation-0.18.0.json retains method/unknowns. Next implement bounded verification responses and paginated case access without losing scope/provenance/unknowns or claiming a recorded report is newly verified; measure actual JS output. Large native heap/CPU settings also remain hardcoded despite the installed Ghidra launcher supporting GHIDRA_HEADLESS_MAXMEM.
@@ -307,7 +373,7 @@ Updated 2026-10-18 (Asia/Taipei). Development was handed from the Codex heartbea
 - Existing reconstruction@1/@2 still require complete implementation code on every artifact. Manifest is separately recorded; never attach its ID to classes.dex. Support-only manifest/resource binding and richer installed-mobile behavior remain next work. New docs/APK_MANIFEST.md and agent task/skill preserve this limitation. Full original goal remains incomplete; heartbeat stays active.
 
 - Final Node24 FULL155/155 and Node22 FULL155/155 PASS. Full check exec18906 and Node22 exec28931 exited0. All14 requested checks PASS: build/tests/threeJSdemos/sevenpublicpackages47cases/cleaninstalled-tarball/actualREA/multiartifact/native-links/native-loader/function-library/installed-OpenSSL/actual-APK-manifest. artifacts/verification-summary-0.17.0.json and checks-0.17.0 retain results. Native+DEX/jq/ART/scale optional suites were not rerun; their earlier scope remains separate. No emulator/app installation/runtime was used for the APK case.
-- Final actual APK report /Users/luckyfishovo/Desktop/side/open/carve/artifacts/apk-manifest-e2e-TGf0IA/report.json: full140-member inventory/extraction, original classes.dex760040B SHA256cfa20314b24e002b195501a59e02da4b023447b42808eab89b4757406a8ad0e3, all69 elements/100 attributes match AAPT2,9 Activity candidates/9permissions/5features, real CLI/MCP query. Two scoped JADX class records are complete static leads, not feature behavior. Original APK/member and selected engine hashes are recorded. docs/APK_MANIFEST.md shows the user workflow/limits.
+- Final actual APK report artifacts/apk-manifest-e2e-TGf0IA/report.json: full140-member inventory/extraction, original classes.dex760040B SHA256cfa20314b24e002b195501a59e02da4b023447b42808eab89b4757406a8ad0e3, all69 elements/100 attributes match AAPT2,9 Activity candidates/9permissions/5features, real CLI/MCP query. Two scoped JADX class records are complete static leads, not feature behavior. Original APK/member and selected engine hashes are recorded. docs/APK_MANIFEST.md shows the user workflow/limits.
 - Additional next-feature investigation, outside final release integration scope: artifacts/third-party/zxing-4.7.8/contact-investigation.json contains complete actual VCardContactEncoder7072chars and ContactEncoder2443chars from shipped DEX; exec56556 exited0. Read both fully. Java trim/dedup/order and phone-display Android PhoneNumberUtils dependency observed. next-contact-boundary.json preserves facts/unknowns and next steps; no contact implementation/adapter/runtime comparisons/folder exists yet. Inspect field/display formatters before choosing payload-only versus OS-bound output.
 - Bundled skill validator PASS. Process-check-0.17.0.json found no owned engines/workers/emulator after all analysis/check sessions became terminal. Existing automation TOML confirmed ACTIVE/every5h, unchanged. Only final checkpoint/release artifacts follow the checks; implementation unchanged. Local0.17 tarball integrity goes to artifacts/local-release-0.17.0.json; no npm/GitHub publication. Full original objective remains incomplete and heartbeat stays active.
 
@@ -326,8 +392,8 @@ Updated 2026-10-18 (Asia/Taipei). Development was handed from the Codex heartbea
 - New verification-receipt.ts stores full results and a small manifest/report-checksum-bound summary with a <=4096-byte example. Preview of >1MiB reports rehashes the full report and rejects stale/missing/inconsistent metadata, symlinks and oversized summaries. Counters are recorded local metadata, not independently rederived/authenticated. Library metadata preserves source.scope/total under verification.source.26 targeted tests PASS before the final missing-summary/failed-example additions; final full checks pending.
 
 - Final Node22 and Node24 FULL150/150 PASS each. Node22 exec48543 and full release exec84321 exited0. Build/tests/threeJSdemos/sevenpublicpackages47cases/cleaninstalled-tarball/actualREA/multiartifact/native-links/native-loader/function-library/installed-OpenSSL all PASS. artifacts/verification-summary-0.16.0.json and checks-0.16.0 contain the final requested checks. Native+DEX/jq/ART/scale optional integrations were not rerun; their older scope stays explicit below. No emulator was started.
-- Final installed third-party case /Users/luckyfishovo/Desktop/side/open/carve/artifacts/openssl-e2e-6DUZOo/report.json:880512-byte CLI SHA25667a83dd6d6d747d50c5d296dffb23e32bae9a2c588c93ae2d77e4c607b455c72;4872736-byte libcrypto SHA256bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c; libssl also hashed as a reference bound file. Six real code records/table/import/export/loader support, actual dyld log and160 direct CLI cases PASS; function-folder import/restricted invoke/MCP after rewrite/intermediate deletion PASS. This is a bounded finite byte encoder, not whole native software reconstruction.
-- User library now contains /Users/luckyfishovo/Desktop/side/open/carve/functions/openssl-base64 alongside existing examples. Source case160 comparisons stay recorded; import does not repeat them. Direct import/restricted invoke of [0,1,2,254,255] returns AAEC/v8=. New function/bundled skill validators PASS. artifacts/user-function-library-0.16.0.json records this promotion. Full report stays on disk; summary/case count/scope are preserved through verification.source chains. No global client/skill settings changed.
+- Final installed third-party case artifacts/openssl-e2e-6DUZOo/report.json:880512-byte CLI SHA25667a83dd6d6d747d50c5d296dffb23e32bae9a2c588c93ae2d77e4c607b455c72;4872736-byte libcrypto SHA256bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c; libssl also hashed as a reference bound file. Six real code records/table/import/export/loader support, actual dyld log and160 direct CLI cases PASS; function-folder import/restricted invoke/MCP after rewrite/intermediate deletion PASS. This is a bounded finite byte encoder, not whole native software reconstruction.
+- User library now contains functions/openssl-base64 alongside existing examples. Source case160 comparisons stay recorded; import does not repeat them. Direct import/restricted invoke of [0,1,2,254,255] returns AAEC/v8=. New function/bundled skill validators PASS. artifacts/user-function-library-0.16.0.json records this promotion. Full report stays on disk; summary/case count/scope are preserved through verification.source chains. No global client/skill settings changed.
 - All current analysis/check/test/worker handles terminal; process-check-0.16.0.json found no owned engines/background/emulator. Only this checkpoint, user library and release artifacts follow final checks; implementation unchanged. Local tarball integrity goes to artifacts/local-release-0.16.0.json; no publication. Full original objective remains incomplete and the existing five-hour heartbeat stays active.
 
 ## Verified0.15 adaptive compact context
@@ -361,7 +427,7 @@ Updated 2026-10-18 (Asia/Taipei). Development was handed from the Codex heartbea
 - Initial six parser/workflow tests and19 targeted loader/MCP/reconstruction tests passed. Initial actual Apple-toolchain/installed-binary check passed6 independent otool command comparisons at artifacts/loader-e2e-QZhWMm/report.json (development check before final source/test adjustments; not final release evidence).
 - Added regressions for doubled rpath separators, stale candidate-byte hints, code-evidence rejection and concurrent immutable publication. An actual concurrent3.5MiB metadata investigation reproduced two false changed-while-hashing errors (artifacts/loader-concurrency-investigation-Znvbgq/report.json); publication now completes a private file and atomically links it without overwriting an existing observation. Eight focused tests pass. The passing124-test baseline predates this fix and is archived as verification-summary-0.13.0-baseline.json / checks-0.13.0-baseline, never final release evidence. Owned multi-artifact integration now binds loader support. Final Node24/Node22 FULL125/125 PASS; full check exec26879 and Node22 exec56550 exited0. Final build/tests/threeJSdemos/sevenpublicpackages47cases/cleaninstalled-tarball/actualREA/multiartifact/native-links/native-loader checks passed; artifacts/verification-summary-0.13.0.json and checks-0.13.0. The unchanged native+DEX/jq/ART/scale optional integration cases were not rerun, and remain separately documented0.12 evidence. No emulator was started in this run.
 
-- Final actual multi-artifact report /Users/luckyfishovo/Desktop/side/open/carve/artifacts/multi-e2e-Pfx7vV/report.json binds the native-loader observation as support, compares162 original CLI cases, then passes independent CLI/MCP after original binaries and rewrite removal. Final installed discovery /Users/luckyfishovo/Desktop/side/open/carve/artifacts/links-e2e-dY2PfL/report.json and six independent otool command comparisons /Users/luckyfishovo/Desktop/side/open/carve/artifacts/loader-e2e-oesZO3/report.json pass. Source/ABI/semantic/runtime loading limits remain explicit.
+- Final actual multi-artifact report artifacts/multi-e2e-Pfx7vV/report.json binds the native-loader observation as support, compares162 original CLI cases, then passes independent CLI/MCP after original binaries and rewrite removal. Final installed discovery artifacts/links-e2e-dY2PfL/report.json and six independent otool command comparisons artifacts/loader-e2e-oesZO3/report.json pass. Source/ABI/semantic/runtime loading limits remain explicit.
 - Latest user requests reusable capability folders that AI can find/import/call, rather than requiring one standalone program per extracted feature. Implement a local capability library as a compatible continuation; no website/subagent/global client edits. Full software reconstruction goal remains incomplete.
 
 ## Verified0.12 native linkage discovery
@@ -371,8 +437,8 @@ Updated 2026-10-18 (Asia/Taipei). Development was handed from the Codex heartbea
 - Page coverage merges overlapping intervals, detects missing prefixes/gaps, bounds inspection to10000 pages and returns the first missing engine cursor. knownComplete covers one provider metadata category. Query nextOffset pages already indexed rows, whereas pageCoverage.nextCursor requests more engine output. Latest indexed source/profile excludes stale rows while keeping historical observations. Fresh reconstruction gates remain required.
 - Final Node24 and Node22.19 FULL117/117 PASS; Node22 exec73230 and full release exec49407 exited0. Five new linkage unit cases cover ambiguity, explicit underscore matching, architecture/format, stale source/profile exclusion, gaps/overlap, cursor identity/bounds and mode validation. Existing main MCP now advertises30 tools. Skill validator PASS.
 - Full final release PASS: build/tests/threeJSdemos/sevenpublicpackages47cases/cleaninstalled-tarball/actualREA/native+DEX+ZIPfixtures/jq160originalCLIcases/Androidprotocol/scrcpy160ARTcases/componentqueue/backgroundanalysis/multiartifact/native-links. artifacts/verification-summary-0.12.0.json, archived artifacts/checks-0.12.0, Node22 artifacts/node22-tests-0.12.0.log. Inventory scale not repeated because its algorithm is unchanged;0.8 evidence remains separately archived. Only documentation/checkpoint changes follow final tests; implementation unchanged.
-- Final owned split feature PASS: /Users/luckyfishovo/Desktop/side/open/carve/artifacts/multi-e2e-W32mkx/report.json. Loader-only metadata indexes executable and two same-export libraries, retains both candidates and one basename hint, then a separate full-analysis profile decompiles actual caller/callee. Actual alternate executable linked to the deliberately different decoy returns1006 where selected target returns47; this is a counterexample on an owned alternative, not rebinding the selected original. Reviewed loader/code evidence selects the intended library, metadata IDs bind as support,162 original CLI cases pass, and independent CLI/MCP work after original/rewrite removal. Relationships remain unconfirmed metadata and unknowns remain explicit.
-- Final real installed ripgrep/PCRE2 discovery PASS: /Users/luckyfishovo/Desktop/side/open/carve/artifacts/links-e2e-EvHHAd/report.json. Actual installed versions/source SHA256 and library-load log retained. Three native metadata jobs run in a background batch after CLI exit; a five-record incomplete import page resumes through fresh MCP sessions, and matching PCRE2 export is found. Engine logs/stages confirm loader-only/no auto-analysis. This is third-party metadata/candidate discovery, not regex reconstruction or full dependency closure. System shared-cache libraries remain unindexed.
+- Final owned split feature PASS: artifacts/multi-e2e-W32mkx/report.json. Loader-only metadata indexes executable and two same-export libraries, retains both candidates and one basename hint, then a separate full-analysis profile decompiles actual caller/callee. Actual alternate executable linked to the deliberately different decoy returns1006 where selected target returns47; this is a counterexample on an owned alternative, not rebinding the selected original. Reviewed loader/code evidence selects the intended library, metadata IDs bind as support,162 original CLI cases pass, and independent CLI/MCP work after original/rewrite removal. Relationships remain unconfirmed metadata and unknowns remain explicit.
+- Final real installed ripgrep/PCRE2 discovery PASS: artifacts/links-e2e-EvHHAd/report.json. Actual installed versions/source SHA256 and library-load log retained. Three native metadata jobs run in a background batch after CLI exit; a five-record incomplete import page resumes through fresh MCP sessions, and matching PCRE2 export is found. Engine logs/stages confirm loader-only/no auto-analysis. This is third-party metadata/candidate discovery, not regex reconstruction or full dependency closure. System shared-cache libraries remain unindexed.
 - Earlier actual smoke artifacts/linkage-dev/check.log (exec39000), installed discovery artifacts/links-e2e-BdYdyY/report.json (exec15245), and pre-final owned integration artifacts/multi-e2e-FkGfhE/report.json (exec72283) also passed, but final release reports above cover final counters/validation and the different-behavior decoy. No failed check is relabeled PASS.
 - All analysis/test/worker/controller handles terminal. Owned Android exec32054/QEMU30214/privateADB30226(port5039) stopped only after actual AVD name/process command/executable verification; exact exec exited0, both PIDs absent. artifacts/android/lifecycle.json records this instance. No engine/emulator remains running.
 - Local tarball artifacts/reverse-engineering-carve-0.12.0.tgz is produced after this checkpoint update; integrity/size and verification references go to artifacts/local-release-0.12.0.json. No publication. Full user objective remains incomplete; existing user-authorized heartbeat remains ACTIVE.
@@ -383,7 +449,7 @@ Updated 2026-10-18 (Asia/Taipei). Development was handed from the Codex heartbea
 - Reconstruction and verification recheck every selected source and full code/supporting evidence before/after packaging or comparison. All selected source files automatically join reference pre/post hash checks. This also checks the primary source for an external-harness comparison. Version2 provenance and use/capability_info expose artifacts/relationships/hypotheses without opening originals. MCP checks every related workspace/target against the server root; CLI can explicitly use multiple local workspaces. Hashing/relationship records do not prove every artifact was loaded or a complete dependency closure.
 - Final Node24 and Node22.19 FULL112/112 PASS. Node22 exec41839 and full release exec65101 exited0. Skill validator PASS. New regressions cover cross-workspace/source/evidence identities, invalid graphs/endpoints/duplicate paths, incomplete/stale secondary code, actual reference-process mutation of secondary source/evidence, and actual stdio MCP confinement during packaging and verification. Existing version1 native/Android reconstruction cases still pass.
 - Full final release PASS: build/tests/threeJSdemos/sevenpublicpackages47cases/cleaninstalled-tarball/actualREA/native+DEX+ZIPfixtures/jq160originalCLIcases/Androidprotocol/scrcpy160ARTcases/componentqueue/backgroundanalysis/multiartifact. artifacts/verification-summary-0.11.0.json and archived logs artifacts/checks-0.11.0; Node22 log artifacts/node22-tests-0.11.0.log. Scale not repeated because inventory algorithm is unchanged;0.8 evidence remains separately archived. Only documentation/checkpoint changes follow these final checks; implementation is unchanged.
-- Actual split native case PASS: /Users/luckyfishovo/Desktop/side/open/carve/artifacts/multi-e2e-k0oE87/report.json. examples/native-app/split-main.c + split-charge.c compile an executable/shared library; executable is stripped, library retains its required dynamic export. Both binaries undergo real Ghidra analysis. String/caller/import/callee records, actual executable load command and actual dyld library-load log support the reviewed relationship.162 original CLI cases cover duration/membership/zone including signed-int32 edges. Both original binaries and rewrite source are removed; independent CLI, main MCP invoke/use and standalone capability_info/capability pass. Ghidra leaves imported-call parameter types unresolved; the CLI invocation and actual comparisons are used instead of a guessed C ABI. Relationship metadata remains unconfirmed and unknowns remain retained, despite passing cases.
+- Actual split native case PASS: artifacts/multi-e2e-k0oE87/report.json. examples/native-app/split-main.c + split-charge.c compile an executable/shared library; executable is stripped, library retains its required dynamic export. Both binaries undergo real Ghidra analysis. String/caller/import/callee records, actual executable load command and actual dyld library-load log support the reviewed relationship.162 original CLI cases cover duration/membership/zone including signed-int32 edges. Both original binaries and rewrite source are removed; independent CLI, main MCP invoke/use and standalone capability_info/capability pass. Ghidra leaves imported-call parameter types unresolved; the CLI invocation and actual comparisons are used instead of a guessed C ABI. Relationship metadata remains unconfirmed and unknowns remain retained, despite passing cases.
 - Failure history retained: initial unit test syntax and macOS /var canonical-path assertions were corrected before final112-test checks. Initial real integration reached162 passing comparisons and independent CLI, then incorrectly asserted scalar MCP content instead of {value:47}; artifacts/multi-dev-check.log remains a failure, not relabeled PASS. Final integration reran a fresh fixture and checks the actual reply shape plus direct standalone MCP calls.
 - docs/MULTI_ARTIFACT.md, reconstruction docs, README, skill/generated task instructions and0.11 metadata updated. Complete code observations currently mean Ghidra/JADX; JS summaries, data-only/resources, native/JS/JNI boundaries and automatic import resolution still need additional support. The owned split case is not large third-party-app or whole-system recovery. Server logic absent from client bytes stays unavailable.
 - Final engine/test/controller/worker handles terminal. Owned Android exec62447/QEMU2781/privateADB2792(port5039) stopped only after actual AVD name/process command/executable checks; exact exec exited0, both PIDs confirmed absent. artifacts/android/lifecycle.json records this instance. No emulator or analysis engine remains running.
@@ -395,8 +461,8 @@ Updated 2026-10-18 (Asia/Taipei). Development was handed from the Codex heartbea
 - Startup listeners precede awaits, failed undelegated launches observe actual child exit, control-read failures abort safely, cancellation/deadline reasons persist, and final status is serialized with late cancellation. Conditional cancellation cannot overwrite concurrently completed work. A dead registered startup worker is interrupted even while its launcher remains alive. Existing active runs retain their original options; a slow acknowledgement returns an inspectable handle without restarting an engine. Missing or unknown process liveness never establishes termination.
 - Node24 and Node22.19 FULL107/107 PASS after final source changes; session20821 full release check and session68247 Node22 test run both exited0. Eleven new background lifecycle tests cover actual launcher SIGKILL before/after delegation, exact-owner adoption, dead startup-worker recovery, normal CLI/MCP exit, concurrent initial starts, suspended-worker cancellation, execution deadlines, worker SIGKILL and explicit retry. Synthetic engine lifecycle tests are separate from actual decompilation evidence. Skill validator PASS.
 - Full final release check PASS: build/tests/threeJSdemos/sevenpublicpackages47cases/cleaninstalled-tarball/actualREA/native+DEX+ZIPfixtures/jq160originalCLIcases/Androidprotocol/scrcpy160ARTcases/componentqueue/backgroundanalysis. artifacts/verification-summary-0.10.0.json; archived logs artifacts/checks-0.10.0. Node22 log artifacts/node22-tests-0.10.0.log. Clean install now also verifies the packaged background worker completes after its installed CLI launcher exits. Scale not repeated because inventory algorithm is unchanged;0.8 evidence remains separately archived. Only this checkpoint documentation changes after the final checks; implementation is unchanged.
-- Real final background workflow PASS: /Users/luckyfishovo/Desktop/side/open/carve/artifacts/background-e2e-qlQu6g/report.json. Pinned jq1.8.2 Ghidra strings, released scrcpy5.0.1 Size-class JADX and JS static inspection. Actual analyzing Ghidra JVM/executable observed after CLI exit; another MCP session cancels, actual owner/supervisor/group disappear, then explicit retry starts in an MCP session that closes immediately. Fresh CLI/MCP sessions inspect completion/results. Three completed requests, six fresh MCP sessions, two separate CLI sessions; first interrupted import restarts with reusedAnalysis=false. No cross-binary boundary or runtime equivalence is inferred from this static-analysis check.
-- Final synchronous mixed queue PASS: /Users/luckyfishovo/Desktop/side/open/carve/artifacts/queue-e2e-4Yraja/report.json. Current final jq/scrcpy/native runtime reports are linked through their versioned0.10 summary files. Full goal remains incomplete despite these checks.
+- Real final background workflow PASS: artifacts/background-e2e-qlQu6g/report.json. Pinned jq1.8.2 Ghidra strings, released scrcpy5.0.1 Size-class JADX and JS static inspection. Actual analyzing Ghidra JVM/executable observed after CLI exit; another MCP session cancels, actual owner/supervisor/group disappear, then explicit retry starts in an MCP session that closes immediately. Fresh CLI/MCP sessions inspect completion/results. Three completed requests, six fresh MCP sessions, two separate CLI sessions; first interrupted import restarts with reusedAnalysis=false. No cross-binary boundary or runtime equivalence is inferred from this static-analysis check.
+- Final synchronous mixed queue PASS: artifacts/queue-e2e-4Yraja/report.json. Current final jq/scrcpy/native runtime reports are linked through their versioned0.10 summary files. Full goal remains incomplete despite these checks.
 - Failure history preserved: test-harness IPC close-event wait after child exit fixed to await exit; existing installation metadata initially rejected by background options, now stripped consistently with MCP while selected provider files are independently hashed. Initial Node22 run105/106 failed an old cancellation-test assumption:9 files had valid commits before asynchronous cancellation arrived; test now asserts saved+newly-hashed=1105 and zero failures/cache hits. artifacts/node22-tests-0.10.0-initial-failed.log retained. Passing baseline build predating final control fixes is explicitly archived as non-final (verification-summary-0.10.0-baseline.json); only final107-test check is release evidence.
 - All final analysis/test/controller/worker handles terminal; ps found no owned background/Ghidra process. Owned emulator session98814/QEMU56520/privateADB56532(port5039) stopped after actual AVD name, command and executable checks. Exact session exited0, both PIDs confirmed absent; artifacts/android/lifecycle.json. No engines/emulator left running.
 - Local tarball artifacts/reverse-engineering-carve-0.10.0.tgz is produced after this checkpoint update; integrity/size and verification references go to artifacts/local-release-0.10.0.json. No publication. Next substantive implementation is multi-artifact evidence/boundary support below; no unfinished implementation changes are hidden behind the release pass.
@@ -444,16 +510,16 @@ No subagents. No website. Local CLI/MCP/skill. User delegates development choice
 
 Full0.7.0 check PASSED after final native external/thunk metadata fix: build,73/73 Node24 tests, three JS demos, seven public packages/47 cases, clean install, actual REA, native/DEX/container fixtures, actual jq, Android protocol and actual scrcpy ART. Node22.19.0 also73/73 (artifacts/node22-tests-0.7.0.log). Skill validator passed. Release check artifacts/verification-summary.json. The in-progress survey changes above postdate those release checks and are not covered by that full pass.
 
-- jq-1.8.2 official macOS arm64 release,841504B,SHA2562d75340ba57a4b4b4c8708a21c2dc8e958a48aaa8bba13b27f77f6e4c0eca07e. Target builtin names unavailable as function symbols. String utf8bytelength1000b59df -> data slot1000bcd20 -> reviewed24-byte fn/name/arity table -> function10000a8d8 -> byte-length helper10002086c. Neighbor length uses another codepoint path. UTF8 contract independently reconstructed;160 original CLI cases pass including Unicode/NUL/longer strings. Original invocation/source paths removed; independent CLI/invoke/MCP pass. Re-query after packaging preserves bound evidence; string cursors and long instruction-window pagination exercised. Latest0.9 rerun report /Users/luckyfishovo/Desktop/side/open/carve/artifacts/jq-e2e-jNbUj8/report.json. Source/COPYING/digest at artifacts/third-party/jq-1.8.2. Ghidra ABI/signatures are inferred; reference uses actual jq JSON CLI, not a guessed C ABI.
+- jq-1.8.2 official macOS arm64 release,841504B,SHA2562d75340ba57a4b4b4c8708a21c2dc8e958a48aaa8bba13b27f77f6e4c0eca07e. Target builtin names unavailable as function symbols. String utf8bytelength1000b59df -> data slot1000bcd20 -> reviewed24-byte fn/name/arity table -> function10000a8d8 -> byte-length helper10002086c. Neighbor length uses another codepoint path. UTF8 contract independently reconstructed;160 original CLI cases pass including Unicode/NUL/longer strings. Original invocation/source paths removed; independent CLI/invoke/MCP pass. Re-query after packaging preserves bound evidence; string cursors and long instruction-window pagination exercised. Latest0.9 rerun report artifacts/jq-e2e-jNbUj8/report.json. Source/COPYING/digest at artifacts/third-party/jq-1.8.2. Ghidra ABI/signatures are inferred; reference uses actual jq JSON CLI, not a guessed C ABI.
 - Current exporter hash change reused earlier completed jq analysis: artifacts/third-party/jq-1.8.2/export-cache-check.json. Actual external/thunk field validation: artifacts/native-reference-flags-check.json (six data refs + imported thunk + unknown null).
-- scrcpy5.0.1 official released Android server SHA256764eb6f79811d5211fe9df341120882ba9994c7a61b897d7bf3fb662e53bc536,Apache-2.0 retained. Whole-release JADX failed73 errors (not success); scoped Size/VideoConstraints+fallback succeed. Software-only constrain with null codec caps matches160 original DEX method cases on Android15/API35 arm64 ART. Repeated same-class export after packaging preserves original evidence. Reviewed adapter invokes shipped DEX without recompiling original logic. Independent CLI/invoke/MCP/info pass after original invocation/source removal. Latest0.9 rerun report /Users/luckyfishovo/Desktop/side/open/carve/artifacts/android-e2e-nf0IPp/report.json. Hardware codec branch/capture/encoding/UI/server/other devices excluded.
+- scrcpy5.0.1 official released Android server SHA256764eb6f79811d5211fe9df341120882ba9994c7a61b897d7bf3fb662e53bc536,Apache-2.0 retained. Whole-release JADX failed73 errors (not success); scoped Size/VideoConstraints+fallback succeed. Software-only constrain with null codec caps matches160 original DEX method cases on Android15/API35 arm64 ART. Repeated same-class export after packaging preserves original evidence. Reviewed adapter invokes shipped DEX without recompiling original logic. Independent CLI/invoke/MCP/info pass after original invocation/source removal. Latest0.9 rerun report artifacts/android-e2e-nf0IPp/report.json. Hardware codec branch/capture/encoding/UI/server/other devices excluded.
 - Android protocol separately tests actual remote quoting, stderr, nonzero exit, remote timeout, >1MiB output, hashes and private cleanup; artifacts/android-protocol-summary.json. Not extra third-party behavior cases.
-- Native own-source stripped Mach-O54 executable cases; owned DEX54 JVM-harness cases (not Android) and deflated ZIP member lineage. Latest0.9 rerun report /Users/luckyfishovo/Desktop/side/open/carve/artifacts/native-e2e-he6Nft/report.json.
+- Native own-source stripped Mach-O54 executable cases; owned DEX54 JVM-harness cases (not Android) and deflated ZIP member lineage. Latest0.9 rerun report artifacts/native-e2e-he6Nft/report.json.
 - Prior unchanged scanner scale:25002 synthetic files incl64MiB sparse file,26 batches,all25002 metadata refresh hits; 23617ms / 95472KiB peak RSS. Inventory scale only, not giant software reconstruction. Not repeated in0.7 because scanner unchanged.
 
 ## Tool installations / lifecycle
 
-Reuse artifacts/engines/config.json (paths relative to the file since0.23): Ghidra12.1.4 with compiled mac-arm64 decompiler, full Temurin JDK21.0.12.1+1, JADX1.5.6. Official D8/R8 artifacts/engines/r8-9.5.26.jar. Download/hash records retained. REA6.5.0 at /Users/luckyfishovo/.npm/_npx/ad9a3fdbcad992c6/node_modules/.bin/rea. Ghidra doctor healthy; earlier direct REA underscore symbol attempt failed, do not call it a native pass.
+Reuse artifacts/engines/config.json (paths relative to the file since0.23): Ghidra12.1.4 with compiled mac-arm64 decompiler, full Temurin JDK21.0.12.1+1, JADX1.5.6. Official D8/R8 artifacts/engines/r8-9.5.26.jar. Download/hash records retained. REA6.5.0 at a historical local REA executable. Ghidra doctor healthy; earlier direct REA underscore symbol attempt failed, do not call it a native pass.
 
 Reuse artifacts/android/config.json (relative paths since0.23; avd/Carve_API35.ini path= rewritten to the new absolute location, relocated runtime freshly relaunched/verified/stopped in0.25.1, hardware-qemu.ini is regenerated by the emulator): official Google platform-tools37.0.1, emulator37.2.12 mac-arm64, AOSP API35/default/arm64-v8a image r02; SDK/AVD/user files isolated under artifacts/android. Repository XML/published SHA1 checks/local SHA256 records retained. Hypervisor.Framework works; no global Java/agent changes.
 
@@ -469,3 +535,325 @@ Owned emulator-5580/private ADB5039 were last launched for0.18 in exec92903 (QEM
 6. Bounded verification CLI/MCP and paginated case/metadata inspection are implemented/verified in0.19 above. Further reduce unnecessary context by preserving report identity and querying selected fields; do not mislabel historical reads as fresh runtime equivalence. Consider streaming full verification/archive writes before claiming large-output memory scalability. Broader representative recovery remains unfinished.
 7. Workspace relocation is implemented in0.24 (CLI/API). Open: an MCP carve_relocate tool, rewriting historical queue/run records if a use needs them,. Duplicate third-party workspaces were resolved (relocated originals kept under their original names).
 8. Do not mark the full goal complete just because JS/native/Android local milestones pass. Preserve the full objective and authorized continuation. Respect any later explicit pause; do not treat local milestones as full completion.
+
+## Third-party PE version feature and non-UI roots — 2026-10-21
+
+Added dependencies entryMode selected-functions to existing CLI/MCP PE inspection.
+Explicit 1–16 same-file imported function roots require no command, emit function-entry
+rows and retain source/profile/authorization/depth/page/hash constraints. Default UI
+mode still requires a command; neither mode establishes runtime reachability. Three
+new tests cover actual traversal, immutable pagination/mode identity, invalid selections
+and CLI/fresh-MCP parity; all16dependency tests pass.
+
+New optional npm run verify:pe-version uses the real lib7-Zip-JBinding.dll from the
+configured Ghidra installation, pinned SHA256 c769642c8a489e8fc078b8387fb9865ac5c5482ce22301a40d00145fa1304b27.
+Independent REA captures6version exports and closes before Carve import. The reviewed
+module includes3exact terminated readonly string bindings. Original AMD64 instructions
+run under Unicorn with a single ASCII-only JNI NewStringUTF stub; clang checks slot
+0x538against installed jni.h. Indirect tail-call/JNI semantics remain unknown in the
+static graph. All6declared outputs match, an incorrect candidate fails, changed original
+bytes invalidate acceptance, and all6outputs work through direct imports and a fresh
+library-only MCP while the integration's original copy is offline. Distribution bytes
+are unchanged. This small metadata case does not cover compression, Windows/JVM/OS/UI,
+DLL initialization, allocation failures or generic feature synthesis.
+
+Full node scripts/check-release.mjs --pe-behavior --pe-state --pe-version PASS9/9,
+434tests/0failures/0skips/0cancelled, existing160case DLL comparison and40sequence/
+926step state/resource comparison. Log artifacts/setup/pe-version-release-final.log;
+aggregate artifacts/verification-summary.json; detailed new result
+artifacts/pe-version-e2e-bDlGXh/report.json and pe-version-verification-summary.json.
+Reusable module: artifacts/pe-version-e2e-bDlGXh/functions/sevenzip-version.
+Earlier local version development run passed before non-UI traversal was added; it is
+not the final evidence. The final report above verifies actual traversal/data bindings.
+Only this checkpoint and private memory follow the full check; product code is unchanged.
+Local0.43.1Unreleased only; no commits, push, publication or global configuration changes.
+Next substantial target should include third-party branching/table computation and a
+bounded input domain; six metadata cases do not materially change the broad70%estimate.
+
+## Third-party table-driven CRC extraction — 2026-10-21
+
+New optional verify:pe-crc and check-release --pe-crc extract actual internal
+CrcUpdateT1 at0x6a42c4e0from the same pinned shipped Windows AMD64 sevenzip JNI DLL.
+Retained COFF symbol/LLVM disassembly identify the internal helper, not an export.
+Independent REA captures complete function records plus read_function_instructions;
+its producer closes before Carve imports and traverses one explicit non-UI root.
+Observed Ghidra pseudocode incorrectly declares void and elides the CRC calculation.
+Preserve it unchanged: reviewed original instructions and executable comparisons
+support the declared return convention, not guessed pseudocode semantics.
+
+The independently authored module accepts uint32state,0–4096bytes and256explicit
+uint32table entries. Original Unicorn ABI execution checks one byte/table read per
+iteration, empty/loop paths, readonly caller memory and bounded execution.128trace
+cases cover all256table slots.200comparison cases cover standard/raw CRC vector,
+empty/high-bit state, zero/identity/random tables and maximum input length. Actual
+original chunk updates agree with the vector, independently checked by Python zlib.
+An incorrect fixed-standard-table implementation is rejected; source mutation
+invalidates saved acceptance. Direct module and fresh library-only MCP reuse work
+with the integration's original copy offline, then restored unchanged. Table extent
+is an explicit caller contract; no original table initialization, global dispatch,
+DLL loader/JVM/Windows/UI/compression/archive behavior or generic synthesis is proven.
+
+Three new module domain/vector/table tests pass. Final complete release check
+--pe-behavior --pe-state --pe-version --pe-crc PASS10/10,437tests/0fail/0skip/0cancel;
+existing160case DLL comparison,926step state/resource and6version cases still pass.
+Log artifacts/setup/pe-crc-release-final.log; aggregate artifacts/verification-summary.json;
+new result artifacts/pe-crc-e2e-vFhZ8F/report.json and pe-crc-verification-summary.json.
+Module artifacts/pe-crc-e2e-vFhZ8F/functions/sevenzip-crc; docs/PE_CRC.md records scope.
+Initial development attempt retained at artifacts/pe-crc-e2e-XDNTCi/failure.json:
+pretty-printed repeated caller tables exceeded the existing1MiBcase-file limit.
+Compact case JSON is548492bytes for all200cases; no safety limits were raised.
+Final fresh run passes. Only checkpoint/private memory follow full verification.
+Local0.43.1Unreleased; no commit/push/publication/global settings changes. Next useful
+scope is explicit original table initialization and selected function-pointer dispatch,
+with finite behavior validation and honest CPU/loader limits.
+
+## Original CRC initialization and selected dispatch — 2026-10-21
+
+Added optional verify:pe-crc-dispatch / check-release --pe-crc-dispatch using the
+same exact shipped sevenzip Windows DLL. Independently capture5REA function plus
+instruction records for CrcGenerateTable/CrcUpdate/T4/T8/CPU_Is_InOrder, close REA,
+then import into Carve. Static non-UI roots visit3functions; indirect T4/T8 edges
+remain unresolved rather than being silently promoted by runtime evidence.
+Nine runtime BSS references are explicitly unresolved reconstruction data bindings.
+
+Original initializer instructions produce all2048table cells from zero-filled BSS
+(an explicit harness loader assumption) and write actual dispatch pointers. Stub only
+the exact CPU_Is_InOrder entry with declared0or1, not real hardware detection. Compare
+every cell/hash with portable initialization; complete8192byte table SHA256 is
+21ed943bd7cc421b04a4c88ca86abe13b6b7d9d793f0106cfc23328ec4eb72c1.
+Require2048table writes, one CPU boundary call and3/4pointer writes. Protect initialized
+image as readonly/code-executable; original CrcUpdate must enter exactly selected
+T4(predicate1)orT8(predicate0). Bound reads/writes and execution. Portable code uses
+an equivalent byte recurrence, not retained optimized instructions/performance.
+
+194original/candidate cases pass across2predicates/8alignments, empty/threshold/
+4096byte inputs and uint32state. Original chunk updates match the check vector.
+Skipping original initialization fails; opposite-selection mutant fails; changed
+original invalidates acceptance. Own original copy offline: independent direct imports
+and fresh library-only MCP work, then restore unchanged. No original CPU detection,
+Windows loader/DLL startup/JVM/UI/concurrency/rebase/archive behavior is verified.
+
+Corrected earlier verify-pe-crc standard-vector.json persistence: a stray positional
+argument stored a string instead of the already-asserted oracle result. The original
+numeric assertion was valid; historical artifact files remain unchanged. The corrected
+fresh run asserts the saved structured result and passes all200original comparisons.
+
+Final check-release --pe-crc --pe-crc-dispatch PASS8/8,440tests/0fail/0skip/0cancel,
+200explicit-table cases and194initialized-dispatch cases. Other optional integrations
+were not requested this run; their earlier results remain separately recorded.
+Log artifacts/setup/pe-crc-dispatch-release-final.log; aggregate verification-summary.json;
+new report artifacts/pe-crc-dispatch-e2e-ChisRf/report.json. Module
+artifacts/pe-crc-dispatch-e2e-ChisRf/functions/sevenzip-crc-dispatch. Corrected original
+CRC result artifacts/pe-crc-e2e-uX5brn/standard-vector.json; docs/PE_CRC_DISPATCH.md.
+Only this checkpoint/private memory follow final verification. Local0.43.1Unreleased;
+no publication/global config/heartbeat changes. Next useful product work is binding
+reviewed original instruction evidence and declared ABI differences directly into
+reconstruction provenance, beyond acceptance-file pins and free-text limitations.
+
+## Source-bound instruction and declared ABI reviews — 2026-10-21
+
+Added optional version2 artifact instructionReviews via reconstruction-instructions.ts.
+A review selects one complete owned PE/REA observation, exact imported inferred
+signature, agent-declared Windows x64 register/return interface and difference text,
+complete committed read_function_instructions Evidence inside the workspace, and
+1–16ordered/disjoint original byte witnesses up to256bytes each. Check canonical REA
+ID, raw/normalized identity, source/provider/profile/exact selector/name/external-thunk
+flags/body, executable unique mapping and byte hashes. Preserve original pseudocode
+hash and inferred signature; do not rewrite producer evidence or infer ABI correctness.
+Bounded16line/512character previews retain complete selected listing hash/count and
+explicit truncation. No independent instruction decoder or producer authentication.
+
+Paths are authorized before reading, no redirects/symlinks/nonregular files/traversal;
+reads are bounded, no-follow/nonblocking, with size/time consistency. Limits16reviews/
+artifact,32/contract,1MiBper instruction file,4MiBcumulative per artifact, one review
+per observation. Only AMD64 PE/window-x64 supported initially. Boundary-support roles
+cannot use reviews. Legacy contracts gain no default fields. Any review forces
+packaged-with-unknowns and unverifiedInstructionReviews. Rebind after packaging and
+before/after verify-reconstruction; source/evidence/provenance changes fail.
+
+Five new tests cover provenance/legacy status, bad coordinates/bytes/signatures/IDs,
+semantic commitments/source/profile/body, schema/architecture/redirects, fresh MCP
+and refusal at actual verify-reconstruction entry after instruction-file changes.
+Real explicit-table CRC now binds41original bytes, inferred undefined prototype,
+R9table argument and EAXuint32return. Initializer/dispatcher bind164/14bytes and
+reviewed void/uint32interfaces. Independent raw instruction files are copied into
+work/instruction-evidence and pinned in executable acceptance. No automatic semantic
+promotion or static indirect-edge resolution. Independent offline module reuse passes.
+
+Final check-release --pe-crc --pe-crc-dispatch PASS8/8,445tests/0fail/0skip/0cancel,
+real200CRC and194initializer/dispatch cases. Log artifacts/setup/instruction-reviews-release-final.log;
+aggregate verification-summary.json. Reports artifacts/pe-crc-e2e-jjb3Ne/report.json and
+artifacts/pe-crc-dispatch-e2e-iaP4RM/report.json; reusable modules under their functions/
+sevenzip-crc and functions/sevenzip-crc-dispatch. New docs RECONSTRUCTION_INSTRUCTIONS.md.
+Other optional integrations were not requested this run. Only checkpoint/private
+memory follow full checks; all code remains local0.43.1Unreleased. No publication,
+global config or heartbeat changes. Next useful core scope is connecting reviewed
+interfaces to repeatable bounded verification tasks, with explicit pointer extents
+and environment assumptions rather than more case-specific harness duplication.
+
+## Generated reviewed PE verification tasks — 2026-10-21
+
+Added pe-verification-task.ts and bundled engines/pe-abi-runner.py. Existing reconstruct
+CLI/MCP optionally prepares a new task directory from an exact artifact instruction
+review and explicit uint32/bytes/fixed-uint32-array/derived-length bindings. Register
+locations come from the review, input indices are contiguous and pointer extents are
+explicit. Only complete byte-reviewed AMD64 PE bodies, EAXuint32results, readonly
+inputs and16MiBimages/files are supported initially. Preparation never executes Python.
+MCP remains52tools; omitted options preserve existing behavior.
+
+Generated task.json/runner.py/reference.json use pe-reference@1. Existing verification
+rebinds current package/source/review/body/ABI/policy and trusted bundled runner before
+execution. The fixed Unicorn2.1.4runner enforces input/stack/body bounds, readonly source
+and buffers, no external function execution, written-before-read stack, instruction/time
+limits, balanced return stack and integer nonvolatile registers. No loader, initializer,
+global memory access, writable/out buffers, rebasing, OS/UI or universal ABI proof.
+Spec/runtime inputs are declarations, not complete environment fingerprints. Generated
+files/source are pinned pre/post comparison; package invocation remains original-free.
+
+First real generated200case comparison failed because existing verify-reconstruction
+canonicalized the virtualenv interpreter into the underlying global Python, losing
+Unicorn packages. Preserve the explicit generated-task interpreter invocation path
+while still hashing the resolved executable. Retain failure artifacts/pe-crc-e2e-hR5CND
+and artifacts/setup/pe-task-development.log; corrected4case probe and final fresh200case
+run pass. A mock-interpreter alias regression tests path semantics without claiming
+original PE execution. Six new task tests cover preparation/no-execution, pin/policy/
+runner changes, binding types/indices/extents, full body coverage/output isolation,
+existing MCP access and interpreter alias preservation. Clean install asserts the
+bundled runner asset is present.
+
+Full --pe-crc --pe-crc-dispatch PASS8/8,451tests0fail/skip/cancel.200generated CRC
+comparisons plus independent earlier200case CRC adapter and194initializer/dispatch
+cases pass. Modified generated runner is rejected before execution. Final log
+artifacts/setup/pe-task-release-final.log; aggregate verification-summary.json.
+Generated case report artifacts/pe-crc-e2e-q3Wsba/generated-verification.json; task files
+same directory/generated-task; module same directory/functions/sevenzip-crc. Existing
+init/dispatch report artifacts/pe-crc-dispatch-e2e-F1ayFR/report.json. Other optional
+integrations not requested this run. docs/PE_VERIFICATION_TASKS.md records policy/usage.
+Only checkpoint/private memory follow final checks; local0.43.1Unreleased with no
+publication/global config/heartbeat changes. Next: explicit initialization order and
+mutable-state lifetimes in generated tasks, retaining conservative unsupported boundaries.
+
+### Generated PE state sequences
+
+Added optional sequence configuration to the existing generated PE task path.
+Initialization is explicitly declared and restricted to calls of the same reviewed
+function. Read/write ranges are section checked and byte bounded, with at most64KiB
+of declared data. Each sequence maps a fresh source image; calls retain only declared
+image state and restart ABI register/stack tracking. The generic verifier uses its
+existing stateful sequence comparison and archives per-step outcomes.
+
+Original owned AMD64 regression uses `state = 2 * state + input`: initializer calls
+3 then5 produce11, reversing them produces13. Compared calls1,2,0 return23,48,96;
+a new sequence with0 returns22. Reset-per-call candidate fails. Undeclared, readonly
+and adjacent-range state accesses fail. Imported REA records in this regression
+remain synthetic validator fixtures; it does not establish real REA discovery or
+support for a separate initializer, optimized CRC dispatch, OS APIs or pointer inputs.
+
+### Separate initializer and helper task entries
+
+Generated state sequences now accept `{observationId,args}` initializer entries
+alongside legacy argument arrays and optional helper observation IDs. Each entry
+resolves an instruction review from the same artifact and image, requires complete
+body-byte coverage and is included in the rebound task descriptor. Initializers
+support their own scalar-register ABI and void or EAX uint32 results. Helper bodies
+are an explicit execution allowlist, not proof of intended edges or nested ABIs.
+
+Owned machine-code regression uses a separate void RDX initializer and RCX main
+entry calling a helper. Seed3 then5 produces5; main updates1,2 return6,8; fresh
+sequence starts5; reversed seed order starts3. Missing/partial initializer/helper
+reviews, duplicate helpers, invalid initializer results, undeclared execution and
+rehashed initializer-entry tampering are rejected. The imported instruction
+records remain synthetic fixtures, distinct from actual machine-code execution.
+Real REA discovery and original CRC CPU-predicate dispatch still need integration.
+
+### Real REA-generated initialized buffer sequences
+
+Added an owned freestanding CRC session fixture with separate table initialization,
+one-byte helper and buffer update function. Independent REA/Ghidra captures all
+three function bodies and instruction listings before Carve imports them. Generated
+stateful tasks now accept existing readonly buffer and derived-length bindings;
+initializers remain scalar-only. Per-call mappings use distinct addresses and are
+unmapped after execution, so pointers retained from prior calls fail explicitly.
+The source-owned stale-pointer machine-code test exercises that boundary.
+
+The integration compares40 sequences156steps, including split standard CRC input,
+all byte values, empty buffers, state isolation and4096bytes. Negative cases check
+missing initialization, undeclared helper execution, reset-per-call candidate and
+oversize buffers. Direct import and fresh MCP sequence work with original inputs
+offline. This adds actual independent REA evidence beyond the synthetic instruction
+validator fixtures; it does not claim third-party CPU dispatch or OS loader support.
+
+### Generated original third-party CRC initialization and dispatch
+
+Added restricted no-argument uint32 predicate substitution for initialization,
+limited to declared0/1results, reviewed same-image identities and exact required
+call counts. A boundary cannot also be executable; runtime verifies a written stack
+return into an allowed caller body. Compared-call substitution is rejected.
+Initialization-only writable regions forbid later writes; optional full-region
+SHA256 checks validate original table/pointer values before comparison. Byte buffers
+can select fixed modulo8alignment, while exact byte read bounds remain enforced.
+
+Third-party CRC integration now reviews all five original functions and generates
+16sequences194steps using original initializer/dispatcher and selected T4/T8 body.
+Two readonly original pointer constants are explicitly bound; all2048table cells
+and three BSS slots are hashed. Both CPU predicates initialize the T8 slot; only the
+selected dispatch pointer differs. The original CPU body is identity evidence and
+is not executed. Manual194case harness and generated scalar-result comparisons are
+separate. Missing/wrong boundaries, wrong helper, skipped init, wrong call counts
+and wrong table hash are negative tasks. Generated files and producer/workspace records are snapshotted with complete bytes
+and SHA256 values in one acceptance-pinned evidence bundle. Runtime inputs remain
+individually pinned within the existing64file limit; loose evidence copies are not
+a live integrity claim. Bundle tampering invalidates saved acceptance.
+
+Development failures are preserved: first denied two undeclared readonly pointer
+reads; next had an assertion-message formatting error after a successful first
+comparison; next rejected an incorrect expected T8-slot value for predicate1. The
+source initializer writes that slot for both predicates; the expected hash was
+corrected from original instructions/traces rather than weakening runtime checks.
+
+
+The first complete generated16sequence194step comparison passed but acceptance
+packaging exceeded the64file bound when every loose evidence copy was pinned.
+Evidence is now retained as a pinned full-content snapshot bundle; the core limit
+and individual runtime input pins are unchanged. The failed run is retained.
+
+### Bounded observed output buffers
+
+Added output-bytes pointer bindings taking a caller capacity, derived capacities,
+and distinct single-call/sequence output policies. Return observations include
+returnValue and per-parameter output arrays. Every written byte is observed from
+original emulated memory; unwritten bytes are null, not inferred zero. Output reads
+require prior writes. Exact-range hooks enforce bounds, including mapped alignment
+slack. Buffers remain fresh/disjoint and expire after each invocation. Main returns
+remain EAX uint32; initial in/out contents and pointer aliasing remain unsupported.
+
+Real REA sequence fixture now includes session_transform with four reviewed ABI
+parameters, a bounded input/output prefix and persistent CRC state. Its portable
+output implementation lives in a separate module because sharing mutable state
+between independently extracted exports correctly triggers external-mutation
+closure rejection. Initial development failure was preserved; extraction checks
+were not weakened. Integration compares actual output arrays and counts, includes
+written0versus unwritten null, and rejects a correct-count/wrong-bytes candidate.
+Original-offline fresh MCP output invocation is checked alongside existing CRC
+sequence comparisons. Unit machine-code regressions also cover uninitialized
+output reads, underflow/overflow in page slack and unchanged task-pin enforcement.
+
+### Initialized inout caller buffers
+
+Added inout-bytes pointer bindings taking bounded caller byte arrays. Initial
+contents are readable; exact read/write ranges, fresh addresses and per-call unmap
+remain enforced. Observations use returnValue+outputs with complete final arrays,
+while the input cases preserve before-images. Untouched initialized bytes remain
+caller values, distinct from pure-output unwritten nulls. Internal initialized-byte
+tracking explicitly separates this from a claim that those bytes were written.
+
+Owned source fixture adds session_inplace, taking target,length,limit and retaining
+CRC state across calls. Actual independent REA captures five reviewed functions.
+A separate portable module preserves untouched suffixes and compares24sequences
+89steps. Zero prefix, empty input, explicit/written zeros,4096bytes and large limits
+are covered. Correct-count/zero-initialized mutant is rejected; fresh MCP inout
+works with original input offline. Owned machine-code tests also check mode
+separation, mixed readonly/inout/pure-output pointers and exact bounds in page slack.
+An initial test over-specified the readonly rejection message; Unicorn correctly
+reported protected-memory write instead of a hook error. The assertion accepts
+both denial paths; memory permissions were not loosened.

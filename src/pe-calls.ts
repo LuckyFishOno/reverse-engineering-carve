@@ -82,8 +82,19 @@ export async function readPeImportCalls(file:string,options:{signal?:AbortSignal
 // decompiler record), following at most one call into a jump thunk.
 export async function decodePeImportCall(file:string,instructionRva:number,options:{signal?:AbortSignal;metadata?:PeMetadata}={}){
  if(!Number.isSafeInteger(instructionRva)||instructionRva<0||instructionRva>0xffffffff)fail('instructionRva must be a 32-bit RVA.');
- const metadata=options.metadata??await readPeLoader(file,options);if(!supported.has(metadata.machine))fail(`machine ${metadata.machineName} is not supported; x86 and x86-64 only.`);
- const slots=slotMap(metadata),imageBase=BigInt(metadata.imageBase),handle=await open(file,'r');
+ const decode=await createPeImportCallDecoder(file,options);return decode(instructionRva);
+}
+
+// Reuse bounded import metadata across selected call sites; instruction bytes are read fresh.
+export async function createPeImportCallDecoder(file:string,options:{signal?:AbortSignal;metadata?:PeMetadata}={}){
+ const metadata=options.metadata??await readPeLoader(file,options),slots=slotMap(metadata);
+ return (rva:number)=>decodeImportAt(file,rva,metadata,slots,options.signal);
+}
+async function decodeImportAt(file:string,instructionRva:number,metadata:PeMetadata,slots:Map<number,PeSlot>,signal?:AbortSignal){
+ signal?.throwIfAborted();
+ if(!Number.isSafeInteger(instructionRva)||instructionRva<0||instructionRva>0xffffffff)fail('instructionRva must be a 32-bit RVA.');
+ if(!supported.has(metadata.machine))fail(`machine ${metadata.machineName} is not supported; x86 and x86-64 only.`);
+ const imageBase=BigInt(metadata.imageBase),handle=await open(file,'r');
  try{
   const size=(await handle.stat()).size;
   const bytesAt=async(rva:number,length:number)=>{

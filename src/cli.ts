@@ -188,8 +188,8 @@ cli.command('bridge-rea-native').argument('<workspace>').description('Bind a dir
   .action(async(workspace,options)=>output(await bridgeReaNative(workspace,{from:options.from,to:options.to,stub:options.stub,toWorkspace:options.toWorkspace})));
 cli.command('reconstruct').argument('<workspace>').description('Package an agent reimplementation with binary and decompilation provenance')
   .requiredOption('--contract <json>', 'Completed reconstruction contract').requiredOption('--implementation <file>', 'Reimplemented JavaScript source')
-  .requiredOption('--export <name>', 'Reimplemented export').requiredOption('--out <directory>', 'New independent package').option('--feature <json>', 'Optional behavior examples')
-  .action(async(workspace,options)=>output(await reconstruct(workspace,{contract:options.contract,implementation:options.implementation,export:options.export,out:options.out,feature:options.feature})));
+  .requiredOption('--export <name>', 'Reimplemented export').requiredOption('--out <directory>', 'New independent package').option('--feature <json>', 'Optional behavior examples').option('--verification-spec <json>', 'Optional reviewed bounded PE task specification').option('--verification-out <directory>', 'New generated verification task directory')
+  .action(async(workspace,options)=>{if(Boolean(options.verificationSpec)!==Boolean(options.verificationOut))throw new Error('Use verification-spec and verification-out together.');output(await reconstruct(workspace,{contract:options.contract,implementation:options.implementation,export:options.export,out:options.out,feature:options.feature,verificationTask:options.verificationSpec?{spec:options.verificationSpec,out:options.verificationOut}:undefined}));});
 cli.command('verify-reconstruction').argument('<workspace>').description('Compare a reconstruction against an explicitly scoped trusted reference command')
   .requiredOption('--package <directory>', 'Reconstruction package').requiredOption('--cases <json>', 'Named args/expected cases or carve/sequence-cases@1')
   .requiredOption('--reference <json>', 'Reference command/protocol and invocation scope (reference@1/@2/@3 or Android)').option('--execute', 'Execute trusted reference and candidate code')
@@ -245,10 +245,14 @@ cli.command('native').argument('<workspace>').description('Index native function
   .option('--heap-mib <MiB>', 'JVM maximum heap, default1024; checked against host memory').option('--threads <count>', 'Engine worker threads, default2; checked against host parallelism')
   .action(async(workspace,options)=>output(await nativeAnalysis(workspace,{resources:cliResources(options),file:options.file,ghidra:options.ghidra,javaHome:options.javaHome,function:options.function,linkage:options.linkage,strings:options.strings,window:options.window,bytes:options.bytes===undefined?undefined:Number(options.bytes),after:options.after,limit:Number(options.limit),timeoutMs:Number(options.timeout)})));
 cli.command('pe-ui').argument('<workspace>').description('Inspect PE UI resources and command-handler candidates without running the target or REA')
-  .requiredOption('--file <path>', 'Indexed relative PE path').option('--view <name>', 'summary, nodes, edges, boundary or issues', 'summary')
-  .option('--command <id>', 'Filter one numeric command; required for boundary').option('--query <text>', 'Literal case-insensitive node-label filter')
+  .requiredOption('--file <path>', 'Indexed relative PE path').option('--view <name>', 'summary, nodes, edges, boundary, issues, entries or dependencies', 'summary')
+  .option('--dependency-ids <ids...>', 'Explicit imported helper/DLL observations for dependencies view (maximum32)')
+  .option('--entry-mode <mode>', 'Dependencies roots: ui-command (default) or selected-functions (no command)')
+  .option('--dependency-depth <count>', 'Dependencies expansion depth0–8(default3)')
+  .option('--function-ids <ids...>', 'Explicit imported REA observation IDs for entries/dependencies views (maximum16)')
+  .option('--command <id>', 'Filter one numeric command; required for boundary/entries and default dependencies').option('--query <text>', 'Literal case-insensitive node-label filter')
   .option('--offset <count>', 'Result offset', '0').option('--limit <count>', 'Page size1–100', '20').option('--budget-bytes <bytes>', 'Compact UTF8 response budget1024–65536', '8192')
-  .action(async(workspace,options)=>compactOutput(await withCancellation(signal=>inspectPeUi(workspace,{...options,command:options.command===undefined?undefined:Number(options.command),offset:Number(options.offset),limit:Number(options.limit),budgetBytes:Number(options.budgetBytes),signal}))));
+  .action(async(workspace,options)=>compactOutput(await withCancellation(signal=>inspectPeUi(workspace,{...options,command:options.command===undefined?undefined:Number(options.command),dependencyDepth:options.dependencyDepth===undefined?undefined:Number(options.dependencyDepth),offset:Number(options.offset),limit:Number(options.limit),budgetBytes:Number(options.budgetBytes),signal}))));
 cli.command('loader').argument('<workspace>').description('Inspect Mach-O load commands and bounded static path candidates without Ghidra or target execution')
   .requiredOption('--file <path>', 'Indexed relative Mach-O path').option('--slice <index>', 'Explicit universal-binary slice index0–63')
   .option('--limit <count>', 'Dependency page size1–100', '20').option('--offset <count>', 'Dependency page offset', '0')

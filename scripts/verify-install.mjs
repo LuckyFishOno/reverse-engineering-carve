@@ -117,10 +117,18 @@ try {
   execFileSync(executable,['survey',uiInput,'--workspace',uiWork],{cwd:temp,stdio:'pipe'});
   const uiCli=JSON.parse(execFileSync(executable,['pe-ui',uiWork,'--file','ui.exe','--view','boundary','--command','1001','--limit','100','--budget-bytes','16384'],{cwd:temp,encoding:'utf8'}));
   if(!uiCli.items.some(n=>n.kind==='handler-candidate'))throw new Error('Installed PE UI CLI is missing handler candidates.');
+  const entriesCli=JSON.parse(execFileSync(executable,['pe-ui',uiWork,'--file','ui.exe','--view','entries','--command','1001'],{cwd:temp,encoding:'utf8'}));
+  if(entriesCli.items[0]?.status!=='candidate-only'||entriesCli.items[0]?.dispatchConfirmed!==false)throw new Error('Installed PE UI entries CLI promoted unbound candidates.');
+  const dependenciesCli=JSON.parse(execFileSync(executable,['pe-ui',uiWork,'--file','ui.exe','--view','dependencies','--command','1001'],{cwd:temp,encoding:'utf8'}));
+  if(dependenciesCli.visited!==0||dependenciesCli.items[0]?.status!=='candidate-only'||dependenciesCli.dependencyClosure!=='not-established')throw new Error('Installed dependencies CLI invented function evidence.');
   const uiClient=new Client({name:'carve-packed-pe-ui',version:'1'});try{
     await uiClient.connect(new StdioClientTransport({command:process.execPath,args:[path.join(packagedRoot,'dist/cli.js'),'serve','--root',temp],stderr:'pipe'}));
     const called=await uiClient.callTool({name:'carve_pe_ui',arguments:{workspace:'ui-work',file:'ui.exe'}}),report=JSON.parse(called.content[0].text);
     if(called.isError||report.observationId!==uiCli.observationId||report.counts.handlerRows!==2||report.executesTarget!==false)throw new Error('Installed PE UI MCP graph differs from CLI.');
+    const entriesReply=await uiClient.callTool({name:'carve_pe_ui',arguments:{workspace:'ui-work',file:'ui.exe',view:'entries',command:1001}}),entries=JSON.parse(entriesReply.content[0].text);
+    if(entriesReply.isError||entries.bindingId!==entriesCli.bindingId||entries.items[0]?.status!=='candidate-only')throw new Error('Installed PE UI entries MCP differs from CLI.');
+    const dependencyReply=await uiClient.callTool({name:'carve_pe_ui',arguments:{workspace:'ui-work',file:'ui.exe',view:'dependencies',command:1001}}),dependencies=JSON.parse(dependencyReply.content[0].text);
+    if(dependencyReply.isError||dependencies.dependencyId!==dependenciesCli.dependencyId||dependencies.visited!==0)throw new Error('Installed PE UI dependencies MCP differs from CLI.');
   }finally{await uiClient.close();}
   const nativeInput=path.join(temp,'loader-fixture'),nativeWorkspace=path.join(temp,'loader-work'),header=Buffer.alloc(32),command=Buffer.alloc(48);
   header.writeUInt32LE(0xfeedfacf,0);header.writeUInt32LE(0x100000c,4);header.writeUInt32LE(2,12);header.writeUInt32LE(1,16);header.writeUInt32LE(48,20);command.writeUInt32LE(12,0);command.writeUInt32LE(48,4);command.writeUInt32LE(24,8);command.write('@loader_path/sibling',24);
@@ -151,6 +159,7 @@ try {
     const inspected=await relocationClient.callTool({name:'carve_loader',arguments:{workspace:'work',file:'tool'}});if(inspected.isError||JSON.parse(inspected.content[0].text).status!=='loader-commands-inspected')throw new Error('Installed inspection after relocation failed.');
   }finally{await relocationClient.close();}
   if(!(await readFile(path.join(packagedRoot,'engines/ghidra/CarveExport.java'),'utf8')).includes('class CarveExport'))throw new Error('Packaged Ghidra script is missing.');
+  if(!(await readFile(path.join(packagedRoot,'engines/pe-abi-runner.py'),'utf8')).includes('single-function-readonly-inputs@1'))throw new Error('Packaged bounded PE runner is missing.');
   if(!(await readFile(path.join(packagedRoot,'docs/RECONSTRUCTION.md'),'utf8')).includes('carve/reference@1'))throw new Error('Packaged reconstruction documentation is missing.');
   const requests=path.join(temp,'requests.json');await writeFile(requests,JSON.stringify([{file:'helper.mjs'}]));
   execFileSync(executable,['queue','add',reversed.workspace,'--requests',requests],{cwd:temp,stdio:'pipe'});

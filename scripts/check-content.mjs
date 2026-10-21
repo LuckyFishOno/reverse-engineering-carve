@@ -2,11 +2,13 @@ import {readdir,readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const skipped=new Set(['.git','node_modules','dist','artifacts','functions']);
+const skipped=new Set(['.git','node_modules','dist','artifacts','functions','.build']);
+// Project-local records and agent routing are not distributed product content.
+const localOnly=new Set(['.agent-memory','research','AGENTS.md']);
 const removed=/(?:\bcsv\b|\bx[os]_[a-z]+|\bxshell\b|\bkoloda\b|\bxo(?:\b|[_-]|\d))/i;
 const problems=[];let checked=0;
 async function walk(dir){for(const e of await readdir(dir,{withFileTypes:true})){
- if(e.isSymbolicLink()||skipped.has(e.name))continue;
+ if(e.isSymbolicLink()||skipped.has(e.name)||dir===root&&localOnly.has(e.name))continue;
  const p=path.join(dir,e.name);
  if(e.isDirectory()){await walk(p);continue;}
  if(!/\.(?:md|json|ts|mjs|js|c|java|py|sh)$/.test(e.name))continue;

@@ -1,6 +1,6 @@
 {
   "name": "reverse-engineering-carve",
-  "version": "0.43.1",
+  "version": "0.44.0",
   "private": true,
   "description": "REA companion MCP for agents: evidence-linked feature choices, bounded extraction, behavior checks and reusable local functions.",
   "type": "module",
@@ -29,7 +29,12 @@
     "examples/work-plan.json",
     "examples/work-spec.json",
     "CONTRIBUTING.md",
-    "examples/behavior"
+    "examples/behavior",
+    "examples/pe-feature",
+    "examples/pe-version",
+    "examples/pe-crc",
+    "examples/pe-crc-dispatch",
+    "examples/pe-sequence"
   ],
   "scripts": {
     "build": "tsc",
@@ -69,7 +74,13 @@
     "verify:feature-scope": "npm run build && node scripts/verify-feature-scope.mjs",
     "verify:project-intent": "npm run build && node scripts/verify-project-intent.mjs",
     "verify:work-package": "npm run build && node scripts/verify-work-package.mjs",
-    "verify:work-ledger": "npm run build && node scripts/verify-work-ledger.mjs"
+    "verify:work-ledger": "npm run build && node scripts/verify-work-ledger.mjs",
+    "verify:pe-behavior": "npm run build && node scripts/verify-pe-behavior.mjs",
+    "verify:pe-state": "npm run build && node scripts/verify-pe-state.mjs",
+    "verify:pe-version": "npm run build && node scripts/verify-pe-version.mjs",
+    "verify:pe-crc": "npm run build && node scripts/verify-pe-crc.mjs",
+    "verify:pe-crc-dispatch": "npm run build && node scripts/verify-pe-crc-dispatch.mjs",
+    "verify:pe-sequence": "npm run build && node scripts/verify-pe-sequence.mjs"
   },
   "dependencies": {
     "@babel/parser": "8.0.7",

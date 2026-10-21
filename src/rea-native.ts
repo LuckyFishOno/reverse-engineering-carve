@@ -14,7 +14,7 @@ const text=z.string().min(1).max(8192),providerSchema=z.object({id:text,name:tex
 const profileSchema=z.object({provider:providerSchema,parameters:z.record(z.unknown()),digest:sha}).strict();
 const evidenceSchema=z.object({
  evidence_id:ev,subject:z.object({name:text,digest:z.object({sha256:sha}).strict(),local_path:z.string().max(32768),format:z.enum(['mach-o','elf','pe']),architecture:text}).strict(),
- provider:providerSchema,analysis_profile:profileSchema,predicate_type:z.literal('rea.analysis'),operation:z.enum(['procedure_pseudo_code','procedure_info','procedure_callees','procedure_references']),
+ provider:providerSchema,analysis_profile:profileSchema,predicate_type:z.literal('rea.analysis'),operation:z.enum(['procedure_pseudo_code','procedure_info','procedure_callees','procedure_references','read_function_instructions']),
  parameters:z.object({procedure:text,document:text.optional(),direction:z.enum(['incoming','outgoing']).optional()}).strict(),raw_result:z.unknown(),normalized_result:z.unknown(),
  confidence:z.literal('observed'),authority:z.literal('shipped-artifact'),environment:z.unknown(),limitations:z.array(z.string().max(8192)).max(1000),
  relationship_coverage:z.unknown(),locations:z.array(z.unknown()).max(10000),evidence_links:z.array(ev).max(10000)

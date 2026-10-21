@@ -5,6 +5,8 @@ import {z} from 'zod';
 import {indexedFile,openIndex,hashFile} from './survey.js';
 import {assertReaNativeObservation,isReaNativeObservation} from './rea-native.js';
 import {assertReaBridgeObservation,isReaBridgeObservation,type BridgePathAccess} from './rea-bridge.js';
+import {reconstructionDataBinding,bindReconstructionData} from './reconstruction-data.js';
+import {reconstructionInstructionReview,bindReconstructionInstructions} from './reconstruction-instructions.js';
 
 export const contractText=z.string().trim().min(1).max(8000);
 const id=z.string().regex(/^[a-f0-9]{64}$/),key=z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/);
@@ -13,7 +15,9 @@ const shared={goal:contractText,behavior:z.object({description:contractText,inpu
   dependencies:z.array(z.object({name:contractText,status:z.enum(['available','reimplemented','host-required','remote-required','unknown']),detail:contractText}).strict()).max(100),unknowns:z.array(contractText).max(100)};
 const endpoint=z.object({artifact:key,id}).strict();
 const artifactContract=z.object({key,workspace:z.string().min(1).max(4096).default('.'),file:evidenceFields.file,
- role:z.enum(['implementation','boundary-support']).optional(),evidenceIds:z.array(id).max(100),supportingEvidenceIds:evidenceFields.supportingEvidenceIds}).strict().superRefine((item,ctx)=>{
+ role:z.enum(['implementation','boundary-support']).optional(),evidenceIds:z.array(id).max(100),supportingEvidenceIds:evidenceFields.supportingEvidenceIds,dataBindings:z.array(reconstructionDataBinding).min(1).max(32).optional(),instructionReviews:z.array(reconstructionInstructionReview).min(1).max(16).optional()}).strict().superRefine((item,ctx)=>{
+ if(item.instructionReviews&&item.role==='boundary-support')ctx.addIssue({code:z.ZodIssueCode.custom,message:'Instruction reviews require implementation artifacts.'});
+ if(item.dataBindings&&item.role==='boundary-support')ctx.addIssue({code:z.ZodIssueCode.custom,message:'Data bindings require implementation artifacts.'});
  if(item.role==='boundary-support'){
   if(item.evidenceIds.length||!item.supportingEvidenceIds.length)ctx.addIssue({code:z.ZodIssueCode.custom,message:'Boundary-support artifacts require zero implementation evidenceIds and at least one supportingEvidenceId.'});
  }else if(!item.evidenceIds.length)ctx.addIssue({code:z.ZodIssueCode.custom,message:'Implementation artifacts require complete code evidenceIds.'});
@@ -34,6 +38,8 @@ export async function bindReconstruction(workspace:string,contract:Reconstructio
   if(keys.size!==selected.length||!keys.has(primary))throw new Error('Artifact keys must be unique and include the selected primary.');
   if(multi&&contract.artifacts.find(a=>a.key===primary)?.role==='boundary-support')throw new Error('The primary artifact requires complete implementation code, not boundary support.');
   if(selected.reduce((n,a)=>n+new Set([...a.evidenceIds,...a.supportingEvidenceIds]).size,0)>400)throw new Error('Use at most400 distinct artifact/evidence bindings per reconstruction.');
+  if(multi&&contract.artifacts.reduce((n,a)=>n+(a.instructionReviews?.length??0),0)>32)throw new Error('Use at most32 reconstruction instruction reviews.');
+  if(multi&&contract.artifacts.reduce((n,a)=>n+(a.dataBindings?.length??0),0)>64)throw new Error('Use at most64 reconstruction data bindings.');
   if(multi){
     const ids=new Map(selected.map(a=>[a.key,new Set([...a.evidenceIds,...a.supportingEvidenceIds])]));const reached=new Set([primary]);
     for(const link of contract.relationships){if(link.from.artifact===link.to.artifact||!ids.get(link.from.artifact)?.has(link.from.id)||!ids.get(link.to.artifact)?.has(link.to.id))throw new Error('Each cross-artifact relationship must reference declared evidence on two different artifacts.');}
@@ -53,7 +59,7 @@ export async function bindReconstruction(workspace:string,contract:Reconstructio
     const actual=await realpath(input);if(!declaredWorkspaces.has(actual))throw new Error('Every bridge endpoint workspace must be explicitly declared by a selected contract artifact.');
     return authorizeWorkspace?await authorizeWorkspace(actual):actual;
   };
-  const artifacts:{key:string;workspace:string;file:string;sha256:string;format:string;bytes:number;container:unknown;evidenceIds:string[];supportingEvidenceIds:string[];role?:string}[]=[];const evidence=[],targets=[],bridges:{key:string;workspace:string;id:string;witness:Awaited<ReturnType<typeof assertReaBridgeObservation>>}[]=[];const checked=new Map<string,string>(),paths=new Set<string>();
+  const artifacts:{key:string;workspace:string;file:string;sha256:string;format:string;bytes:number;container:unknown;evidenceIds:string[];supportingEvidenceIds:string[];role?:string;dataBindings?:Awaited<ReturnType<typeof bindReconstructionData>>;instructionReviews?:Awaited<ReturnType<typeof bindReconstructionInstructions>>}[]=[];const evidence=[],targets=[],bridges:{key:string;workspace:string;id:string;witness:Awaited<ReturnType<typeof assertReaBridgeObservation>>}[]=[];const checked=new Map<string,string>(),paths=new Set<string>();
   for(const item of selected){
     const current=workspaces.get(item.key)!;
     const preflight=openIndex(current,true);try{
@@ -77,6 +83,16 @@ export async function bindReconstruction(workspace:string,contract:Reconstructio
         evidence.push({...(multi?{artifact:item.key,workspace:current,file:item.file,sourceSha256:target.sha256}:{}),id:observationId,role:implementation?'implementation-code':'boundary-support',kind:row.kind,name:row.name,address:row.address,truncated:Boolean(detail.pseudocodeTruncated??detail.truncated),...(detail.provider===undefined?{}:{provider:detail.provider}),...(detail.boundaryWarnings?.length?{decompilationStatus:detail.decompilationStatus,boundaryWarnings:detail.boundaryWarnings}:{}),evidence:row.evidence,evidenceSha256:hash});
       }
     }finally{db.close();}
+    if('instructionReviews' in item&&item.instructionReviews){
+      const instructionReviews=await bindReconstructionInstructions(current,item.file,item.evidenceIds,item.instructionReviews,signal,authorizePath);
+      if((await hashFile(target.path,signal)).sha256!==target.sha256)throw new Error('Selected instruction source changed during reconstruction binding.');
+      artifacts[artifacts.length-1]!.instructionReviews=instructionReviews;
+    }
+    if('dataBindings' in item&&item.dataBindings){
+      const dataBindings=await bindReconstructionData(current,item.file,item.evidenceIds,item.dataBindings,signal,authorizePath);
+      if((await hashFile(target.path,signal)).sha256!==target.sha256)throw new Error('Selected data source changed during reconstruction binding.');
+      artifacts[artifacts.length-1]!.dataBindings=dataBindings;
+    }
   }
   const target=targets.find(t=>t.key===primary)!.target,original={file:selected.find(a=>a.key===primary)!.file,sha256:target.sha256,format:target.facts.format,bytes:target.bytes,container:target.container??null};
   const used=new Set<string>();

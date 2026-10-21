@@ -13,6 +13,7 @@ import { runReference } from './reference.js';
 import { androidReferenceSchema, prepareAndroidReference } from './android.js';
 import {saveVerificationReport} from './verification-receipt.js';
 import {archiveVerificationReport} from './verification-archive.js';
+import {preparePeVerification,loadPeVerification,peReferenceSchema} from './pe-verification-task.js';
 import type {BridgePathAccess} from './rea-bridge.js';
 
 import {reconstructionContract,bindReconstruction,assertReconstructionBinding,contractText as text,type WorkspaceAccess} from './reconstruction-contract.js';
@@ -30,15 +31,18 @@ export async function boundedJson(file:string){
   return{value:parsed,sha256:digest(value)};
 }
 
-export async function reconstruct(workspace:string,options:{contract:string;implementation:string;export:string;out:string;feature?:string;authorizeWorkspace?:WorkspaceAccess;authorizePath?:BridgePathAccess;signal?:AbortSignal}){
+export async function reconstruct(workspace:string,options:{contract:string;implementation:string;export:string;out:string;feature?:string;verificationTask?:{spec:string;out:string};authorizeWorkspace?:WorkspaceAccess;authorizePath?:BridgePathAccess;signal?:AbortSignal}){
   const root=await realpath(workspace);const parsed=await boundedJson(options.contract);const contract=reconstructionContract.parse(parsed.value);
   const bound=await bindReconstruction(root,contract,options.authorizeWorkspace,options.signal,options.authorizePath);const {target,evidence}=bound;
   const result=await extract(options.implementation,{selector:{kind:'export',name:options.export},out:options.out,feature:options.feature});
+  const unresolvedDataBindings=bound.artifacts.flatMap(a=>(a.dataBindings??[]).filter(d=>d.handling==='unresolved').map(d=>({artifact:a.key,...d})));
+  const unverifiedInstructionReviews=bound.artifacts.flatMap(a=>(a.instructionReviews??[]).map(r=>({artifact:a.key,observationId:r.observationId,verification:r.verification})));
+  const dataStatus={...(unresolvedDataBindings.length?{unresolvedDataBindings}:{}),...(unverifiedInstructionReviews.length?{unverifiedInstructionReviews}:{})};
   const incomplete=contract.dependencies.filter(d=>!['available','reimplemented'].includes(d.status));
   const analysisWarnings=bound.evidence.filter(e=>e.boundaryWarnings?.length).map(e=>({id:e.id,name:e.name,address:e.address,...(e.artifact?{artifact:e.artifact}:{}),boundaryWarnings:e.boundaryWarnings}));const analysisWarningCount=analysisWarnings.reduce((n,e)=>n+e.boundaryWarnings.length,0);
   const provenance={schema:contract.schema==='carve/reconstruction@2'?'carve/reconstruction-provenance@2':'carve/reconstruction-provenance@1',method:'agent-reimplementation',workspace:root,contract,contractSha256:parsed.sha256,
     original:bound.original,evidence,...(contract.schema==='carve/reconstruction@2'?{primary:contract.primary,artifacts:bound.artifacts,relationships:bound.relationships,unresolvedRelationships:bound.unresolvedRelationships}:{}),
-    ...(analysisWarningCount?{analysisWarnings,analysisWarningCount}:{}),status:incomplete.length||contract.unknowns.length||bound.unresolvedRelationships.length||analysisWarningCount?'packaged-with-unknowns':'packaged-unverified',
+    ...(analysisWarningCount?{analysisWarnings,analysisWarningCount}:{}),...dataStatus,status:unverifiedInstructionReviews.length||unresolvedDataBindings.length||incomplete.length||contract.unknowns.length||bound.unresolvedRelationships.length||analysisWarningCount?'packaged-with-unknowns':'packaged-unverified',
     unresolvedDependencies:incomplete,behavioralVerification:'not-run',limitation:'Reimplementation based on static evidence. Neither original source recovery nor general behavior equivalence has been established.'};
   try{
     assertReconstructionBinding(provenance,await bindReconstruction(root,contract,options.authorizeWorkspace,options.signal,options.authorizePath));
@@ -48,7 +52,8 @@ export async function reconstruct(workspace:string,options:{contract:string;impl
     const entry=manifest.output.files.find((f:any)=>f.file==='README.md');entry.sha256=digest(readme);entry.bytes=Buffer.byteLength(readme);
     await writeFile(path.join(result.out,'carve.manifest.json'),JSON.stringify(manifest,null,2)+'\n');
     await readPackage(result.out);
-    return{schema:'carve/reconstruction-package@1',out:result.out,status:provenance.status,original:provenance.original,...(contract.schema==='carve/reconstruction@2'?{artifacts:bound.artifacts,relationships:bound.relationships,unresolvedRelationships:bound.unresolvedRelationships}:{}),evidence,...(analysisWarningCount?{analysisWarnings,analysisWarningCount}:{}),unresolvedDependencies:incomplete,unknowns:contract.unknowns,verification:'not-run',nextAction:'Use verify-reconstruction with a trusted original invocation or explicitly scoped harness; then carve use for independent invocation.'};
+    const verificationTask=options.verificationTask?await preparePeVerification(root,{package:result.out,...options.verificationTask,authorizePath:options.authorizePath,authorizeWorkspace:options.authorizeWorkspace,signal:options.signal}):undefined;
+    return{schema:'carve/reconstruction-package@1',out:result.out,...(verificationTask?{verificationTask}:{}),status:provenance.status,...dataStatus,original:provenance.original,...(contract.schema==='carve/reconstruction@2'?{artifacts:bound.artifacts,relationships:bound.relationships,unresolvedRelationships:bound.unresolvedRelationships}:{}),evidence,...(analysisWarningCount?{analysisWarnings,analysisWarningCount}:{}),unresolvedDependencies:incomplete,unknowns:contract.unknowns,verification:'not-run',nextAction:'Use verify-reconstruction with a trusted original invocation or explicitly scoped harness; then carve use for independent invocation.'};
   }catch(error){await rm(result.out,{recursive:true,force:true});throw error;}
 }
 
@@ -63,7 +68,8 @@ export async function verifyReconstruction(workspace:string,options:{package:str
   const raw=await boundedJson(options.cases);
   const refRaw=await boundedJson(options.reference);
   const androidConfig=['carve/android-reference@1','carve/android-reference@2','carve/android-reference@3','carve/android-reference@4'].includes(refRaw.value.schema)?androidReferenceSchema.parse(refRaw.value):undefined;
-  const commandConfig=androidConfig?undefined:referenceSchema.parse(refRaw.value);
+  const peReference=refRaw.value.schema==='carve/pe-reference@1'?peReferenceSchema.parse(refRaw.value):undefined;
+  const commandConfig=androidConfig?undefined:peReference?await loadPeVerification(root,pkg.root,peReference,{authorizePath:options.authorizePath,authorizeWorkspace:options.authorizeWorkspace,signal:options.signal}):referenceSchema.parse(refRaw.value);
   const sequences=commandConfig?.schema==='carve/reference@3'||androidConfig?.schema==='carve/android-reference@4'?sequenceCasesSchema.parse(raw.value).cases:undefined;
   const cases=sequences?undefined:z.array(z.object({name:text,args:z.array(z.unknown()),expected:z.unknown().optional()}).strict()).min(1).max(200).parse(raw.value);
   const names=(sequences??cases!).map(c=>c.name);if(new Set(names).size!==names.length)throw new Error('Case names must be unique.');
@@ -73,7 +79,9 @@ export async function verifyReconstruction(workspace:string,options:{package:str
   }else if(cases!.some(c=>JSON.stringify(c.args).length>1048576))throw new Error('Case arguments exceed 1 MiB.');
   if(commandConfig){
     if(!path.isAbsolute(commandConfig.command[0]!))throw new Error('Reference executable must be an absolute path.');
-    commandConfig.command[0]=await realpath(commandConfig.command[0]!);
+    const executable=await realpath(commandConfig.command[0]!);
+    // Preserve the explicit virtual-environment invocation path for generated PE tasks.
+    if(!peReference)commandConfig.command[0]=executable;
     if(commandConfig.scope==='target-cli'&&commandConfig.command[0]!==bound.target.path)throw new Error('target-cli requires executing the selected indexed binary itself. Use external-harness and explain the boundary for other programs.');
   }
   const reference=androidConfig??commandConfig!;const files:{file:string;sha256:string}[]=[];

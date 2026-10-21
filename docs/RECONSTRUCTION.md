@@ -92,6 +92,8 @@ This bundles the agent's closed JS implementation and creates a standalone Node 
 
 For a capability spanning multiple binaries or analysis workspaces, use the backward-compatible [version2 multi-artifact contract](MULTI_ARTIFACT.md). It binds every selected source/evidence identity and records agent-declared relationships with explicit uncertainty.
 
+Version2 PE artifacts may also declare [reviewed data bindings](RECONSTRUCTION_DATA.md) to pin selected initial bytes and explicitly retain embedded-readonly, modeled-state or unresolved handling.
+
 ## Reference execution and comparisons
 
 Prepare `cases.json` with 1–200 uniquely named `{name,args,expected?}` objects. Optional expected values must match both sides. Without expected values, equality is a comparison observation, not proof that the user requested the selected feature.
@@ -189,3 +191,7 @@ For unpacked Android APK entrypoints use `manifest` / `carve_manifest`; see [com
 ## Ordered stateful verification
 
 `carve/reference@3` (host command) or `carve/android-reference@4` (selected ART VM), with `carve/sequence-cases@1`, compare ordered calls in one original process and one candidate module instance per sequence. See [the protocol, limits and reuse rules](STATEFUL.md). Reference@1/@2 and Android-reference@1/@2/@3 remain scalar/fresh-per-case. Results count sequences as passed/total and steps separately; mismatches are retained at their step index. A new request starts fresh; passing does not establish arbitrary state recovery or dependency closure.
+
+Version2 implementation artifacts may also declare [reviewed instruction/ABI bindings](RECONSTRUCTION_INSTRUCTIONS.md).
+These bind source bytes and committed instruction evidence while preserving inferred
+signatures, separately declared ABI differences and explicit unverified status.

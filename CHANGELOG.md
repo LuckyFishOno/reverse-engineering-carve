@@ -1,5 +1,61 @@
 # Changes
 
+## 0.44.0 — PE evidence and bounded original-behavior comparisons
+
+- Generate bounded PE verification tasks from reviewed register ABIs, scalar/buffer bindings and explicit initialization through existing reconstruction CLI/MCP. Rebind task/package/source/runner before execution and preserve Python virtual-environment invocation paths. Support reviewed helpers, declared section state, readonly/output/inout buffers and explicit initialization predicate boundaries; no OS loader or universal ABI inference is added. See docs/PE_VERIFICATION_TASKS.md.
+
+- Add optional version2 instructionReviews: exact imported function/signature, committed REA instruction evidence, original executable-byte witnesses and separately declared Windows x64 ABI. Revalidate at packaging/comparison, retain bounded previews and force explicit unverified status. Bind real CRC and initializer/dispatcher instruction reviews without promoting static or runtime semantics. See docs/RECONSTRUCTION_INSTRUCTIONS.md.
+
+- Verify original CRC table initialization and actual indirect T4/T8 dispatch under two declared CPU predicate outcomes,194cases and eight buffer alignments. Preserve runtime BSS as unresolved static evidence and compare all2048initialized table cells. Correct the earlier CRC oracle result file; executable vector assertions were already valid. See docs/PE_CRC_DISPATCH.md.
+
+- Add real internal third-party PE CRC reconstruction with explicit caller tables, original instruction/branch/read traces,200comparisons, fixed-table mutant rejection and original-free reuse. Preserve the observed Ghidra void-return/computation-elision error; no table initialization or archive behavior is inferred. See docs/PE_CRC.md.
+
+- Add explicit same-file selected-function dependency roots for non-UI PE features through CLI/MCP; keep default UI command semantics and immutable report identity.
+- Add an optional real third-party Windows DLL version-feature reconstruction: six independently captured REA exports, original machine-code comparison through an explicit JNI string stub, incorrect-candidate/stale-input rejection and original-free library reuse. Preserve unresolved indirect calls and exclude Windows/JVM/archive behavior. See docs/PE_VERSION.md.
+- Extend resource API argument leads to bounded x86 stack pushes/pops, immediate/register constants and conservative stack loads; reject unsupported writes/control flow and retain module uncertainty. Add a separate real compiled/REA x86 static probe without executing a Windows API.
+- Add bounded x64 entry-to-call constant argument leads for declared LoadString/LoadMenu/LoadAccelerators/FindResource imports. Preserve unsupported control flow, unresolved calls, module/language uncertainty and caller-image candidate scope; include an unexecuted real REA/compiled API probe in the optional PE state integration.
+- Link source-bound data targets to parsed PE menu/dialog/string/accelerator payloads with exact paths, offsets, complete payload hashes and explicit ambiguity. Add optional reconstruction resource pins and extend the owned original/state example with actual string-table reads and original-free content reuse. No numeric-ID/API/language-fallback resolution is inferred.
+- Add optional version2 artifact dataBindings: exact imported reference coordinates and reviewed initial-byte pins, explicit readonly/state/unresolved treatment, source/snapshot revalidation and unknown-preserving package provenance. Extend the real state example with three pinned data selections.
+- Add source-bound PE data-reference rows with source/target sections, typed access, bounded initial byte hashes, conservative string/scalar interpretations and mutable/unknown states. Data extents, runtime values and semantic closure remain unverified.
+- Add an optional real REA/stateful PE integration:40sequences/926steps, readonly settings and mutable counter instruction accesses, reset-per-step mutant/settings-tamper rejection, and original-free module/library reuse. No Windows/UI execution is claimed.
+- Add an optional owned PE behavior integration using actual independent REA records and160original machine-code/candidate comparisons under a declared Unicorn ABI/IAT harness, with mutant/stale-input rejection and library-only reuse. Reports explicitly exclude Windows/UI execution.
+- Add per-row investigation next steps and report-wide action counts for missing code, unresolved imports/calls, evidence selection, reference coverage and depth boundaries. Guidance never executes tools or establishes closure.
+- Add a dependencies view for profile-pinned recorded internal calls, original IAT instruction witnesses and explicitly selected DLL export candidates. Preserve missing code, ambiguous images, unresolved calls, depth/row limits and unverified runtime loading.
+- Add PE UI entries view for explicit imported REA function observations, with exact preferred-image entry matching, competing profiles and missing-evidence states.
+- Revalidate owned source-bound snapshots and normalized rows, retain immutable binding reports, and expose the same bounded view through CLI/MCP.
+- Keep UI dispatch, class ownership, notification selection, semantics and dependency closure explicitly unverified. The static PE UI inspection views do not execute REA or the target.
+- Exclude relocated private root agent records/research from product content checks and Git while continuing to check nested product documentation.
+
+- Generated PE tasks now optionally compare bounded scalar state sequences: ordered
+  same-function initializer calls, declared non-executable section memory, exact
+  read/write bounds and fresh image state per sequence. Original owned machine-code
+  regression covers order, persistent state, isolated sequences and failing mutants.
+- Generated stateful PE tasks can select separate reviewed initializer functions,
+  including void results and independent scalar register mappings, plus explicit
+  helper bodies. Exact full-body witnesses and the existing data-memory bounds
+  apply to every selected function; entry/ABI changes invalidate prepared tasks.
+- Generated PE sequences support fresh invocation-local readonly byte/table buffers
+  and derived lengths; expired caller pointers cannot alias later input mappings.
+  Added a real independent REA/Ghidra integration for an owned CRC session with
+  separate table initialization, helper calls and persistent state, available via
+  `verify:pe-sequence` and the release gate's `--pe-sequence` option.
+- Generated PE tasks support reviewed initialization-only constant predicate
+  boundaries with exact call counts, initialization-only writable memory, full
+  initialized-region hashes and fixed byte-buffer alignment. Third-party7Zip CRC
+  validation adds generated original initialization/dispatch comparisons alongside
+  the independent manual harness; original CPU detection remains explicitly unrun.
+- Generated PE tasks support bounded invocation-local output buffers. Comparisons
+  include both EAX return values and exact observed output bytes; unwritten bytes
+  remain explicit nulls. Read-before-write, underflow and overflow fail even within
+  mapped page slack. Real independent REA integration covers a stateful output
+  transform and rejects a candidate returning correct counts with wrong bytes.
+- Generated PE tasks support initialized inout byte buffers and derived lengths.
+  Comparisons retain caller before-images and observe complete final bytes,
+  preserving untouched contents. Readonly, pure-output and inout permissions stay
+  independent, including mixed-buffer calls. Real REA integration adds bounded
+  in-place transformation and rejects a candidate that clears initial contents.
+
+
 ## 0.43.1 — carve command and concise setup
 
 - Use carve for the CLI, MCP configuration and bundled skill. Keep reverse-engineering-carve as the project/package name; RECarve is a prose abbreviation only. Existing carve_* tools and carve/* formats remain unchanged.

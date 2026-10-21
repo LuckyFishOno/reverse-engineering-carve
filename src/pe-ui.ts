@@ -5,6 +5,9 @@ import {readPeLoader,publishEvidence,recordObservation,type PeMetadata} from './
 import {indexedFile,hashFile,openIndex} from './survey.js';
 import {digest} from './artifact.js';
 import {budgetItems,responseBudget} from './context-budget.js';
+import {bindPeUiEntries} from './pe-ui-entries.js';
+import {inspectPeUiDependencies} from './pe-ui-dependencies.js';
+import type {PeUiAccess} from './pe-ui-functions.js';
 
 // Microsoft PE resources and standard/extended MENU/DIALOG templates. Message-map scans are
 // deliberately candidates: an AFX-like row does not prove table ownership or a function boundary.
@@ -148,14 +151,21 @@ export async function readPeUi(file:string,options:{signal?:AbortSignal}={}){
  }finally{await h.close();}
 }
 
-export type PeUiOptions={file:string;view?:'summary'|'nodes'|'edges'|'boundary'|'issues';command?:number;query?:string;offset?:number;limit?:number;budgetBytes?:number;signal?:AbortSignal};
+export type PeUiOptions={file:string;view?:'summary'|'nodes'|'edges'|'boundary'|'issues'|'entries'|'dependencies';functionIds?:string[];dependencyIds?:string[];dependencyDepth?:number;entryMode?:'ui-command'|'selected-functions';authorizePath?:PeUiAccess;command?:number;query?:string;offset?:number;limit?:number;budgetBytes?:number;signal?:AbortSignal};
 export async function inspectPeUi(workspace:string,options:PeUiOptions){
  const view=options.view??'summary',offset=options.offset??0,limit=options.limit??20,budget=responseBudget(options.budgetBytes);
- if(!['summary','nodes','edges','boundary','issues'].includes(view)||!Number.isSafeInteger(offset)||offset<0||!Number.isInteger(limit)||limit<1||limit>100)throw new Error('Use PE UI summary/nodes/edges/boundary/issues, offset>=0 and limit1–100.');
+ if(!['summary','nodes','edges','boundary','issues','entries','dependencies'].includes(view)||!Number.isSafeInteger(offset)||offset<0||!Number.isInteger(limit)||limit<1||limit>100)throw new Error('Use PE UI summary/nodes/edges/boundary/issues/entries/dependencies, offset>=0 and limit1–100.');
  if(options.command!==undefined&&(!Number.isInteger(options.command)||options.command<1||options.command>=65535)||options.query!==undefined&&(options.query.length>1000||!options.query.trim()))throw new Error('Use command1–65534 and a nonempty query up to1000 characters.');
- if(view==='boundary'&&options.command===undefined)throw new Error('Boundary view requires one command ID.');
+ const selectedFunctions=options.entryMode==='selected-functions';
+ if(options.entryMode!==undefined&&(!['ui-command','selected-functions'].includes(options.entryMode)||view!=='dependencies'))throw new Error('Entry mode is only supported in dependencies view.');
+ if(selectedFunctions&&(options.command!==undefined||!options.functionIds?.length))throw new Error('Selected-functions mode requires function IDs and no command ID.');
+ if((view==='boundary'||view==='entries'||view==='dependencies'&&!selectedFunctions)&&options.command===undefined)throw new Error('Boundary view requires one command ID.');
  if(view==='issues'&&(options.command!==undefined||options.query!==undefined))throw new Error('Issues view does not accept command/query filters.');
  if(view==='summary'&&(options.command!==undefined||options.query!==undefined||offset))throw new Error('Summary does not accept command/query/offset filters.');
+ if(options.functionIds!==undefined&&(!['entries','dependencies'].includes(view)||!Array.isArray(options.functionIds)||options.functionIds.length>16||new Set(options.functionIds).size!==options.functionIds.length||options.functionIds.some(id=>typeof id!=='string'||!/^[a-f0-9]{64}$/.test(id))))throw new Error('Use up to16unique function observation IDs with entries/dependencies views only.');
+ if((view==='entries'||view==='dependencies')&&options.query!==undefined)throw new Error('Selected entries/dependencies view does not accept query filters.');
+ if(options.dependencyIds!==undefined&&(view!=='dependencies'||!Array.isArray(options.dependencyIds)||options.dependencyIds.length>32||new Set(options.dependencyIds).size!==options.dependencyIds.length||options.dependencyIds.some(id=>typeof id!=='string'||!/^[a-f0-9]{64}$/.test(id))))throw new Error('Use up to32unique dependency observation IDs in dependencies view only.');
+ if(options.dependencyDepth!==undefined&&(view!=='dependencies'||!Number.isInteger(options.dependencyDepth)||options.dependencyDepth<0||options.dependencyDepth>8))throw new Error('Use dependency depth0–8in dependencies view only.');
  const root=await realpath(workspace),target=await indexedFile(root,options.file,options.signal),graph=await readPeUi(target.path,options);
  if((await hashFile(target.path,options.signal)).sha256!==target.sha256)throw new Error('Selected input changed while reading PE UI evidence.');
  const provider={name:'carve-pe-ui',version:'1',parserSha256:digest(await readFile(fileURLToPath(import.meta.url)))};
@@ -163,6 +173,32 @@ export async function inspectPeUi(workspace:string,options:PeUiOptions){
  const id=digest(JSON.stringify({file:options.file,sourceSha256:target.sha256,detail})),evidence=path.join(root,'ui-evidence',id+'.json');
  const text=JSON.stringify({schema:'carve/pe-ui-evidence@1',file:options.file,sourceSha256:target.sha256,...detail},null,2)+'\n';await publishEvidence(evidence,text);
  const db=openIndex(root);try{recordObservation(db,{id,file:options.file,sha256:target.sha256,detail,searchText:graph.nodes.filter(n=>['menu-item','dialog-control','string','import-module'].includes(n.kind)).map(n=>n.label).join('\n'),evidence,evidenceSha256:digest(text)});}finally{db.close();}
+ if(view==='dependencies'){
+  const result=await inspectPeUiDependencies(root,target,options.file,graph,options.command!,options.functionIds??[],options.dependencyIds??[],options.dependencyDepth??3,options.signal,options.authorizePath,options.entryMode);
+  if((await hashFile(target.path,options.signal)).sha256!==target.sha256)throw new Error('Selected UI source changed while inspecting dependencies.');
+  if(offset>result.rows.length)throw new Error('PE UI dependency offset exceeds selected results.');
+  const report={schema:'carve/pe-ui-dependencies@1',file:options.file,sourceSha256:target.sha256,uiObservationId:id,uiEvidenceSha256:digest(text),command:options.command,...(selectedFunctions?{entryMode:'selected-functions'}:{}),...result};
+  const reportText=JSON.stringify(report,null,2)+'\n',dependencyId=digest(reportText),dependencyEvidence=path.join(root,'ui-evidence',dependencyId+'.json');await publishEvidence(dependencyEvidence,reportText);
+  const page=result.rows.slice(offset,offset+limit).map(row=>{
+   const previewFields:string[]=[];
+   const preview=(value:unknown,key:string):unknown=>{
+    if(typeof value==='string'&&[...value].length>512){previewFields.push(key);return [...value].slice(0,512).join('');}
+    if(Array.isArray(value)){if(value.length>8)previewFields.push(key);return value.slice(0,8).map((v,i)=>preview(v,key+'['+i+']'));}
+    if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,preview(v,key?key+'.'+k:k)]));return value;
+   };
+   return{value:{...preview(row,'') as Record<string,unknown>,previewFields,fullValuesInEvidence:true}};
+  });
+  return budgetItems({schema:'carve/pe-ui@1',view,workspace:root,file:options.file,sourceSha256:target.sha256,sourceFreshlyHashed:true,observationId:id,dependencyId,dependencyEvidence,command:options.command,...(selectedFunctions?{entryMode:'selected-functions'}:{}),total:result.rows.length,offset,visited:result.visited,counts:result.counts,depth:result.depth,rowLimitReached:result.rowLimitReached,dependencyClosure:'not-established',executesTarget:false,startsRea:false,scope:result.scope,limitations:result.limitations},page,budget);
+ }
+ if(view==='entries'){
+  const bound=await bindPeUiEntries(root,target,options.file,graph,options.command!,options.functionIds??[],options.signal);
+  if((await hashFile(target.path,options.signal)).sha256!==target.sha256)throw new Error('Selected input changed while binding PE UI entries.');
+  if(offset>bound.entries.length)throw new Error('PE UI offset exceeds selected results.');
+  const binding={schema:'carve/pe-ui-entries@1',file:options.file,sourceSha256:target.sha256,uiObservationId:id,uiEvidenceSha256:digest(text),command:options.command,...bound};
+  const bindingText=JSON.stringify(binding,null,2)+'\n',bindingId=digest(bindingText),bindingEvidence=path.join(root,'ui-evidence',bindingId+'.json');
+  await publishEvidence(bindingEvidence,bindingText);
+  return budgetItems({schema:'carve/pe-ui@1',workspace:root,file:options.file,sourceSha256:target.sha256,sourceFreshlyHashed:true,view,command:options.command,observationId:id,evidence,evidenceSha256:digest(text),bindingId,bindingEvidence,total:bound.entries.length,offset,executesTarget:false,startsRea:false,scope:bound.scope,limitations:bound.limitations},bound.entries.slice(offset,offset+limit).map(value=>{const dispatch=value.dispatch as unknown[];return{value:{...value,dispatch:dispatch.slice(0,8),dispatchTotal:dispatch.length,dispatchTruncated:dispatch.length>8,fullValuesInEvidence:true}};}),budget);
+ }
  let selected=graph.nodes;
  if(options.command!==undefined){
   const wanted=new Set(['command:'+options.command]);
